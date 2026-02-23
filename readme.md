@@ -1,4 +1,4 @@
-# VitePress Blog
+# Sa1L`s Blog
 
 A minimal, elegant personal blog built with VitePress 2.0, migrated from Hugo.
 
