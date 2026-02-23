@@ -1,0 +1,63 @@
+# VitePress 特性和配置
+
+## 配置文件结构
+
+VitePress 配置位于 [.vitepress/config.ts](mdc:.vitepress/config.ts)，包含以下主要配置：
+
+### 主题配置
+- 导航栏配置 (`nav`)
+- 侧边栏配置 (`sidebar`)
+- 搜索配置 (`search`)
+- 社交链接 (`socialLinks`)
+
+### Markdown 配置
+- 数学公式支持 (`math: true`)
+- 行号显示 (`lineNumbers: true`)
+- 图片懒加载 (`image.lazyLoading: true`)
+- 脚注支持 (`markdown-it-footnote`)
+
+### 主题定制
+- 代码高亮主题：亮色 `github-light-high-contrast`，暗色 `one-dark-pro`
+- 彩色括号支持 (`transformerColorizedBrackets`)
+- UnoCSS 集成
+
+## 特殊功能
+
+### 搜索功能
+- 使用本地搜索 (`provider: 'local'`)
+- 支持详细视图 (`detailedView: true`)
+- 自定义渲染逻辑处理 frontmatter
+
+### 自定义组件
+- 可以在 Markdown 中使用 Vue 组件
+- 组件放在 `.vitepress/theme/components/` 目录
+
+### 样式定制
+- 使用 UnoCSS 进行样式管理
+- 配置文件：[uno.config.ts](mdc:uno.config.ts)
+- 支持响应式设计
+
+## 开发命令
+
+- `pnpm dev` - 开发服务器 (端口 5173)
+- `pnpm build` - 构建生产版本
+- `pnpm preview` - 预览构建结果
+- `pnpm lint` - 代码检查
+- `pnpm lint:fix` - 自动修复代码格式
+
+## 最佳实践
+
+### 性能优化
+- 启用图片懒加载
+- 使用 clean URLs
+- 启用缓存机制
+
+### SEO 优化
+- 配置 sitemap (`hostname: 'https://sa1l.world'`)
+- 设置合适的 meta 信息
+- 使用语义化的 HTML 结构
+
+### 内容管理
+- 使用 `lastUpdated` 显示更新时间
+- 配置 `srcExclude` 排除不需要的文件
+- 使用 `outline` 控制目录显示深度

@@ -1,0 +1,52 @@
+{
+  "name": "sa1l-papers",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "author": "sa1l",
+  "license": "ISC",
+  "keywords": [
+    "vitepress",
+    "vue"
+  ],
+  "scripts": {
+    "new": "node scripts/newPost.cjs",
+    "pub": "node scripts/publishPost.cjs",
+    "dev": "vitepress dev --port 5173",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.19",
+    "lucide-vue-next": "^0.575.0",
+    "pinia": "^3.0.4",
+    "typescript": "^5.9.3",
+    "vitepress": "^2.0.0-alpha.16",
+    "vue": "^3.5.28"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.4.3",
+    "@shikijs/colorized-brackets": "^3.22.0",
+    "@tailwindcss/vite": "^4.2.0",
+    "@types/node": "^25.3.0",
+    "await-to-js": "^3.0.0",
+    "eslint": "^10.0.1",
+    "eslint-plugin-format": "^1.4.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-mathjax3": "^4.3.2",
+    "tailwindcss": "^4.2.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@algolia/client-search",
+        "search-insights"
+      ]
+    }
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@latest"
+  }
+}

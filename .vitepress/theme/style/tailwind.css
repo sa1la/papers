@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom theme variables */
+}
+
+/* Container queries support */
+@utility container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Paper container utility with responsive padding */
+@utility paper-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@utility paper-container-sm {
+  @media (min-width: 640px) {
+    padding-left: 7rem;
+    padding-right: 7rem;
+  }
+}
+
+@utility paper-container-md {
+  @media (min-width: 768px) {
+    padding-left: 10rem;
+    padding-right: 10rem;
+  }
+}
+
+@utility paper-container-lg {
+  @media (min-width: 1024px) {
+    padding-left: 14rem;
+    padding-right: 14rem;
+  }
+}
+
+@utility paper-container-xl {
+  @media (min-width: 1280px) {
+    padding-left: 18rem;
+    padding-right: 18rem;
+  }
+}
+
+@utility paper-container-2xl {
+  @media (min-width: 1536px) {
+    padding-left: 24rem;
+    padding-right: 24rem;
+  }
+}
+
+/* Theme badge utility */
+@utility theme-badge {
+  background-color: #e5e7eb;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-right: 0.25rem;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  border-radius: 0.25rem;
+}
+
+@utility theme-badge-dark {
+  @media (prefers-color-scheme: dark) {
+    background-color: #374151;
+    color: #e5e7eb;
+  }
+}
+
+/* Truncate utility */
+@utility truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Background clip text */
+@utility bg-clip-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+/* Justify self center */
+@utility justify-self-center {
+  justify-self: center;
+}

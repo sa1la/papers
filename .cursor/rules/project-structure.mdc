@@ -1,0 +1,75 @@
+---
+alwaysApply: true
+---
+# 项目结构指南
+
+这是一个基于 VitePress 的技术文档站点，用于记录和分享技术笔记。
+
+## 核心文件结构
+
+- 主入口点是 [index.md](mdc:index.md)
+- VitePress 配置文件是 [.vitepress/config.ts](mdc:.vitepress/config.ts)
+- 项目配置在 [package.json](mdc:package.json)
+- 样式配置在 [uno.config.ts](mdc:uno.config.ts)
+
+## 内容组织
+
+所有技术文章都在 `posts/` 目录下，按照以下分类组织：
+
+- `algorithm/` - 算法相关文章
+- `coding-exp/` - 编程经验和技巧
+- `competitive-coding/` - 竞赛编程
+- `front-end/` - 前端开发
+- `golang/` - Go 语言相关
+- `math/` - 数学相关
+- `reading/` - 阅读笔记
+- `thoughts/` - 思考和感悟
+
+## 创建新文章
+
+使用 `pnpm new <category>/<filename>` 脚本创建新文章，脚本位于 [scripts/newPost.cjs](mdc:scripts/newPost.cjs)。
+
+## 技术栈
+
+- **框架**: VitePress 2.0
+- **语言**: TypeScript + Vue 3
+- **样式**: UnoCSS
+- **状态管理**: Pinia
+- **构建工具**: Vite/Rolldown
+- **代码检查**: ESLint + @antfu/eslint-config
+# 项目结构指南
+
+这是一个基于 VitePress 的技术文档站点，用于记录和分享技术笔记。
+
+## 核心文件结构
+
+- 主入口点是 [index.md](mdc:index.md)
+- VitePress 配置文件是 [.vitepress/config.ts](mdc:.vitepress/config.ts)
+- 项目配置在 [package.json](mdc:package.json)
+- 样式配置在 [uno.config.ts](mdc:uno.config.ts)
+
+## 内容组织
+
+所有技术文章都在 `posts/` 目录下，按照以下分类组织：
+
+- `algorithm/` - 算法相关文章
+- `coding-exp/` - 编程经验和技巧
+- `competitive-coding/` - 竞赛编程
+- `front-end/` - 前端开发
+- `golang/` - Go 语言相关
+- `math/` - 数学相关
+- `reading/` - 阅读笔记
+- `thoughts/` - 思考和感悟
+
+## 创建新文章
+
+使用 `pnpm new <category>/<filename>` 脚本创建新文章，脚本位于 [scripts/newPost.cjs](mdc:scripts/newPost.cjs)。
+
+## 技术栈
+
+- **框架**: VitePress 2.0
+- **语言**: TypeScript + Vue 3
+- **样式**: UnoCSS
+- **状态管理**: Pinia
+- **构建工具**: Vite/Rolldown
+- **代码检查**: ESLint + @antfu/eslint-config

@@ -1,0 +1,25 @@
+
+# lib
+node_modules
+
+# dev/build cache
+.vitepress/cache
+.vitepress/dist
+
+# worktrees
+.worktrees
+
+
+
+# 
+*lock.* 
+
+.DS_STORE
+
+.obsidian
+
+*.conf
+
+# Drafts are local only - never commit to git
+posts/drafts/**/*.md
+!posts/drafts/.gitkeep
