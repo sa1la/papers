@@ -1,6 +1,6 @@
 ---
-title: "My Favorites"
-layout: 'doc'
+title: "favorites"
+layout: 'page'
 ---
 
-我收藏的页面放这里
+<Favorites />

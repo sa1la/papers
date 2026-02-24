@@ -29,6 +29,7 @@ export default defineConfig({
       { text: 'home', link: '/' },
       { text: 'categories', link: '/category' },
       { text: 'tags', link: '/tags' },
+      { text: 'favorites', link: '/favorites' },
     ],
     logo: '/avatar.jpg',
     outline: { label: 'Navigate' },

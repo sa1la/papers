@@ -76,6 +76,10 @@ onMounted(() => {
           <span class="stat-label">tags</span>
         </a>
         <span class="stat-separator">·</span>
+        <a href="/favorites" class="stat-link">
+          <span class="stat-label">favorites</span>
+        </a>
+        <span class="stat-separator">·</span>
         <a href="https://github.com/sa1la" target="_blank" class="stat-link stat-link--external" rel="noopener noreferrer">
           <span class="stat-label">github</span>
           <svg class="external-icon" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2">

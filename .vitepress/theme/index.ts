@@ -8,6 +8,7 @@ import DefaultTheme from 'vitepress/theme'
 import { defineComponent, h } from 'vue'
 
 import Category from './components/Category.vue'
+import Favorites from './components/Favorites.vue'
 import Tags from './components/Tags.vue'
 import ThemeLayout from './components/ThemeLayout.vue'
 import Title from './components/Title.vue'
@@ -23,6 +24,7 @@ export default {
     app.use(pinia)
     app.component('Title', Title)
     app.component('Category', Category)
+    app.component('Favorites', Favorites)
     app.component('Tags', Tags)
     // ...
   },
