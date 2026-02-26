@@ -1,0 +1,40 @@
+{
+  "skill_name": "plain-english-checker",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "legal-document-passive-voice",
+      "prompt": "Check this legal disclaimer for plain English issues: 'NO PERSON HAS BEEN AUTHORIZED TO GIVE ANY INFORMATION OR MAKE ANY REPRESENTATION OTHER THAN THOSE CONTAINED OR INCORPORATED BY REFERENCE IN THIS JOINT PROXY STATEMENT/PROSPECTUS, AND, IF GIVEN OR MADE, SUCH INFORMATION OR REPRESENTATION MUST NOT BE RELIED UPON AS HAVING BEEN AUTHORIZED.'",
+      "expected_output": "The skill should identify passive voice issues, excessive capitalization, and legalese, and provide a plain English rewrite using active voice and personal pronouns.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "financial-prospectus-long-sentences",
+      "prompt": "Review this mutual fund description for plain English compliance: 'The foregoing Fee Table is intended to assist investors in understanding the costs and expenses that a shareholder in the Fund will bear directly or indirectly.'",
+      "expected_output": "The skill should identify the passive voice with agent deleted, weak verb ('is intended'), and suggest a rewrite using active voice and direct language.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "abstract-concepts-rewrite",
+      "prompt": "Check if this investment description uses concrete language: 'Sandyhill Basic Value Fund, Inc. (the Fund) seeks capital appreciation and, secondarily, income by investing in securities, primarily equities, that management of the Fund believes are undervalued and therefore represent basic investment value.'",
+      "expected_output": "The skill should identify abstract terms and defined terms that hinder readability, and suggest a rewrite using concrete language and personal pronouns.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "superfluous-words-elimination",
+      "prompt": "Review this sentence for wordiness: 'The following summary is intended only to highlight certain information contained elsewhere in this Prospectus.'",
+      "expected_output": "The skill should identify superfluous words ('is intended only to', 'certain') and suggest a more concise version.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "eval_name": "negative-to-positive-rewrite",
+      "prompt": "Check this sentence for negative construction: 'Persons other than the primary beneficiary may not receive these dividends.'",
+      "expected_output": "The skill should identify the negative construction and suggest a positive rewrite: 'Only the primary beneficiary may receive these dividends.'",
+      "files": []
+    }
+  ]
+}
