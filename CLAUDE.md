@@ -223,3 +223,17 @@ A natural language interface for managing blog posts. Instead of memorizing pnpm
 | "帮我挑虫" / "校对文章"   | Proofreads for typos and issues               |
 
 The skill understands project-specific context (categories, frontmatter format, draft workflow) and handles the underlying `pnpm new` / `pnpm pub` commands automatically.
+
+### Plain English Checker Skill
+
+Located at `.claude/skills/plain-english-checker/`.
+
+Use for reviewing documents for clarity, readability, and plain English compliance:
+
+| Natural Language | Action |
+|------------------|--------|
+| "Check this for plain English" | Reviews document against SEC guidelines |
+| "Make this clearer" | Suggests readability improvements |
+| "Review for jargon" | Identifies complex language and legalese |
+
+Follows 11 SEC Plain English principles including active voice, short sentences, and omitting superfluous words. Uses a three-pass review process with structured checklists.
