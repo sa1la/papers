@@ -1,0 +1,225 @@
+# .cursorrules.md
+
+This file provides guidance to cursor when working with code in this repository.
+
+## Project Overview
+
+This is a personal technical blog built with VitePress 2.0 (alpha), migrated from Hugo. It uses a custom Vue 3 theme with Pinia state management and TailwindCSS for styling.
+
+### Design Philosophy
+
+The blog follows a **minimalist and elegant aesthetic** with a **black and white color scheme** as the primary palette. Keep the UI clean, uncluttered, and sophisticated—avoid bright colors, heavy shadows, or excessive decorative elements.
+
+### Design System: "Programmer Minimalism"
+
+A calm, notebook-like atmosphere that prioritizes content over chrome.
+
+**Typography**
+
+- **Light weight headings**: Use `font-weight: 300` for titles and atmospheric elements; avoid `700` bold which creates a "command" feeling
+- **Monospace for atmosphere**: `var(--vp-font-family-mono)` for section titles and decorative elements; creates a technical journal aesthetic
+- **Lowercase transformation**: `text-transform: lowercase` for functional labels (e.g., "categories" not "Category")—reads like natural language, not UI controls
+- **Letter spacing**: Use `letter-spacing: 0.05em` with monospace for breathing room
+
+**Color Hierarchy (subtle to strong)**
+
+- `--vp-c-text-3`: Atmospheric elements (decorative lines, icons, secondary indicators)
+- `--vp-c-text-2`: Body text, interactive elements at rest
+- `--vp-c-text-1`: Hover states, active selections, emphasis
+
+**Decorative Elements**
+
+- **Hairline borders**: `1px` lines at `0.4-0.5` opacity—suggested presence, not solid boundaries
+- **Symmetrical lines**: Frame indicators with lines on both sides (e.g., `— icon name —`) like book section dividers
+- **Gradual dividers**: Linear gradients fading to transparent at edges
+
+**Icons (Lucide)**
+
+- `stroke-width: 1.5` for delicacy
+- Small scale: `0.875-1.25rem`
+- Color: match `text-3`, blend into atmosphere
+
+**Spacing & Breathing Room**
+
+- Generous vertical padding (`2rem+` for section titles)
+- Use transparency transitions instead of solid lines between sections
+- Content density: airy, scannable lists with clear hover feedback
+
+**Micro-interactions**
+
+- Underlines that expand on hover (width transitions)
+- Subtle opacity shifts (0.5 → 0.8) rather than color changes
+- Spotlight effect: dim siblings when hovering list items
+
+## Common Commands
+
+```bash
+# Development server (runs on port 5173)
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Lint code
+pnpm lint
+
+# Auto-fix lint issues
+pnpm lint:fix
+
+# Create a new post
+pnpm new <category>/<filename>
+# Example: pnpm new algorithm/kmp-algorithm
+
+# Create a new draft
+pnpm new draft/<category>/<filename>
+# Example: pnpm new draft/tech/my-draft-post
+
+# Publish a draft
+pnpm pub <draft-path>
+# Example: pnpm pub posts/drafts/tech/my-draft-post.md
+
+# Publish with a specific date (scheduled publishing)
+pnpm pub <draft-path> --date 2024-12-25
+# Example: pnpm pub posts/drafts/tech/my-draft-post.md --date 2024-12-25
+```
+
+## Architecture
+
+### Content Structure
+
+Posts are organized in `posts/` by category:
+
+- `algorithm/` - Data structures and algorithms
+- `coding-exp/` - Programming tips and best practices
+- `competitive-coding/` - Competition problem solutions
+- `front-end/` - Frontend development
+- `golang/` - Go language
+- `math/` - Mathematics
+- `reading/` - Reading notes
+- `thoughts/` - Personal reflections
+
+### Category System
+
+Categories are predefined in `config/categories.ts`:
+
+- **tech** - 技术：编程、工具与工程实践
+- **life** - 生活：日常记录与思考
+- **reading** - 阅读：读书笔记与读后感
+- **algorithm** - 算法：数据结构与算法
+- **competitive-coding** - 竞赛：算法竞赛题解
+- **math** - 数学：数学探索与笔记
+- **thoughts** - 随想：个人思考与随笔
+- **coding-exp** - 经验：编程技巧与经验
+
+Each post must use one of these categories in frontmatter:
+
+```yaml
+---
+category: tech # Must be a predefined category
+series: vitepress-blog # Optional: groups posts into series
+---
+```
+
+### Draft Workflow
+
+**Creating drafts:**
+
+- Drafts are created in `posts/drafts/<category>/`
+- Drafts are visible during development (`pnpm dev`)
+- Drafts are excluded from production builds
+
+**Publishing:**
+
+- Use `pnpm pub <path>` to move draft to production
+- Optionally set a future date with `--date`
+- Posts with future dates are visible in dev but excluded from production until the date passes
+
+### Custom Theme System (`.vitepress/theme/`)
+
+The theme extends VitePress DefaultTheme with custom components:
+
+- **ThemeLayout.vue** - Root layout wrapper, wraps all pages
+- **Home.vue** - Custom homepage layout
+- **Category.vue** - Category listing page (`/category`)
+- **Tags.vue** - Tag cloud page (`/tags`)
+- **Title.vue** - Post title component with metadata
+- **PostHeader.vue** / **PostFooter.vue** - Post page header/footer
+- **About.vue** - About page component
+
+**State Management**: Pinia store in `store.ts` tracks selected category/tag for filtering.
+
+**Content Loading**: `posts.data.ts` uses VitePress's `createContentLoader` to aggregate all posts from `posts/**/*.md` at build time. It transforms frontmatter into a structured Post interface with formatted dates.
+
+### Post Frontmatter Format
+
+```yaml
+---
+date: YYYY-MM-DD HH:mm:ss Z
+title: Article Title
+category: Category Name
+tags: [tag1, tag2]
+outline: deep # Shows nested headers in sidebar
+draft: true # Optional: excludes from listing
+---
+
+Write excerpt here (shown in listing)
+
+---
+
+Main content starts here...
+```
+
+### Markdown Features Enabled
+
+- Math equations via `markdown-it-mathjax3` (`$inline$` and `$$block$$`)
+- Footnotes via `markdown-it-footnote`
+- Code block line numbers
+- Colored brackets via `@shikijs/colorized-brackets`
+- Image lazy loading
+- Shiki themes: `github-light-high-contrast` (light) / `one-dark-pro` (dark)
+
+### Styling
+
+- TailwindCSS v4 with Vite plugin (configured in `vite.config` within `config.ts`)
+- Custom styles in `.vitepress/theme/style/`:
+  - `tailwind.css` - Tailwind directives
+  - `index.css` - Custom theme overrides
+- **Design**: Black and white minimalist aesthetic—avoid bright colors, keep the UI clean and elegant
+
+### ESLint Configuration
+
+Uses `@antfu/eslint-config` with:
+
+- TypeScript, Vue, and Markdown support
+- Formatters for markdown and HTML
+- `no-console` as warning (not error)
+- Tabs allowed for indentation
+
+## Key Implementation Details
+
+1. **Content Exclusion**: `readme.md` is excluded from the site via `srcExclude` in config
+2. **Search**: Local search with custom render function that prepends title to content
+3. **Date Handling**: Dates are parsed and formatted with `dayjs` in `posts.data.ts`
+4. **Draft Posts**: Drafts are stored in `posts/drafts/` and excluded from production builds. Use `pnpm pub` to publish drafts to production.
+5. **Clean URLs**: Enabled (`cleanUrls: true`), URLs don't have `.html` extension
+6. **Sitemap**: Generated at build time with hostname `https://sa1l.world`
+
+## Claude Code Skills
+
+This project includes a local skill for blog post management located at `.claude/skills/blog-manager/`.
+
+### Blog Manager Skill
+
+A natural language interface for managing blog posts. Instead of memorizing pnpm commands, you can simply say:
+
+| Natural Language          | Action                                        |
+| ------------------------- | --------------------------------------------- |
+| "新建一篇关于 xxx 的文章" | Creates new article (asks draft vs published) |
+| "发布我的 xxx 草稿"       | Publishes a draft to production               |
+| "下线那篇 xxx 文章"       | Moves article back to drafts                  |
+| "帮我挑虫" / "校对文章"   | Proofreads for typos and issues               |
+
+The skill understands project-specific context (categories, frontmatter format, draft workflow) and handles the underlying `pnpm new` / `pnpm pub` commands automatically.
