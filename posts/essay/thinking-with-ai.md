@@ -2,7 +2,7 @@
 date: 2026-03-01 23:41:24 +08:00
 title: 习惯和大模型对话后的思考
 category: essay
-tags: [AI, 对话, 思考]
+tags: [essay, AI, conversation, thinking]
 outline: deep
 ---
 
