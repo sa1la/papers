@@ -44,14 +44,14 @@ Complete reference for "A Plain English Handbook: How to Create Clear SEC Disclo
 
 **Common replacements:**
 
-| Superfluous | Simpler |
-|-------------|---------|
-| in order to | to |
-| in the event that | if |
-| subsequent to | after |
-| prior to | before |
-| despite the fact that | although |
-| because of the fact that | because |
+| Superfluous              | Simpler  |
+| ------------------------ | -------- |
+| in order to              | to       |
+| in the event that        | if       |
+| subsequent to            | after    |
+| prior to                 | before   |
+| despite the fact that    | although |
+| because of the fact that | because  |
 
 ### 6. Write in the Positive
 

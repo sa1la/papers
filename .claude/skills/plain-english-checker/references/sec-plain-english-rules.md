@@ -67,6 +67,7 @@ In designing these sections or other sections of the prospectus:
 ### What Plain English Means
 
 Plain English means creating a document that is:
+
 - Visually inviting
 - Logically organized
 - Understandable on the first reading
@@ -74,23 +75,24 @@ Plain English means creating a document that is:
 ### How to Create a Plain English Document
 
 You create a plain English document by:
+
 - Knowing your readers
 - Presenting information your readers need in an order they'll understand
 
 ### Key Techniques
 
-| Technique | Application |
-|-----------|-------------|
-| Short sentences | Whenever possible |
-| Bullet lists | Whenever possible |
-| Descriptive headers/subheaders | Throughout document |
-| Defined terms | Avoid reliance on glossaries; make meanings clear from context |
-| Legal/technical terms | Avoid; use everyday words |
-| Legalistic presentations | Avoid overly complex structures |
-| Boilerplate | Avoid vague, imprecise language |
-| Repetition | Avoid repeating information without adding value |
+| Technique                      | Application                                                    |
+| ------------------------------ | -------------------------------------------------------------- |
+| Short sentences                | Whenever possible                                              |
+| Bullet lists                   | Whenever possible                                              |
+| Descriptive headers/subheaders | Throughout document                                            |
+| Defined terms                  | Avoid reliance on glossaries; make meanings clear from context |
+| Legal/technical terms          | Avoid; use everyday words                                      |
+| Legalistic presentations       | Avoid overly complex structures                                |
+| Boilerplate                    | Avoid vague, imprecise language                                |
+| Repetition                     | Avoid repeating information without adding value               |
 
 ---
 
-*Source: U.S. Securities and Exchange Commission, "A Plain English Handbook" (1998)*
-*Rule citations from 17 CFR § 230.421*
+_Source: U.S. Securities and Exchange Commission, "A Plain English Handbook" (1998)_
+_Rule citations from 17 CFR § 230.421_

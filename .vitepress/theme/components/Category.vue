@@ -103,7 +103,9 @@ function getCategoryDisplayName(key: string): string {
         <component :is="getIconComponent(getCategoryConfig(blogStore.selectedCat)?.icon || 'layout')" class="badge-icon" />
         <span>{{ getCategoryDisplayName(blogStore.selectedCat) }}</span>
       </div>
-      <p class="selected-description">{{ getCategoryConfig(blogStore.selectedCat)?.description }}</p>
+      <p class="selected-description">
+        {{ getCategoryConfig(blogStore.selectedCat)?.description }}
+      </p>
     </div>
 
     <!-- Posts List - Same style as Home.vue -->

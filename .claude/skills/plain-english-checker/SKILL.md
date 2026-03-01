@@ -23,19 +23,19 @@ This skill analyzes documents against established plain English guidelines to cr
 
 ## Quick Reference: The 11 Principles
 
-| # | Principle | Quick Check |
-|---|-----------|-------------|
-| 1 | Active voice | Look for "is/are/was/were" + past verb + "by" |
-| 2 | Short sentences | Average 15-20 words; rarely over 30 |
-| 3 | Personal pronouns | Use "we/us/our" and "you/your" |
-| 4 | Concrete terms | Replace abstractions with specific examples |
-| 5 | Omit superfluous words | "in order to" → "to", "prior to" → "before" |
-| 6 | Write positively | "not able" → "unable", "not many" → "few" |
-| 7 | Replace jargon | "terminate" → "end", "utilize" → "use" |
-| 8 | Natural word order | Keep subject-verb-object together |
-| 9 | If-then conditionals | One if → one then; tabulate multiples |
-| 10 | Parallel structure | Lists use same grammatical form |
-| 11 | Avoid "respectively" | State relationships explicitly |
+| #   | Principle              | Quick Check                                   |
+| --- | ---------------------- | --------------------------------------------- |
+| 1   | Active voice           | Look for "is/are/was/were" + past verb + "by" |
+| 2   | Short sentences        | Average 15-20 words; rarely over 30           |
+| 3   | Personal pronouns      | Use "we/us/our" and "you/your"                |
+| 4   | Concrete terms         | Replace abstractions with specific examples   |
+| 5   | Omit superfluous words | "in order to" → "to", "prior to" → "before"   |
+| 6   | Write positively       | "not able" → "unable", "not many" → "few"     |
+| 7   | Replace jargon         | "terminate" → "end", "utilize" → "use"        |
+| 8   | Natural word order     | Keep subject-verb-object together             |
+| 9   | If-then conditionals   | One if → one then; tabulate multiples         |
+| 10  | Parallel structure     | Lists use same grammatical form               |
+| 11  | Avoid "respectively"   | State relationships explicitly                |
 
 ## Review Process
 
@@ -111,23 +111,23 @@ Brief overview of the document's readability and main issues identified.
 
 These thoughts indicate you're about to skip plain English principles:
 
-| Red Flag | Reality |
-|----------|---------|
+| Red Flag                                                | Reality                                                         |
+| ------------------------------------------------------- | --------------------------------------------------------------- |
 | "This is a formal document, it needs to sound official" | Formal ≠ unclear. Plain English works for legal/financial docs. |
-| "The audience is sophisticated, they understand jargon" | Experts prefer clarity too. Jargon excludes and confuses. |
-| "Changing this might alter the legal meaning" | Check with legal, but most legal language can be clearer. |
-| "This is just a style preference" | Plain English is backed by readability research, not opinion. |
-| "It's too time-consuming to rewrite everything" | Focus on high-impact changes first (headings, key sentences). |
+| "The audience is sophisticated, they understand jargon" | Experts prefer clarity too. Jargon excludes and confuses.       |
+| "Changing this might alter the legal meaning"           | Check with legal, but most legal language can be clearer.       |
+| "This is just a style preference"                       | Plain English is backed by readability research, not opinion.   |
+| "It's too time-consuming to rewrite everything"         | Focus on high-impact changes first (headings, key sentences).   |
 
 ## Common Rationalizations (And Why They're Wrong)
 
-| Excuse | Reality |
-|--------|---------|
-| "The original author is an expert" | Expertise in content ≠ expertise in clear communication. |
-| "Industry standards require this language" | Industry standards evolve. Plain English IS becoming standard. |
-| "Short sentences sound choppy" | Short sentences can flow well. Choppiness is a transition issue. |
-| "Passive voice sounds more objective" | Passive voice often hides who did what—reducing accountability. |
-| "We've always written it this way" | "Always done this way" is not a defense of clarity. |
+| Excuse                                     | Reality                                                          |
+| ------------------------------------------ | ---------------------------------------------------------------- |
+| "The original author is an expert"         | Expertise in content ≠ expertise in clear communication.         |
+| "Industry standards require this language" | Industry standards evolve. Plain English IS becoming standard.   |
+| "Short sentences sound choppy"             | Short sentences can flow well. Choppiness is a transition issue. |
+| "Passive voice sounds more objective"      | Passive voice often hides who did what—reducing accountability.  |
+| "We've always written it this way"         | "Always done this way" is not a defense of clarity.              |
 
 ## Important Notes
 
