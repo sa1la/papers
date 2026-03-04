@@ -1,6 +1,6 @@
 # Sample Plain English Review
 
-This example demonstrates the output format when using the plain-english-checker skill.
+This example demonstrates the output format when using the plain-language-checker skill.
 
 ---
 
