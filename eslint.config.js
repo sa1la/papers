@@ -16,4 +16,10 @@ export default antfu(
       'no-console': 'warn',
     },
   },
+  {
+    files: ['playground/**/*'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 )

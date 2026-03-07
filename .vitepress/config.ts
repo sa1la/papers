@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import mdFootnote from 'markdown-it-footnote'
 import { defineConfig } from 'vitepress'
 import { getExcludedFiles } from './config/buildFilter'
+import { playgroundPlugin } from './plugins/playgroundPlugin'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -13,6 +14,7 @@ export default defineConfig({
   vite: {
     plugins: [
       tailwindcss(),
+      playgroundPlugin(),
     ],
   },
   head: [['link', { rel: 'icon', href: `/favicon.jpg` }]],
