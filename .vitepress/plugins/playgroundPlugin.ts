@@ -1,5 +1,6 @@
 import type { Buffer } from 'node:buffer'
 import type { BundledLanguage, BundledTheme } from 'shiki'
+import type { LogEntry } from '../types/playground.js'
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -148,9 +149,24 @@ async function processGoDemo(
   }
 }
 
+// Regex to remove playground:hide markers - exported for reuse
+const HIDE_BLOCK_REGEX = /\/\/ --- playground:hide:start ---[\s\S]*?\/\/ --- playground:hide:end ---\n?/g
+
 function cleanJsSourceForDisplay(src: string): string {
   // Remove content between playground:hide markers
-  return src.replace(/\/\/ --- playground:hide:start ---[\s\S]*?\/\/ --- playground:hide:end ---\n?/g, '')
+  return src.replace(HIDE_BLOCK_REGEX, '')
+}
+
+// Helper to parse logs from execution output
+function parseLogsFromOutput(output: string): LogEntry[] | null {
+  const lines = output.trim().split('\n')
+  const lastLine = lines.at(-1)
+  try {
+    return JSON.parse(lastLine!) as LogEntry[]
+  }
+  catch {
+    return null
+  }
 }
 
 async function processJsDemo(
@@ -162,8 +178,77 @@ async function processJsDemo(
   const displaySrc = cleanJsSourceForDisplay(rawSrc)
   const highlightedHtml = await highlightCode(displaySrc, 'javascript', highlighter)
 
+  // Execute JS code in Node.js and capture output (like Go demo)
+  let logs: LogEntry[] = []
+  let error: string | null = null
+
+  // Create a wrapper script file to execute the code safely
+  // Use .cjs extension because the project uses ES modules ("type": "module" in package.json)
+  const wrapperPath = path.join(demoDir, '.playground-runner.cjs')
+
+  // Build wrapper script - pass code via env to avoid reading file twice
+  const cleanedCode = rawSrc.replace(HIDE_BLOCK_REGEX, '')
+  const wrapperScript = `const originalConsole = console;
+const logs = [];
+const serializeArg = (a) => typeof a === 'object' ? JSON.stringify(a) : String(a);
+const mockConsole = {
+  log: (...args) => logs.push({ type: 'log', args: args.map(serializeArg) }),
+  warn: (...args) => logs.push({ type: 'warn', args: args.map(serializeArg) }),
+  error: (...args) => logs.push({ type: 'error', args: args.map(serializeArg) }),
+};
+const bench = (label, fn, n = 10) => {
+  const times = [];
+  for (let i = 0; i < n; i++) {
+    const start = performance.now();
+    fn();
+    times.push(performance.now() - start);
+  }
+  const avg = times.reduce((a, b) => a + b, 0) / times.length;
+  const min = Math.min(...times);
+  const max = Math.max(...times);
+  logs.push({ type: 'bench', label, ms: avg, min, max, n });
+};
+const fn = new Function('console', 'bench', process.env.PG_CODE);
+fn(mockConsole, bench);
+originalConsole.log(JSON.stringify(logs));
+`
+
+  try {
+    fs.writeFileSync(wrapperPath, wrapperScript)
+    const result = execSync('node .playground-runner.cjs', {
+      cwd: demoDir,
+      timeout: 30000,
+      encoding: 'utf-8',
+      env: { ...process.env, PG_CODE: cleanedCode },
+    })
+    // Parse the last line which should be the JSON output
+    const parsed = parseLogsFromOutput(result)
+    logs = parsed ?? [{ type: 'log', args: [result] }]
+  }
+  catch (e: unknown) {
+    const err = e as { stdout?: string, stderr?: string, message?: string }
+    error = err.stderr || err.message || 'Execution failed'
+    if (err.stdout) {
+      const parsed = parseLogsFromOutput(err.stdout)
+      if (parsed)
+        logs = parsed
+    }
+  }
+  finally {
+    // Clean up wrapper script
+    try {
+      fs.unlinkSync(wrapperPath)
+    }
+    catch {
+      // Ignore cleanup errors
+    }
+  }
+
   const output = {
     files: [{ name: 'main.js', highlightedHtml, source: displaySrc }],
+    logs,
+    error,
+    executedAt: new Date().toISOString(),
   }
 
   const outputPath = path.join(demoDir, 'output.json')

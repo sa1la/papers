@@ -1,27 +1,11 @@
 <script setup lang="ts">
+import type { FileEntry, GoOutput, JsOutput } from '../../types/playground.js'
 import { useRoute } from 'vitepress'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { getErrorMessage } from '../utils/error'
 
-interface FileEntry {
-  name: string
-  highlightedHtml: string
-  source?: string
-}
-
-interface JsOutput {
-  files: FileEntry[]
-}
-
-interface GoOutput {
-  stdout: string
-  stderr: string
-  exitCode: number
-  executedAt: string
-  files: FileEntry[]
-}
-
-type LogEntry
+// Component-specific log entry that accepts unknown args from JSON parsing
+type ComponentLogEntry
   = | { type: 'log' | 'warn' | 'error', args: unknown[] }
     | { type: 'bench', label: string, ms: number, min: number, max: number, n: number }
 
@@ -56,59 +40,10 @@ const goExecutedAt = ref('')
 // load error (output.json fetch failed)
 const loadError = ref('')
 
-// js
-const jsLogs = ref<LogEntry[]>([])
-const jsRunning = ref(false)
+// js output (pre-executed at build time, like Go)
+const jsLogs = ref<ComponentLogEntry[]>([])
 const jsError = ref('')
-const jsHasRun = ref(false)
-
-async function runJs() {
-  jsRunning.value = true
-  jsHasRun.value = true
-  jsError.value = ''
-  jsLogs.value = []
-
-  try {
-    const res = await fetch(`${basePath.value}/main.js`)
-    const source = await res.text()
-
-    // Clean source for browser execution: remove playground:hide blocks
-    const cleanedSource = source.replace(/\/\/ --- playground:hide:start ---[\s\S]*?\/\/ --- playground:hide:end ---\n?/g, '')
-
-    const logs: LogEntry[] = []
-    const sandbox = {
-      console: {
-        log: (...args: unknown[]) => logs.push({ type: 'log', args }),
-        warn: (...args: unknown[]) => logs.push({ type: 'warn', args }),
-        error: (...args: unknown[]) => logs.push({ type: 'error', args }),
-      },
-      performance,
-      bench: (label: string, fn: () => void, runs = 10) => {
-        const times: number[] = []
-        for (let i = 0; i < runs; i++) {
-          const t = performance.now()
-          fn()
-          times.push(performance.now() - t)
-        }
-        const avg = times.reduce((a, b) => a + b, 0) / runs
-        const min = Math.min(...times)
-        const max = Math.max(...times)
-        logs.push({ type: 'bench', label, ms: avg, min, max, n: runs })
-      },
-    }
-
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(...Object.keys(sandbox), cleanedSource)
-    fn(...Object.values(sandbox))
-    jsLogs.value = logs
-  }
-  catch (e) {
-    jsError.value = getErrorMessage(e)
-  }
-  finally {
-    jsRunning.value = false
-  }
-}
+const jsExecutedAt = ref('')
 
 function formatArg(v: unknown): string {
   if (typeof v === 'object' && v !== null) {
@@ -126,6 +61,12 @@ function formatArg(v: unknown): string {
 const copiedIndex = ref<number | null>(null)
 const copyErrorIndex = ref<number | null>(null)
 let copyTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+// ── cleanup on unmount ────────────────────────────────────────────────────
+onUnmounted(() => {
+  // Clear copy timeout (safe to call with null/undefined)
+  clearTimeout(copyTimeoutId!)
+})
 
 async function copyCode(index: number) {
   const file = files.value[index]
@@ -159,13 +100,6 @@ async function copyCode(index: number) {
   }
 }
 
-// Cleanup timeout on unmount to avoid memory leaks
-onUnmounted(() => {
-  if (copyTimeoutId) {
-    clearTimeout(copyTimeoutId)
-  }
-})
-
 onMounted(async () => {
   try {
     const res = await fetch(`${basePath.value}/output.json`)
@@ -187,7 +121,9 @@ onMounted(async () => {
     else if (props.type === 'js') {
       const data: JsOutput = await res.json()
       files.value = data.files
-      // do not auto-run; let the reader trigger execution manually
+      jsLogs.value = data.logs ?? []
+      jsError.value = data.error ?? ''
+      jsExecutedAt.value = data.executedAt ?? ''
     }
   }
   catch (e) {
@@ -232,23 +168,21 @@ onMounted(async () => {
       />
 
       <!-- source code panels -->
-      <template v-if="activeTab > 0 && files[activeTab - 1]">
-        <div class="pg-code-wrapper">
-          <div
-            class="pg-code-block"
-            v-html="files[activeTab - 1].highlightedHtml"
-          />
-          <button
-            class="pg-copy-btn"
-            :class="{
-              'pg-copy-btn--copied': copiedIndex === activeTab - 1,
-              'pg-copy-btn--error': copyErrorIndex === activeTab - 1,
-            }"
-            :title="copiedIndex === activeTab - 1 ? 'copied!' : copyErrorIndex === activeTab - 1 ? 'copy failed' : 'copy code'"
-            @click="copyCode(activeTab - 1)"
-          />
-        </div>
-      </template>
+      <div v-if="activeTab > 0 && files[activeTab - 1]" class="pg-code-wrapper">
+        <div
+          class="pg-code-block"
+          v-html="files[activeTab - 1].highlightedHtml"
+        />
+        <button
+          class="pg-copy-btn"
+          :class="{
+            'pg-copy-btn--copied': copiedIndex === activeTab - 1,
+            'pg-copy-btn--error': copyErrorIndex === activeTab - 1,
+          }"
+          :title="copiedIndex === activeTab - 1 ? 'copied!' : copyErrorIndex === activeTab - 1 ? 'copy failed' : 'copy code'"
+          @click="copyCode(activeTab - 1)"
+        />
+      </div>
       <div v-else-if="activeTab > 0" class="pg-loading">
         loading…
       </div>
@@ -299,13 +233,13 @@ onMounted(async () => {
         loading…
       </div>
 
-      <!-- ── JS output ──────────────────────────────────────────────────────── -->
+      <!-- ── JS output (pre-executed at build time) ─────────────────────────── -->
       <template v-if="type === 'js'">
         <div class="pg-output-bar">
           <span class="pg-output-label">output</span>
-          <button class="pg-run-btn" :disabled="jsRunning" @click="runJs">
-            {{ jsRunning ? 'running…' : jsHasRun ? 'run again' : 'run' }}
-          </button>
+          <span v-if="jsExecutedAt" class="pg-exec-meta">
+            {{ new Date(jsExecutedAt).toLocaleDateString('zh-CN') }}
+          </span>
         </div>
         <div class="pg-output">
           <div v-if="jsError" class="pg-log pg-log--error">
@@ -320,10 +254,7 @@ onMounted(async () => {
               {{ entry.args.map(formatArg).join(' ') }}
             </div>
           </template>
-          <div v-if="!jsHasRun && !jsRunning" class="pg-empty">
-            — click run to execute —
-          </div>
-          <div v-else-if="jsLogs.length === 0 && !jsError && !jsRunning" class="pg-empty">
+          <div v-if="jsLogs.length === 0 && !jsError" class="pg-empty">
             — no output —
           </div>
         </div>
@@ -535,29 +466,6 @@ onMounted(async () => {
   color: var(--vp-code-lang-color);
   font-size: 0.75rem;
   letter-spacing: 0.05em;
-}
-
-.pg-run-btn {
-  margin-left: auto;
-  padding: 0.15rem 0.6rem;
-  font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
-  color: var(--vp-c-text-2);
-  background: transparent;
-  border: 1px solid var(--vp-code-block-divider-color);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
-}
-
-.pg-run-btn:hover:not(:disabled) {
-  color: var(--vp-c-text-1);
-  border-color: var(--vp-c-text-3);
-}
-
-.pg-run-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
 }
 
 .pg-exec-meta {
