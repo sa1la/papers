@@ -1,6 +1,6 @@
 import type { Buffer } from 'node:buffer'
 import type { BundledLanguage, BundledTheme } from 'shiki'
-import type { LogEntry } from '../types/playground.js'
+import type { LogEntry } from '../types/codeDemo.js'
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -9,8 +9,8 @@ import { transformerColorizedBrackets } from '@shikijs/colorized-brackets'
 import { createHighlighter } from 'shiki'
 import { getErrorMessage, readFileSafe, writeFileSafe } from './utils/fs.js'
 
-const PLAYGROUND_SRC = path.resolve(process.cwd(), 'playground')
-const PLAYGROUND_PUBLIC = path.resolve(process.cwd(), 'public/playground')
+const DEMO_SRC = path.resolve(process.cwd(), 'demos')
+const DEMO_PUBLIC = path.resolve(process.cwd(), 'public/demos')
 
 const LIGHT_THEME: BundledTheme = 'github-light-high-contrast'
 const DARK_THEME: BundledTheme = 'one-dark-pro'
@@ -149,8 +149,8 @@ async function processGoDemo(
   }
 }
 
-// Regex to remove playground:hide markers - exported for reuse
-const HIDE_BLOCK_REGEX = /\/\/ --- playground:hide:start ---[\s\S]*?\/\/ --- playground:hide:end ---\n?/g
+// Regex to remove demo:hide markers - exported for reuse
+const HIDE_BLOCK_REGEX = /\/\/ --- demo:hide:start ---[\s\S]*?\/\/ --- demo:hide:end ---\n?/g
 
 function cleanJsSourceForDisplay(src: string): string {
   // Remove content between playground:hide markers
@@ -184,7 +184,7 @@ async function processJsDemo(
 
   // Create a wrapper script file to execute the code safely
   // Use .cjs extension because the project uses ES modules ("type": "module" in package.json)
-  const wrapperPath = path.join(demoDir, '.playground-runner.cjs')
+  const wrapperPath = path.join(demoDir, '.demo-runner.cjs')
 
   // Build wrapper script - pass code via env to avoid reading file twice
   const cleanedCode = rawSrc.replace(HIDE_BLOCK_REGEX, '')
@@ -215,7 +215,7 @@ originalConsole.log(JSON.stringify(logs));
 
   try {
     fs.writeFileSync(wrapperPath, wrapperScript)
-    const result = execSync('node .playground-runner.cjs', {
+    const result = execSync('node .demo-runner.cjs', {
       cwd: demoDir,
       timeout: 30000,
       encoding: 'utf-8',
@@ -319,12 +319,12 @@ async function createSharedHighlighter() {
 }
 
 async function processAll() {
-  if (!fs.existsSync(PLAYGROUND_SRC))
+  if (!fs.existsSync(DEMO_SRC))
     return
 
   const highlighter = await createSharedHighlighter()
 
-  const demoDirs = getAllDemoDirs(PLAYGROUND_SRC)
+  const demoDirs = getAllDemoDirs(DEMO_SRC)
 
   for (const demoDir of demoDirs) {
     const type = detectDemoType(demoDir)
@@ -344,21 +344,21 @@ async function processAll() {
     }
     catch (e) {
       const errorMessage = getErrorMessage(e)
-      console.error(`[playground] failed to process ${demoDir}: ${errorMessage}`)
+      console.error(`[code-demo] failed to process ${demoDir}: ${errorMessage}`)
       // In production, fail the build to prevent deploying broken demos
       if (process.env.NODE_ENV === 'production') {
-        throw new Error(`Playground processing failed for ${demoDir}: ${errorMessage}`)
+        throw new Error(`Code demo processing failed for ${demoDir}: ${errorMessage}`)
       }
     }
   }
 
   highlighter.dispose()
 
-  // sync to public/playground/
-  copyDir(PLAYGROUND_SRC, PLAYGROUND_PUBLIC)
+  // sync to public/demos/
+  copyDir(DEMO_SRC, DEMO_PUBLIC)
 }
 
-export function playgroundPlugin() {
+export function codeDemoPlugin() {
   // Highlighter instance shared across all file-change events in dev mode.
   // Initialized lazily on first change and reused to avoid the ~100ms
   // createHighlighter overhead on every save.
@@ -372,17 +372,17 @@ export function playgroundPlugin() {
   }
 
   return {
-    name: 'vitepress-playground',
+    name: 'vitepress-code-demo',
 
-    // Exclude public/playground/ from Vite's file watcher so that copyDir
+    // Exclude public/demos/ from Vite's file watcher so that copyDir
     // writing files there does not trigger an infinite HMR reload loop.
     config() {
       return {
         server: {
           watch: {
             ignored: [
-              `${PLAYGROUND_PUBLIC}/**`,
-              `${PLAYGROUND_SRC}/**/output.json`,
+              `${DEMO_PUBLIC}/**`,
+              `${DEMO_SRC}/**/output.json`,
             ],
           },
         },
@@ -395,12 +395,12 @@ export function playgroundPlugin() {
     configureServer(server: any) {
       const { watcher } = server
 
-      if (fs.existsSync(PLAYGROUND_SRC)) {
-        watcher.add(path.join(PLAYGROUND_SRC, '**'))
+      if (fs.existsSync(DEMO_SRC)) {
+        watcher.add(path.join(DEMO_SRC, '**'))
       }
 
       watcher.on('change', async (filePath: string) => {
-        if (!filePath.startsWith(PLAYGROUND_SRC))
+        if (!filePath.startsWith(DEMO_SRC))
           return
         if (path.basename(filePath) === 'output.json')
           return
@@ -424,19 +424,19 @@ export function playgroundPlugin() {
           }
 
           // sync changed demo to public
-          const rel = path.relative(PLAYGROUND_SRC, demoDir)
-          copyDir(demoDir, path.join(PLAYGROUND_PUBLIC, rel))
+          const rel = path.relative(DEMO_SRC, demoDir)
+          copyDir(demoDir, path.join(DEMO_PUBLIC, rel))
 
-          console.warn(`[playground] updated: ${rel}`)
+          console.warn(`[code-demo] updated: ${rel}`)
         }
         catch (e) {
           const errorMessage = getErrorMessage(e)
-          console.error(`[playground] error processing ${demoDir}: ${errorMessage}`)
+          console.error(`[code-demo] error processing ${demoDir}: ${errorMessage}`)
           // Send error to Vite's HMR overlay in dev mode
           server.ws.send({
             type: 'error',
             err: {
-              message: `Playground processing failed: ${errorMessage}`,
+              message: `Code demo processing failed: ${errorMessage}`,
               stack: e instanceof Error ? e.stack : '',
             },
           })

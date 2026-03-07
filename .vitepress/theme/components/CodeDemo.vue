@@ -20,11 +20,17 @@ const props = withDefaults(defineProps<{
 const route = useRoute()
 
 const basePath = computed(() => {
-  const p = route.path.replace(/\.html$/, '').replace(/^\/posts\//, '')
-  return `/playground/${p}/${props.name}`
+  // Remove .html suffix and /posts/ prefix, then remove trailing slash
+  const p = route.path.replace(/\.html$/, '').replace(/^\/posts\//, '').replace(/\/$/, '')
+  return `/demos/${p}/${props.name}`
 })
 
-const iframeSrc = computed(() => `${basePath.value}/index.html`)
+const iframeSrc = computed(() => {
+  // Explicitly request index.html to avoid VitePress SPA interception
+  // When using a directory path with trailing slash, VitePress serves
+  // its own app HTML instead of the static demo index.html
+  return `${basePath.value}/index.html`
+})
 
 const files = ref<FileEntry[]>([])
 // For html type: tab 0 is the demo iframe, tabs 1+ are source files.
@@ -89,7 +95,7 @@ async function copyCode(index: number) {
     }, 2000)
   }
   catch (err) {
-    console.error('[Playground] failed to copy:', err)
+    console.error('[CodeDemo] failed to copy:', err)
     copyErrorIndex.value = index
     copiedIndex.value = null
     // Clear error state after 3 seconds
@@ -128,7 +134,7 @@ onMounted(async () => {
   }
   catch (e) {
     loadError.value = getErrorMessage(e)
-    console.warn('[Playground] failed to load output.json:', e)
+    console.warn('[CodeDemo] failed to load output.json:', e)
   }
 })
 </script>

@@ -63,12 +63,12 @@ func (uf *UnionFind) Size(i int) int {
 }
 ```
 
-#### Playground 演示
+#### 代码演示
 
 **Go 实现**
 
-<Playground type="go" name="basic" />
+<CodeDemo type="go" name="basic" />
 
 **JS 性能对比**
 
-<Playground type="js" name="compare" />
+<CodeDemo type="js" name="compare" />

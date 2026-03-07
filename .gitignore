@@ -41,12 +41,12 @@ pnpm-debug.log*
 posts/drafts/**/*.md
 !posts/drafts/.gitkeep
 
-# Playground build artifacts
-public/playground/
-playground/**/output.json
+# Demo build artifacts
+public/demos/
+demos/**/output.json
 
-# Playground duplicate/stale directories
-playground/front-end/
+# Demo duplicate/stale directories
+demos/front-end/
 
 # Temporary debug files
 temp-inspector.html

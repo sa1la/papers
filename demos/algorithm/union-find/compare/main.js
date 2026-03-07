@@ -1,6 +1,6 @@
-// --- playground:hide:start ---
+// --- demo:hide:start ---
 import { bench } from '../../../shared/bench.js'
-// --- playground:hide:end ---
+// --- demo:hide:end ---
 // 并查集性能对比：naive vs. 路径压缩 + 按秩合并
 function makeNaive(n) {
   const parent = Array.from({ length: n }, (_, i) => i)

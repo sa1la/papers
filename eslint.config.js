@@ -17,7 +17,7 @@ export default antfu(
     },
   },
   {
-    files: ['playground/**/*'],
+    files: ['demos/**/*'],
     rules: {
       'no-console': 'off',
     },

@@ -1,5 +1,5 @@
 /**
- * Shared types for the playground system
+ * Shared types for the code demo system
  */
 
 export type LogEntry

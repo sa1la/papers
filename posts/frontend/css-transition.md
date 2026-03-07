@@ -2,7 +2,7 @@
 date: 2026-03-07 12:00:00 +0800
 title: CSS 变量与过渡动效
 category: frontend
-tags: [css, animation, playground]
+tags: [css, animation, demo]
 outline: deep
 ---
 
@@ -12,7 +12,7 @@ outline: deep
 
 下面的卡片用 CSS transition 控制颜色与缩放的平滑过渡，JS 只负责在 `mouseenter`/`mouseleave` 时动态设置颜色值。
 
-<Playground type="html" name="demo1" height="220px" />
+<CodeDemo type="html" name="demo1" height="220px" />
 
 核心思路：
 

@@ -1,4 +1,4 @@
-// Shared benchmark utility for playground
+// Shared benchmark utility for code demos
 // Usage: import { bench } from '../shared/bench.js'
 
 /**
@@ -17,11 +17,11 @@ export function bench(label, fn, n = 10) {
   const avg = times.reduce((a, b) => a + b, 0) / times.length
   const min = Math.min(...times)
   const max = Math.max(...times)
-  // Output format matches playground sandbox: "label: avg.ms (min: min.ms, max: max.ms) × n"
+  // Output format matches demo sandbox: "label: avg.ms (min: min.ms, max: max.ms) × n"
   console.log(`${label}: ${avg.toFixed(2)}ms (min: ${min.toFixed(2)}ms, max: ${max.toFixed(2)}ms) × ${n}`)
 }
 
-// Also provide as global for browser/playground compatibility
+// Also provide as global for browser/demo compatibility
 if (typeof globalThis !== 'undefined' && !globalThis.bench) {
   globalThis.bench = bench
 }
