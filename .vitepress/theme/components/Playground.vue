@@ -592,13 +592,24 @@ onMounted(async () => {
   position: relative;
   margin: 0;
   background-color: var(--vp-code-block-bg);
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   overflow-x: auto;
   overflow-y: hidden;
   transition: background-color 0.5s;
 }
 
-.pg-tabs + .pg-code-block div[class*='language-'] {
+/* 有 tabs 时：顶部无圆角连接 tab 栏，底部圆角保留（HTML 类型独立代码块） */
+.pg-tabs ~ .pg-code-wrapper .pg-code-block div[class*='language-'] {
+  border-radius: 0 0 8px 8px;
+}
+
+/* JS/Go 类型（有 output-bar）：代码块底部也无圆角，连接 output */
+.pg-wrap:has(.pg-output-bar) .pg-code-block div[class*='language-'] {
+  border-radius: 8px 8px 0 0;
+}
+
+/* JS/Go 且有 tabs：顶部和底部都无圆角 */
+.pg-wrap:has(.pg-output-bar) .pg-tabs ~ .pg-code-wrapper .pg-code-block div[class*='language-'] {
   border-radius: 0;
 }
 
@@ -629,7 +640,7 @@ onMounted(async () => {
   position: relative;
   z-index: 1;
   margin: 0;
-  padding: 20px 0;
+  padding: 20px 0 36px;
   background: transparent !important;
   overflow-x: auto;
   overflow-y: visible;
