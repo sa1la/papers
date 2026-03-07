@@ -6,6 +6,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { transformerColorizedBrackets } from '@shikijs/colorized-brackets'
 import { createHighlighter } from 'shiki'
+import { getErrorMessage, readFileSafe, writeFileSafe } from './utils/fs.js'
 
 const PLAYGROUND_SRC = path.resolve(process.cwd(), 'playground')
 const PLAYGROUND_PUBLIC = path.resolve(process.cwd(), 'public/playground')
@@ -104,7 +105,14 @@ async function processGoDemo(
   const entries = fs.readdirSync(demoDir).filter(f => f.endsWith('.go'))
   const files: Array<{ name: string, highlightedHtml: string, source: string }> = await Promise.all(
     entries.map(async (name) => {
-      const src = fs.readFileSync(path.join(demoDir, name), 'utf-8')
+      const filePath = path.join(demoDir, name)
+      let src: string
+      try {
+        src = fs.readFileSync(filePath, 'utf-8')
+      }
+      catch (e) {
+        throw new Error(`Failed to read ${filePath}: ${e instanceof Error ? e.message : String(e)}`)
+      }
       const highlightedHtml = await highlightCode(src, 'go', highlighter)
       return { name, highlightedHtml, source: src }
     }),
@@ -131,7 +139,13 @@ async function processGoDemo(
     files,
   }
 
-  fs.writeFileSync(path.join(demoDir, 'output.json'), JSON.stringify(output, null, 2))
+  const outputPath = path.join(demoDir, 'output.json')
+  try {
+    fs.writeFileSync(outputPath, JSON.stringify(output, null, 2))
+  }
+  catch (e) {
+    throw new Error(`Failed to write ${outputPath}: ${e instanceof Error ? e.message : String(e)}`)
+  }
 }
 
 function cleanJsSourceForDisplay(src: string): string {
@@ -143,7 +157,8 @@ async function processJsDemo(
   demoDir: string,
   highlighter: Awaited<ReturnType<typeof createHighlighter>>,
 ) {
-  const rawSrc = fs.readFileSync(path.join(demoDir, 'main.js'), 'utf-8')
+  const mainPath = path.join(demoDir, 'main.js')
+  const rawSrc = readFileSafe(mainPath)
   const displaySrc = cleanJsSourceForDisplay(rawSrc)
   const highlightedHtml = await highlightCode(displaySrc, 'javascript', highlighter)
 
@@ -151,7 +166,8 @@ async function processJsDemo(
     files: [{ name: 'main.js', highlightedHtml, source: displaySrc }],
   }
 
-  fs.writeFileSync(path.join(demoDir, 'output.json'), JSON.stringify(output, null, 2))
+  const outputPath = path.join(demoDir, 'output.json')
+  writeFileSafe(outputPath, JSON.stringify(output, null, 2))
 }
 
 function copyDir(src: string, dest: string) {
@@ -177,29 +193,37 @@ const EXT_TO_LANG: Record<string, BundledLanguage> = {
   '.js': 'javascript',
 }
 
+// Pre-computed sort order map for O(1) lookup during sorting
+const EXT_SORT_ORDER = new Map<string, number>([
+  ['.html', 0],
+  ['.css', 1],
+  ['.js', 2],
+])
+
 async function processHtmlDemo(
   demoDir: string,
   highlighter: Awaited<ReturnType<typeof createHighlighter>>,
 ) {
   const entries = fs.readdirSync(demoDir).filter(f => EXT_TO_LANG[path.extname(f)])
-  // put index.html first, then css, then js
-  const order = ['.html', '.css', '.js']
+  // put index.html first, then css, then js (unknown extensions go last)
   entries.sort((a, b) => {
-    const ai = order.indexOf(path.extname(a))
-    const bi = order.indexOf(path.extname(b))
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+    const ai = EXT_SORT_ORDER.get(path.extname(a)) ?? 99
+    const bi = EXT_SORT_ORDER.get(path.extname(b)) ?? 99
+    return ai - bi
   })
 
   const files: Array<{ name: string, highlightedHtml: string, source: string }> = await Promise.all(
     entries.map(async (name) => {
-      const src = fs.readFileSync(path.join(demoDir, name), 'utf-8')
+      const filePath = path.join(demoDir, name)
+      const src = readFileSafe(filePath)
       const lang = EXT_TO_LANG[path.extname(name)]
       const highlightedHtml = await highlightCode(src, lang, highlighter)
       return { name, highlightedHtml, source: src }
     }),
   )
 
-  fs.writeFileSync(path.join(demoDir, 'output.json'), JSON.stringify({ files }, null, 2))
+  const outputPath = path.join(demoDir, 'output.json')
+  writeFileSafe(outputPath, JSON.stringify({ files }, null, 2))
 }
 
 async function createSharedHighlighter() {
@@ -234,7 +258,12 @@ async function processAll() {
       }
     }
     catch (e) {
-      console.warn(`[playground] failed to process ${demoDir}:`, e)
+      const errorMessage = getErrorMessage(e)
+      console.error(`[playground] failed to process ${demoDir}: ${errorMessage}`)
+      // In production, fail the build to prevent deploying broken demos
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(`Playground processing failed for ${demoDir}: ${errorMessage}`)
+      }
     }
   }
 
@@ -316,7 +345,16 @@ export function playgroundPlugin() {
           console.warn(`[playground] updated: ${rel}`)
         }
         catch (e) {
-          console.warn(`[playground] error processing ${demoDir}:`, e)
+          const errorMessage = getErrorMessage(e)
+          console.error(`[playground] error processing ${demoDir}: ${errorMessage}`)
+          // Send error to Vite's HMR overlay in dev mode
+          server.ws.send({
+            type: 'error',
+            err: {
+              message: `Playground processing failed: ${errorMessage}`,
+              stack: e instanceof Error ? e.stack : '',
+            },
+          })
         }
       })
 

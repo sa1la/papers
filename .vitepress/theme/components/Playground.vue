@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vitepress'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { getErrorMessage } from '../utils/error'
 
 interface FileEntry {
   name: string
@@ -102,7 +103,7 @@ async function runJs() {
     jsLogs.value = logs
   }
   catch (e) {
-    jsError.value = e instanceof Error ? e.message : String(e)
+    jsError.value = getErrorMessage(e)
   }
   finally {
     jsRunning.value = false
@@ -123,24 +124,47 @@ function formatArg(v: unknown): string {
 
 // ── copy code ─────────────────────────────────────────────────────────────
 const copiedIndex = ref<number | null>(null)
+const copyErrorIndex = ref<number | null>(null)
+let copyTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 async function copyCode(index: number) {
   const file = files.value[index]
   if (!file?.source)
     return
 
+  // Clear any existing timeout to prevent state conflicts
+  if (copyTimeoutId) {
+    clearTimeout(copyTimeoutId)
+    copyTimeoutId = null
+  }
+
   try {
     await navigator.clipboard.writeText(file.source)
     copiedIndex.value = index
-    setTimeout(() => {
-      if (copiedIndex.value === index)
-        copiedIndex.value = null
+    copyErrorIndex.value = null
+    copyTimeoutId = setTimeout(() => {
+      copiedIndex.value = null
+      copyTimeoutId = null
     }, 2000)
   }
   catch (err) {
-    console.warn('[Playground] failed to copy:', err)
+    console.error('[Playground] failed to copy:', err)
+    copyErrorIndex.value = index
+    copiedIndex.value = null
+    // Clear error state after 3 seconds
+    copyTimeoutId = setTimeout(() => {
+      copyErrorIndex.value = null
+      copyTimeoutId = null
+    }, 3000)
   }
 }
+
+// Cleanup timeout on unmount to avoid memory leaks
+onUnmounted(() => {
+  if (copyTimeoutId) {
+    clearTimeout(copyTimeoutId)
+  }
+})
 
 onMounted(async () => {
   try {
@@ -167,7 +191,7 @@ onMounted(async () => {
     }
   }
   catch (e) {
-    loadError.value = e instanceof Error ? e.message : String(e)
+    loadError.value = getErrorMessage(e)
     console.warn('[Playground] failed to load output.json:', e)
   }
 })
@@ -216,8 +240,11 @@ onMounted(async () => {
           />
           <button
             class="pg-copy-btn"
-            :class="{ 'pg-copy-btn--copied': copiedIndex === activeTab - 1 }"
-            :title="copiedIndex === activeTab - 1 ? 'copied!' : 'copy code'"
+            :class="{
+              'pg-copy-btn--copied': copiedIndex === activeTab - 1,
+              'pg-copy-btn--error': copyErrorIndex === activeTab - 1,
+            }"
+            :title="copiedIndex === activeTab - 1 ? 'copied!' : copyErrorIndex === activeTab - 1 ? 'copy failed' : 'copy code'"
             @click="copyCode(activeTab - 1)"
           />
         </div>
@@ -260,8 +287,11 @@ onMounted(async () => {
         />
         <button
           class="pg-copy-btn"
-          :class="{ 'pg-copy-btn--copied': copiedIndex === activeTab }"
-          :title="copiedIndex === activeTab ? 'copied!' : 'copy code'"
+          :class="{
+            'pg-copy-btn--copied': copiedIndex === activeTab,
+            'pg-copy-btn--error': copyErrorIndex === activeTab,
+          }"
+          :title="copiedIndex === activeTab ? 'copied!' : copyErrorIndex === activeTab ? 'copy failed' : 'copy code'"
           @click="copyCode(activeTab)"
         />
       </div>
@@ -443,6 +473,33 @@ onMounted(async () => {
   background-color: var(--vp-code-copy-code-hover-bg);
   white-space: nowrap;
   content: '已复制';
+}
+
+.pg-copy-btn--error {
+  border-color: var(--vp-c-danger-2, #b06060);
+  background-color: var(--vp-c-danger-soft, #f5e0e0);
+}
+
+.pg-copy-btn--error::before {
+  position: relative;
+  top: -1px;
+  transform: translateX(calc(-100% - 1px));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--vp-c-danger-2, #b06060);
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+  padding: 0 10px;
+  width: fit-content;
+  height: 40px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vp-c-danger-2, #b06060);
+  background-color: var(--vp-c-danger-soft, #f5e0e0);
+  white-space: nowrap;
+  content: '复制失败';
 }
 
 .pg-loading {
