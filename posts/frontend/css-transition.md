@@ -8,9 +8,7 @@ outline: deep
 
 用 CSS 自定义属性（Custom Properties）配合 `transition`，可以用极少的代码实现流畅的交互动效。
 
----
-
-## 基础演示
+### 基础演示
 
 下面的卡片用 CSS transition 控制颜色与缩放的平滑过渡，JS 只负责在 `mouseenter`/`mouseleave` 时动态设置颜色值。
 

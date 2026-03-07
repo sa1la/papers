@@ -3,6 +3,7 @@ import type { CategoryKey } from '../../config/categories'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import dayjs from 'dayjs'
 import { createContentLoader } from 'vitepress'
 import { isValidCategory } from '../../config/categories'
 import { beautifyDate, getReadingTime } from './utils'
@@ -73,7 +74,7 @@ export default createContentLoader('posts/**/*.md', {
         if (!isDev && frontmatter.draft)
           return false
         if (!isDev && frontmatter.date) {
-          const pubTime = +frontmatter.date
+          const pubTime = dayjs(frontmatter.date).valueOf()
           if (pubTime > now)
             return false
         }
@@ -109,7 +110,7 @@ export default createContentLoader('posts/**/*.md', {
 function formatDate(raw: string | undefined): Post['date'] {
   const cur = raw
   return {
-    time: cur ? +cur : Date.now(),
+    time: cur ? dayjs(cur).valueOf() : Date.now(),
     string: beautifyDate(cur, 'YYYY-MM-DD'),
     dayMonth: beautifyDate(cur, 'DD/MM'),
   }
