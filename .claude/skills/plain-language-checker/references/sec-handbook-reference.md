@@ -8,24 +8,24 @@ Complete reference for clear writing principles, adapted from "A Plain English H
 
 ### Active Voice
 
-| Language | Passive Marker | Example (Before → After) |
-|----------|---------------|-------------------------|
-| English | "is/was/were" + past verb + "by" | "The report was written by her" → "She wrote the report" |
-| Chinese | "被/由/为...所" | "报告被她写好了" → "她写好了报告" |
+| Language | Passive Marker                   | Example (Before → After)                                 |
+| -------- | -------------------------------- | -------------------------------------------------------- |
+| English  | "is/was/were" + past verb + "by" | "The report was written by her" → "She wrote the report" |
+| Chinese  | "被/由/为...所"                  | "报告被她写好了" → "她写好了报告"                        |
 
 ### Short Sentences
 
-| Language | Target Length | Tips |
-|----------|--------------|------|
-| English | 15-20 words average | Avoid nested clauses; one idea per sentence |
-| Chinese | 15-25 characters average | 避免长句套从句；避免过多的"之乎者也" |
+| Language | Target Length            | Tips                                        |
+| -------- | ------------------------ | ------------------------------------------- |
+| English  | 15-20 words average      | Avoid nested clauses; one idea per sentence |
+| Chinese  | 15-25 characters average | 避免长句套从句；避免过多的"之乎者也"        |
 
 ### Personal Pronouns
 
-| Language | First Person | Second Person | Note |
-|----------|-------------|---------------|------|
-| English | we/us/our | you/your | Creates direct engagement |
-| Chinese | 我们/咱们的 | 你/您/您的 | "您" for formal contexts |
+| Language | First Person | Second Person | Note                      |
+| -------- | ------------ | ------------- | ------------------------- |
+| English  | we/us/our    | you/your      | Creates direct engagement |
+| Chinese  | 我们/咱们的  | 你/您/您的    | "您" for formal contexts  |
 
 ## The 13 Core Principles
 
@@ -39,10 +39,10 @@ Complete reference for clear writing principles, adapted from "A Plain English H
 
 **Examples:**
 
-| Language | Before (Passive) | After (Active) |
-|----------|-----------------|----------------|
-| English | "The stock is bought by the investor." | "The investor buys the stock." |
-| Chinese | "股票被投资者购买。" | "投资者购买股票。" |
+| Language | Before (Passive)                       | After (Active)                 |
+| -------- | -------------------------------------- | ------------------------------ |
+| English  | "The stock is bought by the investor." | "The investor buys the stock." |
+| Chinese  | "股票被投资者购买。"                   | "投资者购买股票。"             |
 
 ### 2. Use Short Sentences
 
@@ -54,10 +54,10 @@ Complete reference for clear writing principles, adapted from "A Plain English H
 
 **Examples:**
 
-| Language | Wordy | Concise |
-|----------|-------|---------|
-| English | "In order to facilitate the process of optimization, it is necessary that we first conduct a thorough analysis of the current system." | "To optimize, we first analyze the current system." |
-| Chinese | "为了便于进行优化的过程，我们必须首先对当前系统进行一个彻底的分析。" (32字) | "要优化，我们先分析当前系统。" (11字) |
+| Language | Wordy                                                                                                                                  | Concise                                             |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| English  | "In order to facilitate the process of optimization, it is necessary that we first conduct a thorough analysis of the current system." | "To optimize, we first analyze the current system." |
+| Chinese  | "为了便于进行优化的过程，我们必须首先对当前系统进行一个彻底的分析。" (32字)                                                            | "要优化，我们先分析当前系统。" (11字)               |
 
 ### 3. Use Personal Pronouns
 
@@ -82,16 +82,16 @@ Complete reference for clear writing principles, adapted from "A Plain English H
 
 **Common replacements:**
 
-| English (Wordy → Simple) | Chinese (冗余 → 简洁) |
-|-------------------------|---------------------|
-| in order to → to | 为了……起见 → 为了 |
-| in the event that → if | 在……的情况下 → 如果 |
-| subsequent to → after | 在……之后的时间 → 之后 |
-| prior to → before | 在……之前的时期 → 之前 |
-| despite the fact that → although | 尽管……的事实 → 尽管 |
-| because of the fact that → because | 由于……的原因 → 因为 |
-| at this point in time → now | 在此时间点 → 现在 |
-| for the purpose of → for | 为了……的目的 → 为了 |
+| English (Wordy → Simple)           | Chinese (冗余 → 简洁) |
+| ---------------------------------- | --------------------- |
+| in order to → to                   | 为了……起见 → 为了     |
+| in the event that → if             | 在……的情况下 → 如果   |
+| subsequent to → after              | 在……之后的时间 → 之后 |
+| prior to → before                  | 在……之前的时期 → 之前 |
+| despite the fact that → although   | 尽管……的事实 → 尽管   |
+| because of the fact that → because | 由于……的原因 → 因为   |
+| at this point in time → now        | 在此时间点 → 现在     |
+| for the purpose of → for           | 为了……的目的 → 为了   |
 
 ### 6. Write in the Positive
 
@@ -100,12 +100,12 @@ Complete reference for clear writing principles, adapted from "A Plain English H
 
 **Examples:**
 
-| English | Chinese |
-|---------|---------|
-| "not able" → "unable" | "不是不能" → "可以" |
-| "not accept" → "reject" | "不接受" → "拒绝" |
-| "not many" → "few" | "不是很多" → "很少" |
-| "not often" → "rarely" | "不常" → "很少" |
+| English                    | Chinese                   |
+| -------------------------- | ------------------------- |
+| "not able" → "unable"      | "不是不能" → "可以"       |
+| "not accept" → "reject"    | "不接受" → "拒绝"         |
+| "not many" → "few"         | "不是很多" → "很少"       |
+| "not often" → "rarely"     | "不常" → "很少"           |
 | "not...unless" → "only if" | "只有……才能" → "只要……就" |
 
 **Chinese-specific:** Avoid double negatives like "不无道理" (not without reason) → "有道理" (reasonable).
@@ -117,14 +117,14 @@ Complete reference for clear writing principles, adapted from "A Plain English H
 
 **Examples:**
 
-| English | Chinese |
-|---------|---------|
-| "terminate" → "end" | "终止" → "结束" |
-| "elucidate" → "explain" | "阐明" → "说明" |
-| "utilize" → "use" | "利用/使用" → "用" |
+| English                                             | Chinese                            |
+| --------------------------------------------------- | ---------------------------------- |
+| "terminate" → "end"                                 | "终止" → "结束"                    |
+| "elucidate" → "explain"                             | "阐明" → "说明"                    |
+| "utilize" → "use"                                   | "利用/使用" → "用"                 |
 | "aforementioned" → (delete or use "this" or "that") | " aforementioned/前述的" → "这/那" |
-| "leverage" → "use" | "leverage/撬动" → "利用" |
-| "moving forward" → "from now on" | "moving forward/向前看" → "今后" |
+| "leverage" → "use"                                  | "leverage/撬动" → "利用"           |
+| "moving forward" → "from now on"                    | "moving forward/向前看" → "今后"   |
 
 ### 8. Keep Subject, Verb, and Object Close Together
 
@@ -174,10 +174,10 @@ Don't use big vocabulary to hint at ideas. Just say exactly what you mean.
 
 **Examples:**
 
-| Before | After |
-|--------|-------|
+| Before                                                                              | After                                       |
+| ----------------------------------------------------------------------------------- | ------------------------------------------- |
 | "The utilization of sophisticated methodologies may precipitate enhanced outcomes." | "Using better methods can improve results." |
-| "We are not unmindful of the challenges inherent in this endeavor." | "We know this is difficult." |
+| "We are not unmindful of the challenges inherent in this endeavor."                 | "We know this is difficult."                |
 
 ### Brevity Is the Soul of Good Communication
 
@@ -188,6 +188,7 @@ Simple and clear beats fancy and smart-sounding. Every time.
 - **The test**: Does this sentence sound like I'm trying to seem smart?
 
 **Red flags for fancy writing:**
+
 - Using rare words when common ones work
 - Adding unnecessary qualifiers ("it is important to note that...")
 - Complex sentence structures that delay the main point
@@ -197,15 +198,15 @@ Simple and clear beats fancy and smart-sounding. Every time.
 
 ## Common Rationalizations (跨语言通用借口)
 
-| English Excuse | Chinese Excuse | Reality |
-|----------------|----------------|---------|
-| "The original author is an expert" | "原作者是专家" | Expertise in content ≠ expertise in clear communication. |
-| "Industry standards require this language" | "行业标准要求这样写" | Industry standards evolve. Plain language IS becoming standard. |
-| "Short sentences sound choppy" | "短句显得断断续续" | Short sentences can flow well. Choppiness is a transition issue. |
-| "Passive voice sounds more objective" | "被动语态更客观" | Passive voice often hides who did what—reducing accountability. |
-| "We've always written it this way" | "我们一直都是这么写的" | "Always done this way" is not a defense of clarity. |
-| "This sounds more professional" | "这样写更专业" | Professional ≠ complicated. Clear communication is professionalism. |
-| "The audience is educated" | "读者都是有文化的" | Educated readers prefer clarity too. Complexity excludes. |
+| English Excuse                             | Chinese Excuse         | Reality                                                             |
+| ------------------------------------------ | ---------------------- | ------------------------------------------------------------------- |
+| "The original author is an expert"         | "原作者是专家"         | Expertise in content ≠ expertise in clear communication.            |
+| "Industry standards require this language" | "行业标准要求这样写"   | Industry standards evolve. Plain language IS becoming standard.     |
+| "Short sentences sound choppy"             | "短句显得断断续续"     | Short sentences can flow well. Choppiness is a transition issue.    |
+| "Passive voice sounds more objective"      | "被动语态更客观"       | Passive voice often hides who did what—reducing accountability.     |
+| "We've always written it this way"         | "我们一直都是这么写的" | "Always done this way" is not a defense of clarity.                 |
+| "This sounds more professional"            | "这样写更专业"         | Professional ≠ complicated. Clear communication is professionalism. |
+| "The audience is educated"                 | "读者都是有文化的"     | Educated readers prefer clarity too. Complexity excludes.           |
 
 ## Document Design Principles
 

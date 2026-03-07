@@ -36,6 +36,7 @@
     "eslint-plugin-format": "^2.0.1",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-mathjax3": "^4.3.2",
+    "shiki": "^3.22.0",
     "tailwindcss": "^4.2.1"
   },
   "pnpm": {

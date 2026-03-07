@@ -1,5 +1,5 @@
 
-# lib
+# dependencies
 node_modules
 
 # dev/build cache
@@ -9,17 +9,47 @@ node_modules
 # worktrees
 .worktrees
 
-
-
-# 
+# lock files
 *lock.* 
 
-.DS_STORE
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
 
+# editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# environment
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# misc
 .obsidian
-
 *.conf
 
 # Drafts are local only - never commit to git
 posts/drafts/**/*.md
 !posts/drafts/.gitkeep
+
+# Demo build artifacts
+public/demos/
+demos/**/output.json
+
+# Demo duplicate/stale directories
+demos/front-end/
+
+# Temporary debug files
+temp-inspector.html
+
+# plans 
+docs/plans/**

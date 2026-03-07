@@ -16,4 +16,10 @@ export default antfu(
       'no-console': 'warn',
     },
   },
+  {
+    files: ['demos/**/*'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 )

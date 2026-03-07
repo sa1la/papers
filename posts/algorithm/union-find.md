@@ -7,7 +7,7 @@ category: algorithm
 draft: false
 ---
 
-## 并查集
+### 并查集
 
 #### 定义
 
@@ -62,3 +62,13 @@ func (uf *UnionFind) Size(i int) int {
 	return uf.size[uf.Find(i)] // 在该场景中，size查询的是节点i所在的子集里节点的总数
 }
 ```
+
+#### 代码演示
+
+**Go 实现**
+
+<CodeDemo type="go" name="basic" />
+
+**JS 性能对比**
+
+<CodeDemo type="js" name="compare" />
