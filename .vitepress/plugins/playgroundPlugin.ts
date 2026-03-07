@@ -4,6 +4,7 @@ import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { transformerColorizedBrackets } from '@shikijs/colorized-brackets'
 import { createHighlighter } from 'shiki'
 
 const PLAYGROUND_SRC = path.resolve(process.cwd(), 'playground')
@@ -73,6 +74,9 @@ async function highlightCode(
     lang,
     themes: { light: LIGHT_THEME, dark: DARK_THEME },
     defaultColor: false,
+    transformers: [
+      transformerColorizedBrackets(),
+    ],
   })
   // remove tabindex="0" and inline background from Shiki's pre tag
   // tabindex causes browsers to render a scrollbar on focusable overflow elements
