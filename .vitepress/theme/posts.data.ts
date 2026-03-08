@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import { createContentLoader } from 'vitepress'
 import { isValidCategory } from '../../config/categories'
 import { beautifyDate, getReadingTime } from './utils'
+import { collectDemoSources } from './utils/codeDemo'
 
 export interface Post {
   title: string
@@ -32,7 +33,13 @@ export { data }
 
 const isDev = process.env.NODE_ENV !== 'production'
 
-function extractMarkdownSource(item: ContentData): string {
+interface ExtractOptions {
+  item: ContentData
+  filePath?: string
+}
+
+function extractMarkdownSource(options: ExtractOptions): { source: string, demoSource: string } {
+  const { item, filePath } = options
   const anyItem = item as any
 
   // 1. 优先使用 ContentData 自带的 src/raw 字段
@@ -44,21 +51,27 @@ function extractMarkdownSource(item: ContentData): string {
 
   // 2. 退回到通过文件路径直接读取 markdown 内容
   if (!rawSource) {
-    const filePath: string | undefined = anyItem.filePath || anyItem.filepath
-    if (filePath) {
-      const absPath = path.isAbsolute(filePath)
-        ? filePath
-        : path.resolve(process.cwd(), filePath)
+    const itemFilePath: string | undefined = anyItem.filePath || anyItem.filepath
+    if (itemFilePath) {
+      const absPath = path.isAbsolute(itemFilePath)
+        ? itemFilePath
+        : path.resolve(process.cwd(), itemFilePath)
       if (fs.existsSync(absPath))
         rawSource = fs.readFileSync(absPath, 'utf-8')
     }
   }
 
-  if (!rawSource)
-    return ''
+  // 新增：提取 demo 源代码
+  let demoSource = ''
+  if (filePath && rawSource) {
+    demoSource = collectDemoSources(filePath, rawSource)
+  }
 
-  // 去掉 frontmatter，保留正文内容
-  return rawSource.replace(/^---[\s\S]*?---/, '').trim()
+  const source = rawSource
+    ? rawSource.replace(/^---[\s\S]*?---/, '').trim()
+    : ''
+
+  return { source, demoSource }
 }
 
 export default createContentLoader('posts/**/*.md', {
@@ -87,9 +100,22 @@ export default createContentLoader('posts/**/*.md', {
           console.warn(`[posts.data.ts] Invalid category "${category}" in ${url}`)
         }
 
+        // 获取文件路径 - VitePress ContentData has 'url' which maps to the file path
+        // URL format: /posts/algorithm/union-find (cleanUrls is enabled)
+        // We need to convert URL back to file path
+        let filePath: string | undefined
+        if (url) {
+          const cleanUrl = url.replace(/^\//, '').replace(/\.html$/, '')
+          // URL already starts with 'posts/', so just append .md
+          filePath = path.join(process.cwd(), `${cleanUrl}.md`)
+        }
+
         // 使用原始 Markdown（去掉 frontmatter）预计算阅读时间
-        const source = extractMarkdownSource(item)
-        const readingTime = getReadingTime(source)
+        const { source, demoSource } = extractMarkdownSource({ item, filePath })
+
+        // 合并正文和 demo 代码计算阅读时间
+        const combinedSource = `${source}\n\n${demoSource}`
+        const readingTime = getReadingTime(combinedSource)
 
         return {
           title: frontmatter.title,
