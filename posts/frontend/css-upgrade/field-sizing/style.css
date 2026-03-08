@@ -56,6 +56,8 @@ textarea::placeholder {
 /* field-sizing: content 自适应 */
 .auto-input {
   field-sizing: content;
+  width: auto;              /* 根据内容决定宽度 */
+  align-self: flex-start;   /* 防止在 flex 容器中 stretch 占满 */
   min-width: 150px;
   max-width: 100%;
 }
