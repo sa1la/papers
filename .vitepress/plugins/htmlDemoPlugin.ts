@@ -30,6 +30,9 @@ const EXT_SORT_ORDER = new Map<string, number>([
 const TABINDEX_REGEX = / tabindex="0"/g
 const STYLE_REGEX = /(<pre[^>]*) style="([^"]*)"/
 
+// File extension constants
+const MD_EXTENSION = '.md'
+
 /**
  * Check if a directory is an HTML demo directory
  */
@@ -99,20 +102,86 @@ async function highlightCode(
   return `<div class="language-${lang} vp-adaptive-theme line-numbers-mode">${lineNumbersHtml}${cleanedPre}<span class="lang">${lang}</span></div>`
 }
 
-function copyDir(src: string, dest: string) {
-  if (!fs.existsSync(dest))
-    fs.mkdirSync(dest, { recursive: true })
+/**
+ * Check if a file should be copied (not a markdown file)
+ */
+function shouldCopyFile(filename: string): boolean {
+  return !filename.endsWith(MD_EXTENSION)
+}
 
+/**
+ * Check if source directory has any files that should be copied
+ * (i.e., non-.md files or subdirectories with valid content)
+ */
+function hasValidContent(src: string): boolean {
   const entries = fs.readdirSync(src, { withFileTypes: true })
   for (const entry of entries) {
     const srcPath = path.join(src, entry.name)
+    if (entry.isDirectory()) {
+      if (hasValidContent(srcPath)) {
+        return true
+      }
+    }
+    else if (shouldCopyFile(entry.name)) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Copy directory while:
+ * 1. Skipping .md files (they don't need to be in public/)
+ * 2. Skipping empty directories (those with only .md files or no content)
+ * 3. Removing stale files in destination that don't exist in source
+ * 4. Removing empty destination directories after cleanup
+ */
+function copyDir(src: string, dest: string) {
+  // Check if source has anything worth copying
+  if (!hasValidContent(src)) {
+    // If dest exists but source has no valid content, remove dest
+    if (fs.existsSync(dest)) {
+      fs.rmSync(dest, { recursive: true, force: true })
+    }
+    return
+  }
+
+  // Ensure destination exists
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true })
+  }
+
+  // Get source entries
+  const srcEntries = fs.readdirSync(src, { withFileTypes: true })
+  const srcNames = new Set(srcEntries.map(e => e.name))
+
+  // Remove stale files/directories in destination
+  const destEntries = fs.readdirSync(dest, { withFileTypes: true })
+  for (const entry of destEntries) {
+    if (!srcNames.has(entry.name)) {
+      const destPath = path.join(dest, entry.name)
+      fs.rmSync(destPath, { recursive: true, force: true })
+    }
+  }
+
+  // Copy from source to destination
+  for (const entry of srcEntries) {
+    const srcPath = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
+
     if (entry.isDirectory()) {
       copyDir(srcPath, destPath)
     }
-    else {
+    else if (shouldCopyFile(entry.name)) {
+      // Skip .md files - they don't need to be in public/
       fs.copyFileSync(srcPath, destPath)
     }
+  }
+
+  // After copying, if destination is empty, remove it
+  const remainingFiles = fs.readdirSync(dest)
+  if (remainingFiles.length === 0) {
+    fs.rmdirSync(dest)
   }
 }
 
