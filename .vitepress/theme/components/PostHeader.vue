@@ -4,6 +4,13 @@ import { computed, onMounted, ref } from 'vue'
 import { data as posts } from '../posts.data'
 import { beautifyDate } from '../utils'
 
+// Static regex patterns to avoid re-compilation
+const REGEX_QUERY_HASH = /[?#]/
+const REGEX_INDEX_HTML = /\/index\.html$/
+const REGEX_INDEX = /\/index$/
+const REGEX_HTML_EXT = /\.html$/
+const REGEX_TRAILING_SLASH = /\/$/
+
 const route = useRoute()
 const { frontmatter } = useData()
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
@@ -12,13 +19,13 @@ const mounted = ref(false)
 const currentPost = computed(() => {
   const normalize = (p: string) => {
     // 去掉查询参数和 hash，并对路径进行解码，避免空格等字符编码差异
-    const [pathOnly] = p.split(/[?#]/)
+    const [pathOnly] = p.split(REGEX_QUERY_HASH)
     const decoded = decodeURIComponent(pathOnly)
     return decoded
-      .replace(/\/index\.html$/, '')
-      .replace(/\/index$/, '')
-      .replace(/\.html$/, '')
-      .replace(/\/$/, '') || '/'
+      .replace(REGEX_INDEX_HTML, '')
+      .replace(REGEX_INDEX, '')
+      .replace(REGEX_HTML_EXT, '')
+      .replace(REGEX_TRAILING_SLASH, '') || '/'
   }
 
   const target = normalize(route.path)

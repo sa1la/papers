@@ -11,11 +11,16 @@ const props = withDefaults(defineProps<{
   height: '400px',
 })
 
+// Static regex patterns to avoid re-compilation
+const REGEX_HTML_EXT = /\.html$/
+const REGEX_POSTS_PREFIX = /^\/posts\//
+const REGEX_TRAILING_SLASH = /\/$/
+
 const route = useRoute()
 
 const basePath = computed(() => {
   // Remove .html suffix and /posts/ prefix, then remove trailing slash
-  const p = route.path.replace(/\.html$/, '').replace(/^\/posts\//, '').replace(/\/$/, '')
+  const p = route.path.replace(REGEX_HTML_EXT, '').replace(REGEX_POSTS_PREFIX, '').replace(REGEX_TRAILING_SLASH, '')
   return `/demos/${p}/${props.name}`
 })
 

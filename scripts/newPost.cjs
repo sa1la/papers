@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const fs = require('node:fs')
 const process = require('node:process')
 const { default: to } = require('await-to-js')
@@ -50,10 +51,8 @@ write excerpt here
 
   fs.writeFileSync(fullPath, markdown, 'utf-8')
 
-  // eslint-disable-next-line no-console
   console.log(`Created: ${fullPath}`)
   if (draft) {
-    // eslint-disable-next-line no-console
     console.log('This is a draft post (visible in dev only)')
   }
 }
@@ -64,7 +63,7 @@ async function createNewPost(filePath) {
     console.error(`[ERROR]: Failed to create new post - ${err}`)
     return
   }
-  // eslint-disable-next-line no-console
+
   console.log('[INFO]: New post is created successfully')
 }
 

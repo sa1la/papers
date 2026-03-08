@@ -33,6 +33,11 @@ export { data }
 
 const isDev = process.env.NODE_ENV !== 'production'
 
+// Static regex patterns to avoid re-compilation
+const REGEX_FRONMATTER = /^---[\s\S]*?---/
+const REGEX_LEADING_SLASH = /^\//
+const REGEX_HTML_EXT = /\.html$/
+
 interface ExtractOptions {
   item: ContentData
   filePath?: string
@@ -68,7 +73,7 @@ function extractMarkdownSource(options: ExtractOptions): { source: string, demoS
   }
 
   const source = rawSource
-    ? rawSource.replace(/^---[\s\S]*?---/, '').trim()
+    ? rawSource.replace(REGEX_FRONMATTER, '').trim()
     : ''
 
   return { source, demoSource }
@@ -105,7 +110,7 @@ export default createContentLoader('posts/**/*.md', {
         // We need to convert URL back to file path
         let filePath: string | undefined
         if (url) {
-          const cleanUrl = url.replace(/^\//, '').replace(/\.html$/, '')
+          const cleanUrl = url.replace(REGEX_LEADING_SLASH, '').replace(REGEX_HTML_EXT, '')
           // URL already starts with 'posts/', so just append .md
           filePath = path.join(process.cwd(), `${cleanUrl}.md`)
         }

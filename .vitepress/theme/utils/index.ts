@@ -3,6 +3,11 @@ import dayjs from 'dayjs'
 
 interface Data { [key: string]: Post[] }
 
+// Static regex patterns to avoid re-compilation
+const REGEX_CODE_BLOCK = /```[\s\S]*?```/g
+const REGEX_CHINESE = /[\u4E00-\u9FFF]/g
+const REGEX_WORD = /\w+/g
+
 export function initArchives(posts: Post[]): Data {
   const data: Data = {}
   for (let i = 0; i < posts.length; i++) {
@@ -115,27 +120,22 @@ function countReadingUnits(content: string): {
   codeWords: number
 } {
   // Match fenced code blocks
-  const codeBlockRegex = /```[\s\S]*?```/g
   const codeBlocks: string[] = []
-  const textContent = content.replace(codeBlockRegex, (match) => {
+  const textContent = content.replace(REGEX_CODE_BLOCK, (match) => {
     codeBlocks.push(match)
     return ' '
   })
 
-  // Count Chinese characters (扩展到常用 CJK 统一表意符号区间)
-  const chineseRegex = /[\u4E00-\u9FFF]/g
-  const wordRegex = /\w+/g
-
-  const textChinese = (textContent.match(chineseRegex) || []).length
+  const textChinese = (textContent.match(REGEX_CHINESE) || []).length
   const codeChinese = codeBlocks.reduce(
-    (sum, code) => sum + (code.match(chineseRegex) || []).length,
+    (sum, code) => sum + (code.match(REGEX_CHINESE) || []).length,
     0,
   )
 
   // Count English words (alphanumeric sequences, 不包含标点)
-  const textWords = (textContent.match(wordRegex) || []).length
+  const textWords = (textContent.match(REGEX_WORD) || []).length
   const codeWords = codeBlocks.reduce(
-    (sum, code) => sum + (code.match(wordRegex) || []).length,
+    (sum, code) => sum + (code.match(REGEX_WORD) || []).length,
     0,
   )
 

@@ -12,11 +12,17 @@ interface Frontmatter {
   date?: string
 }
 
+// Static regex patterns to avoid re-compilation on every call
+const REGEX_BACKSLASH = /\\/g
+const REGEX_FRONTMATTER = /^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---/
+const REGEX_DRAFT = /^draft:\s*(true|false)\s*$/i
+const REGEX_DATE = /^date:\s*(\S.*)$/
+
 /**
  * Normalize path to use forward slashes for glob compatibility
  */
 function normalizePath(filePath: string): string {
-  return filePath.replace(/\\/g, '/')
+  return filePath.replace(REGEX_BACKSLASH, '/')
 }
 
 /**
@@ -24,7 +30,7 @@ function normalizePath(filePath: string): string {
  */
 function parseFrontmatter(content: string): Frontmatter {
   const data: Frontmatter = {}
-  const match = content.match(/^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---/)
+  const match = content.match(REGEX_FRONTMATTER)
   if (!match)
     return data
 
@@ -32,13 +38,13 @@ function parseFrontmatter(content: string): Frontmatter {
   const lines = yaml.split('\n')
 
   for (const line of lines) {
-    const draftMatch = line.match(/^draft:\s*(true|false)\s*$/i)
+    const draftMatch = line.match(REGEX_DRAFT)
     if (draftMatch) {
       const value = draftMatch[1].trim().toLowerCase()
       data.draft = value === 'true'
     }
 
-    const dateMatch = line.match(/^date:\s*(\S.*)$/)
+    const dateMatch = line.match(REGEX_DATE)
     if (dateMatch) {
       data.date = dateMatch[1].trim()
     }

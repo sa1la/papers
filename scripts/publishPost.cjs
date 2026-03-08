@@ -3,6 +3,11 @@ const path = require('node:path')
 const process = require('node:process')
 const dayjs = require('dayjs')
 
+// Static regex patterns to avoid re-compilation
+const REGEX_DRAFT_LINE = /\ndraft:\s*true\s*\n/
+const REGEX_DATE_LINE = /date:\s*[^\n]+/
+const REGEX_CATEGORY = /category:\s*"?([^"\n]+)"?/
+
 function parseArgs() {
   const args = process.argv.slice(2)
   let filePath = ''
@@ -33,11 +38,11 @@ function parseArgs() {
 
 function updateFrontmatter(content, publishDate) {
   // Remove draft: true line
-  let updated = content.replace(/\ndraft:\s*true\s*\n/, '\n')
+  let updated = content.replace(REGEX_DRAFT_LINE, '\n')
 
   // Update date
   updated = updated.replace(
-    /date:\s*[^\n]+/,
+    REGEX_DATE_LINE,
     `date: ${publishDate}`,
   )
 
@@ -59,7 +64,7 @@ async function publish(filePath, publishDate) {
   const content = fs.readFileSync(draftPath, 'utf-8')
 
   // Extract category
-  const categoryMatch = content.match(/category:\s*"?([^"\n]+)"?/)
+  const categoryMatch = content.match(REGEX_CATEGORY)
   const category = categoryMatch ? categoryMatch[1].trim() : 'thoughts'
 
   // Update content

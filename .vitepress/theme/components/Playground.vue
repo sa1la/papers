@@ -17,10 +17,14 @@ const props = withDefaults(defineProps<{
   height: '400px',
 })
 
+// Static regex patterns to avoid re-compilation
+const REGEX_HTML_EXT = /\.html$/
+const REGEX_POSTS_PREFIX = /^\/posts\//
+
 const route = useRoute()
 
 const basePath = computed(() => {
-  const p = route.path.replace(/\.html$/, '').replace(/^\/posts\//, '')
+  const p = route.path.replace(REGEX_HTML_EXT, '').replace(REGEX_POSTS_PREFIX, '')
   return `/playground/${p}/${props.name}`
 })
 
