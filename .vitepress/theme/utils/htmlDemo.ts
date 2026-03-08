@@ -35,7 +35,7 @@ export function extractHtmlDemos(content: string): HtmlDemoRef[] {
  * 根据文章文件路径和 HtmlDemo 引用，计算 demo 目录路径
  * @param postFilePath 文章绝对路径，如 /project/posts/algorithm/union-find.md
  * @param demo HtmlDemo 引用
- * @returns demo 目录绝对路径，如 /project/demos/algorithm/union-find/basic
+ * @returns demo 目录绝对路径，如 /project/posts/algorithm/union-find/basic
  */
 export function getDemoPath(postFilePath: string, demo: HtmlDemoRef): string | null {
   // 从文章路径提取相对路径
@@ -45,7 +45,8 @@ export function getDemoPath(postFilePath: string, demo: HtmlDemoRef): string | n
     return null
 
   const relativePath = postsMatch[1] // algorithm/union-find
-  const demoDir = path.join(process.cwd(), 'demos', relativePath, demo.name)
+  // demo 代码现在存放在 posts/ 目录下（与文章同级）
+  const demoDir = path.join(process.cwd(), 'posts', relativePath, demo.name)
 
   return demoDir
 }
