@@ -100,9 +100,15 @@ export default createContentLoader('posts/**/*.md', {
           console.warn(`[posts.data.ts] Invalid category "${category}" in ${url}`)
         }
 
-        // 获取文件路径
-        const anyItem = item as any
-        const filePath: string | undefined = anyItem.filePath || anyItem.filepath
+        // 获取文件路径 - VitePress ContentData has 'url' which maps to the file path
+        // URL format: /posts/algorithm/union-find (cleanUrls is enabled)
+        // We need to convert URL back to file path
+        let filePath: string | undefined
+        if (url) {
+          const cleanUrl = url.replace(/^\//, '').replace(/\.html$/, '')
+          // URL already starts with 'posts/', so just append .md
+          filePath = path.join(process.cwd(), `${cleanUrl}.md`)
+        }
 
         // 使用原始 Markdown（去掉 frontmatter）预计算阅读时间
         const { source, demoSource } = extractMarkdownSource({ item, filePath })
