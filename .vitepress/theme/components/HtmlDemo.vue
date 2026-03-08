@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HtmlDemoFile } from '../../types/htmlDemo.js'
-import { useRoute } from 'vitepress'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useData, useRoute } from 'vitepress'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { getErrorMessage } from '../utils/error'
 
 const props = withDefaults(defineProps<{
@@ -17,6 +17,31 @@ const REGEX_POSTS_PREFIX = /^\/posts\//
 const REGEX_TRAILING_SLASH = /\/$/
 
 const route = useRoute()
+const { isDark } = useData()
+
+// iframe ref for theme sync
+const iframeRef = ref<HTMLIFrameElement | null>(null)
+
+// ── theme sync ────────────────────────────────────────────────────────────
+function sendThemeToIframe() {
+  const iframe = iframeRef.value
+  if (!iframe?.contentWindow)
+    return
+  iframe.contentWindow.postMessage(
+    { type: 'theme', isDark: isDark.value },
+    '*',
+  )
+}
+
+// send initial theme when iframe loads
+function onIframeLoad() {
+  sendThemeToIframe()
+}
+
+// send theme when it changes
+watch(isDark, () => {
+  sendThemeToIframe()
+})
 
 const basePath = computed(() => {
   // Remove .html suffix and /posts/ prefix, then remove trailing slash
@@ -122,11 +147,13 @@ onMounted(async () => {
     <!-- demo iframe -->
     <iframe
       v-show="activeTab === 0"
+      ref="iframeRef"
       :src="iframeSrc"
       :style="{ height }"
       class="hd-iframe"
       sandbox="allow-scripts allow-same-origin"
       loading="lazy"
+      @load="onIframeLoad"
     />
 
     <!-- source code panels -->

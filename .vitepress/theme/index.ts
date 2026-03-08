@@ -28,7 +28,6 @@ export default {
     app.component('Favorites', Favorites)
     app.component('Tags', Tags)
     app.component('HtmlDemo', HtmlDemo)
-    // ...
   },
 } satisfies Theme
 
