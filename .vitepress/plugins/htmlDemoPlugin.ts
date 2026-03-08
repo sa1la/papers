@@ -6,7 +6,7 @@ import { transformerColorizedBrackets } from '@shikijs/colorized-brackets'
 import { createHighlighter } from 'shiki'
 import { getErrorMessage, readFileSafe, writeFileSafe } from './utils/fs.js'
 
-const DEMO_SRC = path.resolve(process.cwd(), 'demos')
+const POSTS_SRC = path.resolve(process.cwd(), 'posts')
 const DEMO_PUBLIC = path.resolve(process.cwd(), 'public/demos')
 
 const LIGHT_THEME: BundledTheme = 'github-light-high-contrast'
@@ -150,12 +150,15 @@ async function createSharedHighlighter() {
 }
 
 async function processAll() {
-  if (!fs.existsSync(DEMO_SRC))
+  if (!fs.existsSync(POSTS_SRC))
     return
 
   const highlighter = await createSharedHighlighter()
 
-  const demoDirs = getAllHtmlDemoDirs(DEMO_SRC)
+  const demoDirs = getAllHtmlDemoDirs(POSTS_SRC)
+
+  if (demoDirs.length === 0)
+    return
 
   for (const demoDir of demoDirs) {
     try {
@@ -173,8 +176,8 @@ async function processAll() {
 
   highlighter.dispose()
 
-  // sync to public/demos/
-  copyDir(DEMO_SRC, DEMO_PUBLIC)
+  // sync demos from posts/ to public/demos/
+  copyDir(POSTS_SRC, DEMO_PUBLIC)
 }
 
 export function htmlDemoPlugin() {
@@ -201,7 +204,7 @@ export function htmlDemoPlugin() {
           watch: {
             ignored: [
               `${DEMO_PUBLIC}/**`,
-              `${DEMO_SRC}/**/output.json`,
+              `${POSTS_SRC}/**/output.json`,
             ],
           },
         },
@@ -214,12 +217,12 @@ export function htmlDemoPlugin() {
     configureServer(server: any) {
       const { watcher } = server
 
-      if (fs.existsSync(DEMO_SRC)) {
-        watcher.add(path.join(DEMO_SRC, '**'))
+      if (fs.existsSync(POSTS_SRC)) {
+        watcher.add(path.join(POSTS_SRC, '**'))
       }
 
       watcher.on('change', async (filePath: string) => {
-        if (!filePath.startsWith(DEMO_SRC))
+        if (!filePath.startsWith(POSTS_SRC))
           return
         if (path.basename(filePath) === 'output.json')
           return
@@ -233,7 +236,7 @@ export function htmlDemoPlugin() {
           await processHtmlDemo(demoDir, highlighter)
 
           // sync changed demo to public
-          const rel = path.relative(DEMO_SRC, demoDir)
+          const rel = path.relative(POSTS_SRC, demoDir)
           copyDir(demoDir, path.join(DEMO_PUBLIC, rel))
 
           console.warn(`[html-demo] updated: ${rel}`)

@@ -42,6 +42,14 @@ func (uf *UnionFind) Connected(x, y int) bool {
 	return uf.Find(x) == uf.Find(y)
 }
 
+// 运行示例输出：
+//
+//	0 and 2 connected: true
+//	0 and 3 connected: false
+//	3 and 4 connected: true
+//	1 and 5 connected: false
+//	after union(2,3):
+//	0 and 4 connected: true
 func main() {
 	uf := NewUnionFind(6)
 

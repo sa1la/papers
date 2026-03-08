@@ -43,10 +43,8 @@ posts/drafts/**/*.md
 
 # Demo build artifacts
 public/demos/
-demos/**/output.json
+posts/**/output.json
 
-# Demo duplicate/stale directories
-demos/front-end/
 
 # Temporary debug files
 temp-inspector.html
