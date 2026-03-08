@@ -2,41 +2,45 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-export interface CodeDemoRef {
-  type: 'html' | 'js' | 'go'
+export interface HtmlDemoRef {
   name: string
 }
 
-/**
- * 从 Markdown 内容中提取所有 CodeDemo 引用
- * 匹配格式: <CodeDemo type="xxx" name="yyy" />
- */
-export function extractCodeDemos(content: string): CodeDemoRef[] {
-  const demos: CodeDemoRef[] = []
-  // 匹配 <CodeDemo type="xxx" name="yyy" ... />
-  const regex = /<CodeDemo\s+type=["'](html|js|go)["']\s+name=["']([^"']+)["'][^>]*>/g
+// Pre-compiled regex for extracting HtmlDemo references
+const HTML_DEMO_REGEX = /<HtmlDemo\s+name=["']([^"']+)["'][^>]*>/g
+const POSTS_PATH_REGEX = /posts[/\\](.+?)\.md$/
 
-  let match
-  while ((match = regex.exec(content)) !== null) {
+/**
+ * 从 Markdown 内容中提取所有 HtmlDemo 引用
+ * 匹配格式: <HtmlDemo name="yyy" /> 或 <HtmlDemo name="yyy" height="..." />
+ */
+export function extractHtmlDemos(content: string): HtmlDemoRef[] {
+  const demos: HtmlDemoRef[] = []
+
+  let match: RegExpExecArray | null = HTML_DEMO_REGEX.exec(content)
+  while (match !== null) {
     demos.push({
-      type: match[1] as CodeDemoRef['type'],
-      name: match[2],
+      name: match[1],
     })
+    match = HTML_DEMO_REGEX.exec(content)
   }
+
+  // Reset regex lastIndex for potential reuse
+  HTML_DEMO_REGEX.lastIndex = 0
 
   return demos
 }
 
 /**
- * 根据文章文件路径和 CodeDemo 引用，计算 demo 目录路径
+ * 根据文章文件路径和 HtmlDemo 引用，计算 demo 目录路径
  * @param postFilePath 文章绝对路径，如 /project/posts/algorithm/union-find.md
- * @param demo CodeDemo 引用
+ * @param demo HtmlDemo 引用
  * @returns demo 目录绝对路径，如 /project/demos/algorithm/union-find/basic
  */
-export function getDemoPath(postFilePath: string, demo: CodeDemoRef): string | null {
+export function getDemoPath(postFilePath: string, demo: HtmlDemoRef): string | null {
   // 从文章路径提取相对路径
   // posts/algorithm/union-find.md -> algorithm/union-find
-  const postsMatch = postFilePath.match(/posts[/\\](.+?)\.md$/)
+  const postsMatch = POSTS_PATH_REGEX.exec(postFilePath)
   if (!postsMatch)
     return null
 
@@ -88,13 +92,13 @@ export function loadDemoSource(demoPath: string): string {
 }
 
 /**
- * 收集文章中所有 CodeDemo 的源代码
+ * 收集文章中所有 HtmlDemo 的源代码
  * @param postFilePath 文章文件路径
  * @param markdownContent Markdown 内容
  * @returns 所有 demo 源代码拼接
  */
 export function collectDemoSources(postFilePath: string, markdownContent: string): string {
-  const demos = extractCodeDemos(markdownContent)
+  const demos = extractHtmlDemos(markdownContent)
   if (demos.length === 0)
     return ''
 

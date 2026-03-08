@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import { createContentLoader } from 'vitepress'
 import { isValidCategory } from '../../config/categories'
 import { beautifyDate, getReadingTime } from './utils'
-import { collectDemoSources } from './utils/codeDemo'
+import { collectDemoSources } from './utils/htmlDemo'
 
 export interface Post {
   title: string

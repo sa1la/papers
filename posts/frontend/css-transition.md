@@ -12,7 +12,7 @@ outline: deep
 
 下面的卡片用 CSS transition 控制颜色与缩放的平滑过渡，JS 只负责在 `mouseenter`/`mouseleave` 时动态设置颜色值。
 
-<CodeDemo type="html" name="demo1" height="220px" />
+<HtmlDemo name="demo1" height="220px" />
 
 核心思路：
 

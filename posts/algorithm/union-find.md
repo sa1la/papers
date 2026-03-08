@@ -67,8 +67,8 @@ func (uf *UnionFind) Size(i int) int {
 
 **Go 实现**
 
-<CodeDemo type="go" name="basic" />
+<<< @/demos/algorithm/union-find/basic/main.go
 
 **JS 性能对比**
 
-<CodeDemo type="js" name="compare" />
+<<< @/demos/algorithm/union-find/compare/main.js

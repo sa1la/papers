@@ -1,6 +1,3 @@
-// --- demo:hide:start ---
-import { bench } from '../../../shared/bench.js'
-// --- demo:hide:end ---
 // 并查集性能对比：naive vs. 路径压缩 + 按秩合并
 function makeNaive(n) {
   const parent = Array.from({ length: n }, (_, i) => i)
@@ -43,21 +40,18 @@ function makeOptimized(n) {
   return { find, union }
 }
 
+// 使用示例
 const N = 10000
 const OPS = 50000
 
-bench('naive union-find', () => {
-  const uf = makeNaive(N)
-  for (let i = 0; i < OPS; i++) {
-    uf.union(Math.floor(Math.random() * N), Math.floor(Math.random() * N))
-  }
-}, 10)
+// naive 版本测试
+const uf1 = makeNaive(N)
+for (let i = 0; i < OPS; i++) {
+  uf1.union(Math.floor(Math.random() * N), Math.floor(Math.random() * N))
+}
 
-bench('optimized union-find', () => {
-  const uf = makeOptimized(N)
-  for (let i = 0; i < OPS; i++) {
-    uf.union(Math.floor(Math.random() * N), Math.floor(Math.random() * N))
-  }
-}, 10)
-
-console.log('done. n =', N, ', ops per run =', OPS)
+// optimized 版本测试
+const uf2 = makeOptimized(N)
+for (let i = 0; i < OPS; i++) {
+  uf2.union(Math.floor(Math.random() * N), Math.floor(Math.random() * N))
+}
