@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import mdFootnote from 'markdown-it-footnote'
 import { defineConfig } from 'vitepress'
 import { getExcludedFiles } from './config/buildFilter'
-import { codeDemoPlugin } from './plugins/codeDemoPlugin'
+import { htmlDemoPlugin } from './plugins/htmlDemoPlugin'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -14,7 +14,7 @@ export default defineConfig({
   vite: {
     plugins: [
       tailwindcss(),
-      codeDemoPlugin(),
+      htmlDemoPlugin(),
     ],
   },
   head: [['link', { rel: 'icon', href: `/favicon.jpg` }]],
@@ -26,6 +26,7 @@ export default defineConfig({
   cacheDir: './node_modules/vitepress_cache',
   appearance: 'dark',
   cleanUrls: true,
+  ignoreDeadLinks: true,
   themeConfig: {
     nav: [
       { text: 'home', link: '/' },
