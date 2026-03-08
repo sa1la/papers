@@ -1,15 +1,19 @@
 ---
 title: "CSS提升"
-date: 2023-09-09T17:06:37+08:00
+date: 2024-09-09T17:06:37+08:00
 outline: "deep"
 tags: ["frontend"]
 category: frontend
 draft: false
 ---
 
-工作以来，我对 css 的掌握一直停留在对常见布局设计的实现上。我在空白页面上描绘样式比较熟悉，但对已有和非常见样式的开发上就有些费劲。因此想对一些复杂场景的样式上做些整理，并学习些新的技巧。
+工作以来，我对 CSS 的掌握一直停留在对常见布局设计的实现上。在空白页面上描绘样式比较熟悉，但对已有和非常见样式的开发上就有些费劲。因此想对一些复杂场景的样式上做些整理，并学习些新的技巧。
 
-## Chrome 2024 新特性
+这篇文章分为五个部分，从最新的 2024 特性到实战技巧，帮助你系统提升 CSS 能力。
+
+## Part 1: 2024 现代 CSS 新特性
+
+浏览器能力持续增强，以下新特性可以在特定场景下替代 JavaScript 方案。
 
 ### field-sizing：让表单元素自适应内容
 
@@ -21,26 +25,13 @@ textarea, select, input {
 }
 ```
 
-> This will work for any font, any font size, any language and any writing mode. What used to be high effort will now be low effort.
+> 适用于任何字体、字号、语言和书写模式。过去需要复杂计算的工作，现在一行代码搞定。
+
+**浏览器支持**：Chrome 123+, Edge 123+, Firefox 136+, Safari 17.4+
+
+**实战场景**：搜索框自动扩展、评论输入框随内容增高。
 
 <HtmlDemo name="field-sizing" height="360px" />
-
-### scrollsnapchanging：监听滚动吸附状态
-
-新增的 `scrollsnapchanging` 和 `scrollsnapchange` 事件让你可以实时感知滚动吸附的进度和最终落点，非常适合实现轮播图指示器或阅读进度提示。
-
-```js
-scroller.addEventListener('scrollsnapchanging', (event) => {
-  // eslint-disable-next-line no-console
-  console.log(event.snapTargetBlock)
-  // eslint-disable-next-line no-console
-  console.log(event.snapTargetInline)
-})
-```
-
-更多细节参考 [Chrome Dev 的文档](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)。
-
-<HtmlDemo name="scroll-snap-events" height="420px" />
 
 ### light-dark()：一行代码适配亮暗双主题
 
@@ -57,6 +48,10 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 }
 ```
 
+**浏览器支持**：Chrome 123+, Edge 123+, Firefox 120+, Safari 17.5+
+
+**降级方案**：使用 `@supports` 检测或先定义一套默认颜色再覆盖。
+
 <HtmlDemo name="light-dark" height="520px" />
 
 ### @property：让 CSS 变量支持动画过渡
@@ -69,7 +64,20 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
   inherits: false;
   initial-value: 45deg;
 }
+
+.animated-gradient {
+  background: linear-gradient(var(--rotation), red, blue);
+  transition: --rotation 0.5s;
+}
+
+.animated-gradient:hover {
+  --rotation: 180deg;
+}
 ```
+
+**浏览器支持**：Chrome 85+, Edge 85+, Firefox 128+, Safari 16.5+
+
+**实战场景**：渐变旋转动画、动态边框效果、复杂交互状态。
 
 更多用法参考 [MDN 文档](https://developer.mozilla.org/en-US/docs/Web/CSS/@property)。
 
@@ -80,406 +88,133 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 为新创建或新显示的元素定义动画初始状态，解决过去"元素一出现就已经是最终样式，看不到过渡效果"的问题。常用于弹窗、下拉菜单、消息提示等场景。
 
 ```css
-div {
-  transition: background-color 0.5s;
-  background-color: transparent;
+.popup {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s, transform 0.3s;
 
   @starting-style {
-    background-color: yellow;
+    opacity: 0;
+    transform: scale(0.8);
   }
 }
 ```
 
+**浏览器支持**：Chrome 117+, Edge 117+, Firefox 129+, Safari 17.5+
+
+**实战场景**：Dialog 弹窗入场、Toast 消息滑入、下拉菜单展开。
+
 <HtmlDemo name="starting-style" height="450px" />
 
----
+### Scroll Snap 事件：监听滚动吸附状态
 
-## 实用 CSS 技巧
+新增的 `scrollsnapchanging` 和 `scrollsnapchange` 事件让你可以实时感知滚动吸附的进度和最终落点，非常适合实现轮播图指示器或阅读进度提示。
 
-### 设置宽高比例（Aspect Ratio）
+```js
+scroller.addEventListener('scrollsnapchanging', (event) => {
+  console.log(event.snapTargetBlock)
+  console.log(event.snapTargetInline)
+})
+```
 
-通过 aspect-ratio 属性，可以根据指定的宽度自动调整高度（反之亦然）。
+**浏览器支持**：Chrome 129+, Edge 129+, Firefox 136+, Safari 暂未支持
+
+**实战场景**：轮播图指示器同步、阅读进度条、图片画廊计数器。
+
+更多细节参考 [Chrome Dev 的文档](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)。
+
+<HtmlDemo name="scroll-snap-events" height="420px" />
+
+### accent-color：表单控件主题色
+
+一行代码统一表单控件的品牌色：
 
 ```css
-.box {
-  width: 90%;
-  aspect-ratio: 16/9;
+:root {
+  accent-color: #ff6b6b; /* 影响 checkbox、radio、range、progress 等 */
+}
+
+/* 配合 color-scheme 使用 */
+.form-dark {
+  color-scheme: dark;
+  accent-color: #4ecdc4;
 }
 ```
 
-适合用在视频播放器或图片容器中，确保它们以正确的比例呈现。
+**浏览器支持**：Chrome 93+, Edge 93+, Firefox 92+, Safari 15+
 
-#### 另一种居中对齐
+**实战场景**：快速统一表单品牌色、深色模式适配。
+
+### color-mix()：颜色混合
+
+在 CSS 中直接混合颜色，无需预处理器或手动计算：
 
 ```css
-.box {
-  display: grid;
-  place-items: center;
+/* 基础混合 */
+.mixed {
+  color: color-mix(in srgb, blue 50%, white);
+}
+
+/* 创建色阶 */
+:root {
+  --primary: #6366f1;
+  --primary-light: color-mix(in srgb, var(--primary) 70%, white);
+  --primary-dark: color-mix(in srgb, var(--primary) 70%, black);
+  --primary-muted: color-mix(in srgb, var(--primary) 50%, transparent);
 }
 ```
 
-#### 限制文本宽度（Limit Text Width）
+**浏览器支持**：Chrome 111+, Edge 111+, Firefox 128+, Safari 16.2+
 
-通过限制每行文本的最大字符数，提升可读性：
+**实战场景**：动态生成色阶、主题色透明度变体、无需 CSS 变量预定义所有色调。
+
+## Part 2: 布局进阶
+
+现代 CSS 布局已从"hack 时代"进入"声明式时代"。
+
+### CSS 嵌套：原生嵌套语法
+
+CSS 现在支持原生的嵌套语法，无需预处理器：
 
 ```css
-p {
-  max-width: 100ch;
+.card {
+  background: white;
+
+  /* 嵌套选择器 */
+  & h2 {
+    font-size: 1.5rem;
+  }
+
+  /* & 表示父选择器（类似 Sass） */
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 嵌套媒体查询 */
+  @media (min-width: 768px) {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* 组合选择器 */
+  &.featured {
+    border: 2px solid gold;
+  }
 }
 ```
 
-“ch” 单位表示一个字符的宽度，非常适合用于段落样式。
+**浏览器支持**：Chrome 112+, Edge 112+, Firefox 117+, Safari 16.5+
 
-#### ::target-text 用于文本高亮显示
+**注意事项**：
 
-```css
- ::target-text {
-   background-color: yellow;
- }
-```
+- 嵌套选择器必须以 `&`、`.`、`#`、`[`、`*`、`:`、`::` 开头，或以标签名开头（标签名需要 `&` 前缀，如 `& article`）
+- 嵌套层级不宜过深，建议不超过 3 层
 
-#### transition
+**实战场景**：组件级样式组织、减少选择器重复、原生 CSS 项目。
 
-可以用来给一些样式添加过渡效果。常见的transition属性包括：
+### CSS Grid：弹性网格布局
 
-- color: 颜色变化
-- background-color: 背景色变化
-- border-color: 边框颜色变化
-- text-decoration-color: 文本装饰颜色变化
-- fill: SVG填充颜色变化
-- stroke: SVG描边颜色变化
-- opacity: 透明度变化
-- box-shadow: 阴影变化
-- transform: 变形效果
-- filter: 滤镜效果
-- backdrop-filter: 背景滤镜效果
-
-示例:
-
-```css
-.button {
-  background-color: blue;
-  transition: background-color 0.3s ease;
-}
-
-.button:hover {
-  background-color: red;
-}
-```
-
-### **字体调整和文字样式**
-
-#### 用于响应式排版的视口单位
-
-使用视口单位（vw、vh、vmin、vmax）调整字体大小。例如：
-
-```css
-h1 {
-  font-size: 5vw; /* 字体大小随视口宽度变化 */
-}
-```
-
-#### vw 可变字体大小
-
-根据视口宽度调整字体大小，特别适合响应式设计：
-
-```css
-p {
-  font-size: clamp(1rem, 2.5vw, 1.5rem);
-}
-```
-
-#### 响应式文本的 Clamp() 函数
-
-使用 `clamp()` 设置字体大小的范围，确保最小和最大限制：
-
-```css
-.responsive-text {
-  font-size: clamp(16px, 4vw, 24px);
-}
-```
-
-#### 通过字体显示交换实现高效字体加载
-
-使用 `font-display: swap` 提高字体加载性能，避免FOIT（不可见文本闪烁）：
-
-```css
-@font-face {
-  font-family: 'CustomFont';
-  src: url('font.woff2') format('woff2');
-  font-display: swap;
-}
-```
-
-#### 具有字体变化设置的可变字体样式
-
-使用 `font-variation-settings` 微调字体样式：
-
-```css
-.variable-font {
-  font-variation-settings: 'wght' 400, 'wdth' 100;
-}
-```
-
-#### 连字符让文本更流畅
-
-使用 `hyphens: auto` 自动连字符，特别适合多语言网站：
-
-```css
-p {
-  hyphens: auto;
-  text-align: justify;
-}
-```
-
-#### 文字描边效果
-
-使用 `-webkit-text-stroke` 为文本添加描边：
-
-```css
-.outlined-text {
-  -webkit-text-stroke: 2px black;
-  color: white;
-}
-```
-
-#### ch 单位用于一致的尺寸
-
-使用 `ch` 单位设置字体大小，基于"0"字符的宽度：
-
-```css
-.monospace {
-  width: 80ch; /* 限制每行80个字符 */
-}
-```
-
-#### ::marker伪元素
-
-使用 `::marker` 设置列表项标记的样式：
-
-```css
-li::marker {
-  color: red;
-  font-size: 1.2em;
-}
-```
-
-#### 可变字体的 font-variation-settings
-
-使用 `font-variation-settings` 微调可变字体：
-
-```css
-.dynamic-font {
-  font-variation-settings: 'wght' 700, 'slnt' -10;
-}
-```
-
-#### 小型大写字母的字体变体
-
-使用 `font-variant: small-caps` 设置小型大写字母：
-
-```css
-.small-caps {
-  font-variant: small-caps;
-}
-```
-
-#### 最佳字体渲染的文本渲染
-
-使用 `text-rendering: optimizeLegibility` 优化字体渲染：
-
-```css
-body {
-  text-rendering: optimizeLegibility;
-}
-```
-
-#### 首字母大写字母
-
-使用 `::first-letter` 设置首字母样式：
-
-```css
-p::first-letter {
-  font-size: 2em;
-  color: red;
-}
-```
-
-#### 字体变体数字
-
-使用 `font-variant-numeric` 控制数字排版：
-
-```css
-.numbers {
-  font-variant-numeric: oldstyle-nums;
-}
-```
-
-#### 字体光学尺寸
-
-使用 `font-optical-sizing` 调整字体光学尺寸：
-
-```css
-.optical-sizing {
-  font-optical-sizing: auto;
-}
-```
-
-#### 文本装饰厚度
-
-使用 `text-decoration-thickness` 控制文本装饰的粗细：
-
-```css
-.underline {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-}
-```
-
-#### 文本下划线偏移
-
-使用 `text-underline-offset` 调整下划线位置：
-
-```css
-.custom-underline {
-  text-underline-offset: 0.3em;
-}
-```
-
-#### 字体功能设置
-
-使用 `font-feature-settings` 启用 OpenType 功能：
-
-```css
-.ligatures {
-  font-feature-settings: "liga" 1, "dlig" 1;
-}
-```
-
-#### 文本装饰-跳过墨迹
-
-使用 `text-decoration-skip-ink` 控制下划线是否跳过字符：
-
-```css
-.skip-ink {
-  text-decoration-skip-ink: auto;
-}
-```
-
-#### 文本下划线位置
-
-使用 `text-underline-position` 调整下划线位置：
-
-```css
-.under-position {
-  text-underline-position: under;
-}
-```
-
-#### 文字装饰风格
-
-使用 `text-decoration-style` 设置文本装饰的线条样式：
-
-```css
-.dashed-underline {
-  text-decoration-style: dashed;
-}
-```
-
-#### 字间距
-
-使用 `word-spacing` 调整字间距：
-
-```css
-.spaced-text {
-  word-spacing: 0.5em;
-}
-```
-
----
-
-### **滚动条相关**
-
-#### 网站平滑滚动
-
-使用 `scroll-behavior: smooth` 实现平滑滚动：
-
-```css
-html {
-  scroll-behavior: smooth;
-}
-```
-
-#### 自定义滚动捕捉点
-
-使用 `scroll-snap-type` 和 `scroll-snap-align` 设置滚动捕捉点：
-
-```css
-.container {
-  scroll-snap-type: y mandatory;
-}
-.section {
-  scroll-snap-align: start;
-}
-```
-
-#### scroll-padding实现平滑滚动
-
-使用 `scroll-padding` 调整滚动填充：
-
-```css
-html {
-  scroll-padding-top: 100px;
-}
-```
-
-#### scroll-snap-align
-
-使用 `scroll-snap-align` 控制滚动捕捉点的对齐方式：
-
-```css
-.snap-item {
-  scroll-snap-align: center;
-}
-```
-
-#### overscroll-behavior
-
-使用 `overscroll-behavior` 控制滚动过度行为：
-
-```css
-.modal {
-  overscroll-behavior: contain;
-}
-```
-
-#### 滚动填充块
-
-使用 `scroll-padding-block` 设置滚动填充：
-
-```css
-.scroll-container {
-  scroll-padding-block: 50px;
-}
-```
-
-#### 内联滚动填充
-
-使用 `scroll-padding-inline` 设置内联滚动填充：
-
-```css
-.horizontal-scroll {
-  scroll-padding-inline: 20px;
-}
-```
-
----
-
-### **布局**
-
-#### 简化布局的网格
-
-使用 CSS 网格布局：
+使用 `auto-fit` 和 `minmax()` 创建响应式网格，无需媒体查询。
 
 ```css
 .grid-container {
@@ -489,42 +224,137 @@ html {
 }
 ```
 
-#### 使用 Flexbox 垂直居中
+**实战场景**：商品列表、图片画廊、卡片布局。
 
-使用 Flexbox 实现水平和垂直居中：
+### 容器查询：比媒体查询更灵活的响应式
+
+容器查询根据**容器尺寸**而非视口尺寸调整样式，更适合组件化开发。
 
 ```css
+/* 定义容器 */
+.card-container {
+  container-type: inline-size;
+  container-name: card; /* 可选：命名容器 */
+}
+
+/* 基于容器尺寸的查询 */
+@container (min-width: 400px) {
+  .card {
+    display: flex;
+    flex-direction: row;
+  }
+  .card img {
+    width: 40%;
+  }
+}
+
+@container (max-width: 399px) {
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* 命名容器查询 */
+@container card (min-width: 600px) {
+  .card {
+    font-size: 1.2rem;
+  }
+}
+```
+
+**浏览器支持**：Chrome 105+, Edge 105+, Firefox 110+, Safari 16+
+
+**实战场景**：可复用组件（卡片在不同侧边栏/主内容区自动适配）、仪表板小部件。
+
+### Flexbox：垂直居中的最佳实践
+
+```css
+/* 方法1：经典居中 */
 .center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-```
 
-#### 纵横比框
-
-使用 `padding-bottom` 保持元素的宽高比：
-
-```css
-.aspect-ratio-box {
-  height: 0;
-  padding-bottom: 56.25%; /* 16:9 */
+/* 方法2：Grid 居中（更简洁） */
+.center-grid {
+  display: grid;
+  place-items: center;
 }
 ```
 
-#### 纵横比属性
-
-使用 `aspect-ratio` 设置宽高比：
+### 宽高比控制：aspect-ratio
 
 ```css
-.modern-aspect-ratio {
+.video-container {
+  width: 100%;
   aspect-ratio: 16 / 9;
 }
+
+/* 兼容性方案（旧浏览器） */
+.legacy-aspect {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+}
+.legacy-aspect > * {
+  position: absolute;
+  inset: 0;
+}
 ```
 
-#### 使用 Flexbox 的粘性页脚
+**浏览器支持**：所有现代浏览器均支持 `aspect-ratio`。旧项目可使用 `padding-bottom` hack。
 
-使用 Flexbox 创建粘性页脚：
+**实战场景**：视频播放器、图片容器、响应式头像。
+
+### 滚动控制：Scroll Snap 完整指南
+
+创建流畅的滚动吸附体验：
+
+```css
+.scroll-container {
+  scroll-snap-type: y mandatory; /* 或 x mandatory/proximity */
+  overflow-y: scroll;
+  height: 100vh;
+}
+
+.scroll-item {
+  scroll-snap-align: start; /* start | center | end */
+  scroll-margin: 20px;      /* 滚动到元素时的边距 */
+}
+
+/* 考虑固定导航栏 */
+html {
+  scroll-padding-top: 80px;
+  scroll-behavior: smooth;
+}
+```
+
+**实战场景**：全屏滚动页面、图片轮播、步骤向导。
+
+### 性能优化：contain 与 content-visibility
+
+```css
+/* 隔离布局计算，防止频繁重排 */
+.widget {
+  contain: layout paint;
+}
+
+/* 延迟渲染屏幕外内容，提升首屏性能 */
+.long-list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px; /* 预估高度防止布局抖动，auto让浏览器记住实际高度 */
+}
+```
+
+**浏览器支持**：`contain` 支持良好；`content-visibility` 需 Chrome 85+。
+
+**实战场景**：长列表虚拟化替代方案、复杂组件隔离。
+
+### 粘性页脚
+
+**Flexbox 方案**：
 
 ```css
 body {
@@ -532,321 +362,525 @@ body {
   flex-direction: column;
   min-height: 100vh;
 }
-.content {
-  flex: 1;
+
+main {
+  flex: 1; /* 主内容区域占满剩余空间 */
 }
 ```
 
-#### 用于文本换行的 CSS 形状
-
-使用 `shape-outside` 实现文本环绕：
+**Grid 方案（更现代）**：
 
 ```css
-.circle {
-  float: left;
-  shape-outside: circle(50%);
+body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
 }
 ```
 
-#### 垂直布局的写作模式
+### 级联层：@layer 管理样式优先级
 
-使用 `writing-mode` 创建垂直布局：
+`@layer` 允许你定义样式层的优先级顺序，解决特异性战争问题：
+
+```css
+/* 定义层的优先级顺序（越靠后优先级越高） */
+@layer reset, base, components, utilities;
+
+/* 在指定层中编写样式 */
+@layer reset {
+  * { margin: 0; padding: 0; }
+}
+
+@layer base {
+  body { font-family: system-ui; }
+}
+
+@layer components {
+  .btn { padding: 0.5rem 1rem; }
+  .btn-primary { background: blue; }
+}
+
+@layer utilities {
+  .hidden { display: none !important; }
+}
+
+/* 未指定层的样式优先级最高 */
+.page-specific { background: white; }
+
+/* 也可以内联定义层 */
+@layer utilities {
+  .text-center { text-align: center; }
+}
+```
+
+**浏览器支持**：Chrome 99+, Edge 99+, Firefox 97+, Safari 15.4+
+
+**实战场景**：
+
+- 管理第三方库样式（将 Bootstrap 放在低优先级层）
+- 组织设计系统（reset → base → components → utilities）
+- 解决 `!important` 滥用问题
+
+**优先级规则**：层优先级 > 特异性 > 源代码顺序
+
+### 文本环绕：shape-outside
+
+```css
+.float-image {
+  float: left;
+  shape-outside: circle(50%);        /* 圆形环绕 */
+  /* shape-outside: polygon(0 0, 100% 0, 50% 100%); */ /* 三角形 */
+  shape-margin: 1em;                 /* 与文字的间距 */
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+}
+```
+
+**浏览器支持**：所有现代浏览器。
+
+**实战场景**：杂志风格排版、不规则图片环绕。
+
+### 滚动行为控制
+
+```css
+/* 防止滚动链（如弹窗内部滚动不触发页面滚动） */
+.modal {
+  overscroll-behavior: contain;
+}
+
+/* 完全禁止滚动回弹效果 */
+.no-overscroll {
+  overscroll-behavior: none;
+}
+```
+
+### 逻辑属性：国际化布局
+
+逻辑属性用抽象的 `inline`（行内方向）和 `block`（块级方向）替代物理方向，自动适配不同书写模式：
+
+```css
+/* 物理属性（ltr/rtl 需要分别处理） */
+.sidebar {
+  margin-left: 1rem;
+  border-right: 1px solid gray;
+}
+
+/* 逻辑属性（自动适配书写方向） */
+.sidebar {
+  margin-inline-start: 1rem;  /* 行内起始边 */
+  border-inline-end: 1px solid gray;  /* 行内结束边 */
+}
+
+/* 常用逻辑属性对照表 */
+/* margin-left/right → margin-inline-start/end */
+/* padding-top/bottom → padding-block-start/end */
+/* border-left → border-inline-start */
+/* width/height → inline-size/block-size */
+
+/* 简写形式 */
+.inset {
+  inset-inline: 1rem;   /* 行内方向左右（或上下在垂直书写模式） */
+  inset-block: 2rem;    /* 块级方向上下（或左右） */
+}
+
+/* 完整简写 */
+.logical-box {
+  padding-inline: 1rem 2rem;  /* 起始 结束 */
+  padding-block: 0.5rem;      /* 起始和结束相同 */
+  border-inline-width: 1px;
+  margin-inline-start: auto;  /* 实现 flex/grid 中的右对齐（无论书写方向） */
+}
+```
+
+**浏览器支持**：所有现代浏览器
+
+**实战场景**：
+
+- 多语言网站（阿拉伯语、希伯来语 RTL 布局）
+- 垂直书写模式（日语传统排版）
+- 编写可复用的国际化组件
+
+## Part 3: 文字排版精修
+
+### 响应式字体：clamp() 与视口单位
+
+使用 `clamp()` 设置字体大小的最小值、推荐值和最大值：
+
+```css
+.responsive-text {
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  /* 最小 1rem，推荐 2.5vw，最大 1.5rem */
+}
+```
+
+**实战场景**：标题自适应、大段落阅读优化。
+
+### 可变字体：font-variation-settings
+
+使用可变字体（Variable Fonts）可以仅加载一个字体文件，通过轴参数微调样式：
+
+```css
+.variable-font {
+  font-variation-settings: 'wght' 400, 'wdth' 100, 'slnt' -10;
+  /* wght: 字重, wdth: 字宽, slnt: 倾斜 */
+  transition: font-variation-settings 0.3s;
+}
+
+.variable-font:hover {
+  font-variation-settings: 'wght' 700;
+}
+```
+
+**浏览器支持**：所有现代浏览器，需配合可变字体文件。
+
+### 排版细节精修
+
+```css
+/* 限制行宽提升可读性（每行45-75字符最佳） */
+.readable {
+  max-width: 65ch;
+}
+
+/* 自动连字符（需设置 lang 属性） */
+.hyphenated {
+  hyphens: auto;
+  text-align: justify;
+}
+
+/* 小型大写字母 */
+.small-caps {
+  font-variant: small-caps;
+}
+
+/* 数字排版样式 */
+.tabular-nums {
+  font-variant-numeric: tabular-nums; /* 等宽数字，适合表格 */
+}
+.oldstyle-nums {
+  font-variant-numeric: oldstyle-nums; /* 旧式数字（高低错落） */
+}
+
+/* 文本渲染优化 */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 自定义列表标记 */
+li::marker {
+  color: var(--accent-color);
+  font-size: 1.2em;
+}
+
+/* 首字下沉 */
+.drop-cap::first-letter {
+  float: left;
+  font-size: 3em;
+  line-height: 0.8;
+  margin-right: 0.1em;
+}
+
+/* 下划线微调 */
+.underline {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  text-decoration-skip-ink: auto; /* 跳过字符笔画 */
+}
+```
+
+### 文字描边效果
+
+```css
+.outlined-text {
+  -webkit-text-stroke: 2px black;
+  color: transparent; /* 或保留填充色 */
+}
+```
+
+### 文字渐变
+
+```css
+.gradient-text {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text; /* 标准属性 */
+}
+```
+
+### OpenType 特性
+
+```css
+.ligatures {
+  font-feature-settings: "liga" 1, "dlig" 1; /* 标准 / 自由连字 */
+}
+
+/* 或使用属性简写 */
+.ligatures-modern {
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+}
+```
+
+### 字体加载优化
+
+```css
+@font-face {
+  font-family: 'CustomFont';
+  src: url('font.woff2') format('woff2');
+  font-display: swap; /* 避免 FOIT，先显示后备字体 */
+  /* font-optical-sizing 默认为 auto，可变字体会根据字号自动调整光学尺寸 */
+}
+
+/* 如需关闭光学尺寸调整（特殊情况） */
+.no-optical-sizing {
+  font-optical-sizing: none;
+}
+```
+
+### 垂直文本
 
 ```css
 .vertical-text {
   writing-mode: vertical-rl;
+  text-orientation: upright; /* 或 mixed */
 }
 ```
 
-#### column-span
+## Part 4: 视觉与交互
 
-使用 `column-span` 跨越多列布局：
+### 背景和渐变
 
 ```css
+/* 圆锥渐变 */
+.conic-bg {
+  background: conic-gradient(from 0deg, red, yellow, lime, blue, red);
+}
+
+/* 多个背景叠加 */
+.multi-bg {
+  background:
+    url('pattern.png') repeat,
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent),
+    url('photo.jpg') center/cover;
+}
+
+/* 使用 CSS 变量的渐变过渡（配合 @property） */
+@property --gradient-start {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: red;
+}
+
+.animated-gradient {
+  background: linear-gradient(var(--gradient-start), blue);
+  transition: --gradient-start 0.3s;
+}
+.animated-gradient:hover {
+  --gradient-start: orange;
+}
+```
+
+### 混合模式与遮罩
+
+```css
+/* 颜色混合 */
+.blend-multiply {
+  mix-blend-mode: multiply; /* 正片叠底 */
+}
+.blend-overlay {
+  mix-blend-mode: overlay;
+}
+
+/* 图像遮罩 */
+.masked-image {
+  mask-image: url('mask.svg');
+  mask-size: cover;
+  -webkit-mask-image: url('mask.svg'); /* Safari */
+}
+
+/* 毛玻璃效果 */
+.glass {
+  backdrop-filter: blur(10px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+```
+
+### 锚点定位：Anchor Positioning
+
+锚点定位让元素可以相对于另一个元素（锚点）进行定位，是弹出层、工具提示的终极解决方案：
+
+```css
+/* 定义锚点 */
+.anchor-button {
+  anchor-name: --tooltip-trigger;
+}
+
+/* 定位弹出层 */
+.tooltip {
+  /* 相对于锚点定位 */
+  position-anchor: --tooltip-trigger;
+  position: absolute;
+
+  /* 定位在锚点上方，水平居中 */
+  position-area: top center;
+
+  /* 防止溢出视口，空间不足时翻转 */
+  position-try: flip-block;
+}
+
+/* 使用 popover API 配合锚点定位 */
+[popover] {
+  position-anchor: --trigger;
+  position: absolute;
+  position-area: bottom left;
+}
+```
+
+**浏览器支持**：Chrome 125+, Edge 125+, Firefox 开发中, Safari 未支持
+
+**实战场景**：
+
+- 工具提示（Tooltip）自动定位
+- 下拉菜单（Dropdown）防止溢出
+- 弹出层（Popover）跟随触发元素
+- 替代 JavaScript 定位计算
+
+### Popover API
+
+原生弹层 API，配合 `@starting-style` 实现完美动画：
+
+```html
+<!-- 触发按钮 -->
+<button popovertarget="my-popover">打开</button>
+
+<!-- 弹层元素 -->
+<div id="my-popover" popover>内容</div>
+```
+
+```css
+@starting-style {
+  [popover] {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+[popover] {
+  /* 默认居中，可通过锚点定位调整 */
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  /* 最终状态 */
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+/* ::backdrop 控制遮罩层 */
+[popover]::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+```
+
+**浏览器支持**：Chrome 114+, Edge 114+, Firefox 125+, Safari 17+
+
+**特性**：
+
+- `popover="auto"`：自动关闭其他 popover，点击外部关闭
+- `popover="manual"`：完全手动控制，适合复杂交互
+- 自动处理焦点管理、ESC 键关闭、可访问性
+
+### 焦点状态管理
+
+```css
+/* 仅键盘导航时显示焦点样式 */
+button:focus-visible {
+  outline: 2px solid blue;
+  outline-offset: 2px;
+}
+
+/* 表单容器焦点状态 */
+.form-group:focus-within {
+  border-color: blue;
+  box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.1);
+}
+
+/* 自定义选择文本颜色 */
+::selection {
+  background: #ff6b6b;
+  color: white;
+}
+```
+
+### 图像处理
+
+```css
+/* 保持比例填充 */
+.cover-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 像素风格（适合小图标放大） */
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* 多列布局中的跨列标题 */
 .span-all {
   column-span: all;
 }
 ```
 
-#### contain
+## Part 5: 实用工具类
 
-使用 `contain` 优化布局性能：
-
-```css
-.isolated {
-  contain: layout paint;
-}
-```
-
-#### 内容可见性
-
-使用 `content-visibility` 控制屏幕外内容的渲染：
+### 选择器技巧
 
 ```css
-.lazy-render {
-  content-visibility: auto;
+/* 简化多元素选择 */
+:is(h1, h2, h3) {
+  color: blue;
 }
-```
 
----
-
-### **背景和图像**
-
-#### 图像控制的Object-fit属性
-
-使用 `object-fit` 控制图像大小：
-
-```css
-.cover-image {
-  object-fit: cover;
+/* :has() - 父选择器（选择包含特定子元素的父元素） */
+.card:has(img) {
+  /* 只选中包含图片的卡片 */
 }
-```
 
-#### 彩色元素的圆锥渐变
-
-使用 `conic-gradient` 创建渐变背景：
-
-```css
-.conic-bg {
-  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+.form-group:has(:focus) {
+  /* 包含聚焦元素的表单组 */
 }
-```
 
-#### 多个背景图像
-
-使用多个背景图像：
-
-```css
-.multi-bg {
-  background-image: url('bg1.png'), url('bg2.png');
-  background-position: left top, right bottom;
+/* 排除特定元素 */
+button:not(:disabled) {
+  cursor: pointer;
 }
-```
 
-#### 平滑渐变过渡
-
-对渐变背景应用平滑过渡：
-
-```css
-.gradient-transition {
-  background: linear-gradient(45deg, red, blue);
-  transition: background 0.3s ease;
+/* 更复杂的排除 */
+article :not(h2, h3, p) {
+  /* 选中 article 内除了 h2, h3, p 的所有元素 */
 }
-```
 
-#### CSS 屏蔽
-
-使用 `mask` 对图像应用遮罩：
-
-```css
-.masked {
-  mask-image: url('mask.png');
-}
-```
-
-#### 混合模式
-
-使用 `mix-blend-mode` 创建色彩效果：
-
-```css
-.blend {
-  mix-blend-mode: multiply;
-}
-```
-
-#### 用于创意叠加的混合混合模式
-
-使用 `mix-blend-mode` 创建叠加效果：
-
-```css
-.overlay {
-  mix-blend-mode: overlay;
-}
-```
-
-#### 模糊背景的背景滤镜
-
-使用 `backdrop-filter` 创建模糊背景：
-
-```css
-.blur-bg {
-  backdrop-filter: blur(10px);
-}
-```
-
-#### 用于透明颜色的 HSLA
-
-使用 `hsla` 设置透明背景：
-
-```css
-.transparent {
-  background-color: hsla(0, 100%, 50%, 0.5);
-}
-```
-
-#### 图像渲染
-
-使用 `image-rendering` 优化图像显示：
-
-```css
-.pixelated {
-  image-rendering: pixelated;
-}
-```
-
-#### 图像导向
-
-使用 `image-orientation` 控制图像方向：
-
-```css
-.rotate-image {
-  image-orientation: from-image;
-}
-```
-
----
-
-### **交互和动画**
-
-#### :focus-in 伪类
-
-使用 `:focus-within` 设置焦点样式：
-
-```css
-.form-container:focus-within {
-  border-color: blue;
-}
-```
-
-#### 键盘导航的焦点样式
-
-使用 `:focus` 改进焦点样式：
-
-```css
-a:focus {
-  outline: 2px solid blue;
-}
-```
-
-#### 交互式高亮效果
-
-使用 CSS 变量创建交互式高亮效果：
-
-```css
-:root {
-  --highlight: yellow;
-}
-.highlight:hover {
-  background-color: var(--highlight);
-}
-```
-
-#### :focus-visible 用于特定焦点样式
-
-使用 `:focus-visible` 设置焦点样式：
-
-```css
-button:focus-visible {
-  outline: 2px solid red;
-}
-```
-
-#### overscroll-behavior 滚动超调
-
-使用 `overscroll-behavior` 控制滚动行为：
-
-```css
-.scroll-container {
-  overscroll-behavior: none;
-}
-```
-
----
-
-### **表单和输入**
-
-#### 占位符文本样式
-
-使用 `::placeholder` 设置占位符样式：
-
-```css
-input::placeholder {
-  color: #999;
-  font-style: italic;
-}
-```
-
-#### 自定义单选按钮和复选框
-
-使用 `appearance` 自定义表单控件：
-
-```css
-input[type="checkbox"] {
-  appearance: none;
-  /* 自定义样式 */
-}
-```
-
-#### 调整文本区域的属性大小
-
-使用 `resize` 控制文本区域大小调整：
-
-```css
-textarea {
-  resize: vertical;
-}
-```
-
----
-
-### **其他**
-
-#### :not () 伪类
-
-使用 `:not()` 排除特定元素：
-
-```css
-p:not(.special) {
-  color: gray;
-}
-```
-
-#### :empty 表示空元素
-
-使用 `:empty` 隐藏空元素：
-
-```css
+/* 空元素处理 */
 div:empty {
   display: none;
 }
+
+/* 子串匹配属性选择器 */
+a[href*="example"] { }
+a[href^="https"] { }
+a[href$=".pdf"] { }
 ```
 
-#### 自定义选择的突出显示颜色
-
-使用 `::selection` 自定义文本选择样式：
+### 辅助功能
 
 ```css
-::selection {
-  background: yellow;
-  color: black;
-}
-```
-
-#### 自定义下划线
-
-使用 `border-bottom` 自定义下划线：
-
-```css
-.custom-underline {
-  border-bottom: 2px dashed red;
-}
-```
-
-#### 隐藏的辅助文本
-
-使用 `.sr-only` 隐藏元素但保持可访问性：
-
-```css
+/* 屏幕阅读器专用文本 */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -855,333 +889,168 @@ div:empty {
   margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
   border: 0;
 }
-```
 
-#### 选择偶数和奇数元素
-
-使用 `:nth-child` 设置交替样式：
-
-```css
-li:nth-child(odd) {
-  background: #f0f0f0;
+/* 可见时占据空间但不可见 */
+.invisible {
+  visibility: hidden;
 }
 ```
 
-#### CSS计数器
-
-使用 `counter-reset` 和 `counter-increment` 创建自动编号：
+### 文本截断
 
 ```css
-ol {
-  counter-reset: section;
-}
-li::before {
-  counter-increment: section;
-  content: counters(section, ".") " ";
-}
-```
-
-#### CSS :is () 选择器
-
-使用 `:is()` 简化选择器：
-
-```css
-:is(h1, h2, h3) {
-  color: blue;
-}
-```
-
-#### CSS变量的计算
-
-使用 CSS 变量进行计算：
-
-```css
-:root {
-  --base-size: 16px;
-}
-.text {
-  font-size: calc(var(--base-size) * 1.5);
-}
-```
-
-#### 内容的 attr() 函数
-
-使用 `attr()` 显示属性值：
-
-```css
-.tooltip::after {
-  content: attr(data-tooltip);
-}
-```
-
-#### 用于文本换行的 shape-outside
-
-使用 `shape-outside` 实现文本环绕：
-
-```css
-.circle {
-  float: left;
-  shape-outside: circle(50%);
-}
-```
-
-#### 背景的 element() 函数
-
-使用 `element()` 动态引用元素作为背景：
-
-```css
-.mirror {
-  background: element(#source);
-}
-```
-
-#### 文字渐变
-
-使用 `background-clip` 和 `text-fill-color` 创建文字渐变：
-
-```css
-.gradient-text {
-  background: linear-gradient(45deg, red, blue);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-```
-
-#### 长单词的断字属性
-
-使用 `word-break` 控制长单词换行：
-
-```css
-.break-word {
-  word-break: break-all;
-}
-```
-
-#### 设计破损图像的样式
-
-使用 `:broken` 设置破损图像样式：
-
-```css
-img:broken {
-  border: 2px dashed red;
-}
-```
-
-#### CSS 形状
-
-使用 `shape-outside` 创建形状：
-
-```css
-.triangle {
-  float: left;
-  shape-outside: polygon(0 0, 100% 0, 50% 100%);
-}
-```
-
-#### 子串匹配的属性选择器
-
-使用 `[attr*="value"]` 进行子字符串匹配：
-
-```css
-a[href*="example"] {
-  color: red;
-}
-```
-
-#### CSS环境变量
-
-使用 `env()` 访问环境变量：
-
-```css
-.safe-area {
-  padding-top: env(safe-area-inset-top);
-}
-```
-
-#### CSS属性计数器
-
-使用 `:nth-child` 计算属性值出现次数：
-
-```css
-[data-count]::after {
-  content: attr(data-count);
-}
-```
-
-#### 自定义光标样式
-
-使用 `cursor` 更改光标样式：
-
-```css
-.pointer {
-  cursor: pointer;
-}
-```
-
-#### 垂直文本的文本方向
-
-使用 `text-orientation` 旋转文本：
-
-```css
-.vertical {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-}
-```
-
-#### 背景分割的 box-decoration-break
-
-使用 `box-decoration-break` 控制背景分割：
-
-```css
-.box {
-  box-decoration-break: clone;
-}
-```
-
-#### ::cue 用于设置 HTML5 标题样式
-
-使用 `::cue` 设置标题样式：
-
-```css
-video::cue {
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-}
-```
-
-#### 用于截断多行文本的line-clamp
-
-使用 `line-clamp` 限制文本行数：
-
-```css
+/* 单行截断 */
 .truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 多行截断 */
+.line-clamp {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-```
 
-#### 字体字距调整
-
-使用 `font-kerning` 调整字符间距：
-
-```css
-.kerning {
-  font-kerning: normal; /* 可选值：normal | none | auto */
+/* 标准属性（Chrome 132+, Firefox 138+） */
+.line-clamp-standard {
+  display: block; /* 或 -webkit-box（兼容旧版） */
+  line-clamp: 3;
 }
 ```
 
-#### 形状边缘
-
-使用 `shape-margin` 设置形状边距：
+### CSS 计数器
 
 ```css
-.shape {
-  shape-margin: 1em; /* 设置形状与周围内容的间距 */
+/* 自动编号 */
+ol {
+  counter-reset: section;
+}
+
+li::before {
+  counter-increment: section;
+  content: counter(section) ". ";
+}
+
+/* 嵌套列表编号（如 1.1, 1.2, 2.1） */
+.nested-list {
+  counter-reset: item;
+}
+
+.nested-list li {
+  counter-increment: item;
+}
+
+.nested-list li::before {
+  content: counters(item, ".") " "; /* 使用 counters() 连接嵌套层级 */
+  font-weight: bold;
+}
+
+/* 使用属性值作为内容 */
+.tooltip::after {
+  content: attr(data-tooltip);
 }
 ```
 
-#### 滚动边距
-
-使用 `scroll-margin` 设置滚动边距：
+### CSS 变量计算
 
 ```css
-.scroll {
-  scroll-margin: 20px; /* 滚动到元素时保留的边距 */
+:root {
+  --base-size: 16px;
+  --spacing-unit: 0.5rem;
+}
+
+.component {
+  font-size: calc(var(--base-size) * 1.5);
+  padding: calc(var(--spacing-unit) * 4);
+}
+
+/* 使用 min/max/clamp */
+.responsive-width {
+  width: min(100% - 2rem, 1200px);
+  margin-inline: auto;
 }
 ```
 
-#### 选项卡大小
-
-使用 `tab-size` 设置制表符宽度：
+### 斑马纹效果
 
 ```css
-pre {
-  tab-size: 4; /* 设置制表符宽度为4个空格 */
+li:nth-child(odd) {
+  background: #f5f5f5;
+}
+
+/* 或使用更精确的选择 */
+tr:nth-child(2n+1) {
+  background: hsl(0 0% 96%);
 }
 ```
 
-#### 文本最后对齐
-
-使用 `text-align-last` 设置最后一行文本对齐：
+### 安全区域（移动端刘海屏）
 
 ```css
-p {
-  text-align-last: justify; /* 可选值：auto | left | right | center | justify */
+.safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 ```
 
-#### 文本对齐
+## 附录：浏览器支持速查表
 
-使用 `text-justify` 控制文本对齐行为：
+### 2024 新特性
+
+| 特性                 | Chrome | Edge | Firefox | Safari |
+| -------------------- | ------ | ---- | ------- | ------ |
+| `field-sizing`       | 123+   | 123+ | 136+    | 17.4+  |
+| `light-dark()`       | 123+   | 123+ | 120+    | 17.5+  |
+| `@property`          | 85+    | 85+  | 128+    | 16.5+  |
+| `@starting-style`    | 117+   | 117+ | 129+    | 17.5+  |
+| `scrollsnapchanging` | 129+   | 129+ | 136+    | ❌     |
+
+### 常用特性
+
+| 特性                      | 支持情况                                | 备注                  |
+| ------------------------- | --------------------------------------- | --------------------- |
+| **CSS Nesting**           | Chrome 112+, Firefox 117+, Safari 16.5+ | -                     |
+| **Cascade Layers**        | Chrome 99+, Firefox 97+, Safari 15.4+   | `@layer`              |
+| **Anchor Positioning**    | Chrome 125+                             | Firefox/Safari 开发中 |
+| **Popover API**           | Chrome 114+, Firefox 125+, Safari 17+   | -                     |
+| `:has()`                  | Chrome 105+, Firefox 121+, Safari 15.4+ | -                     |
+| `@container`              | Chrome 105+, Firefox 110+, Safari 16+   | -                     |
+| `accent-color`            | Chrome 93+, Firefox 92+, Safari 15+     | -                     |
+| `color-mix()`             | Chrome 111+, Firefox 128+, Safari 16.2+ | -                     |
+| **Logical Properties**    | 全支持                                  | `inline/block`        |
+| `aspect-ratio`            | 全支持                                  | -                     |
+| `content-visibility`      | Chrome 85+                              | Firefox 暂不支持      |
+| `clamp()`                 | 全支持                                  | -                     |
+| `min/max()`               | 全支持                                  | -                     |
+| `backdrop-filter`         | 全支持                                  | Firefox 103+ 默认开启 |
+| `mask`                    | 需前缀                                  | Safari 用 `-webkit-`  |
+| `shape-outside`           | 全支持                                  | -                     |
+| `font-variation-settings` | 全支持                                  | 需可变字体            |
+| `text-stroke`             | 需前缀                                  | 用 `-webkit-`         |
+| `line-clamp`              | 标准属性：Chrome 132+, Firefox 138+     | 旧版用 `-webkit-`     |
+
+### 检测支持情况
 
 ```css
-.justify {
-  text-justify: inter-word; /* 可选值：auto | inter-word | inter-character | none */
+/* 特性检测 */
+@supports (field-sizing: content) {
+  /* 支持时的样式 */
 }
-```
 
-#### 列填充
-
-使用 `column-fill` 控制列内容分布：
-
-```css
-.columns {
-  column-fill: balance; /* 可选值：auto | balance | balance-all */
+@supports not (field-sizing: content) {
+  /* 不支持时的回退 */
 }
-```
 
-#### 轮廓偏移
-
-使用 `outline-offset` 调整轮廓位置：
-
-```css
-button {
-  outline-offset: 2px; /* 设置轮廓与元素边缘的偏移量 */
-}
-```
-
-#### 换行
-
-使用 `line-break` 控制换行行为：
-
-```css
-.break {
-  line-break: strict; /* 可选值：auto | loose | normal | strict | anywhere */
-}
-```
-
-#### 盒子装饰打破
-
-使用 `box-decoration-break` 控制边框和填充渲染：
-
-```css
-.box {
-  box-decoration-break: clone; /* 可选值：slice | clone */
-}
-```
-
-#### 首字母
-
-使用 `::first-letter` 设置首字母样式：
-
-```css
-p::first-letter {
-  font-size: 2em;
-  color: red;
-}
-```
-
-#### 文本导向
-
-使用 `text-orientation` 控制文本方向：
-
-```css
-.vertical {
-  text-orientation: upright; /* 可选值：mixed | upright | sideways */
+/* JavaScript 检测 */
+if (CSS.supports('field-sizing', 'content')) {
+  // 支持
 }
 ```

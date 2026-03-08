@@ -113,6 +113,7 @@ Categories are predefined in `config/categories.ts`:
 - **math** - 数学：数学探索与笔记
 - **thoughts** - 随想：个人思考与随笔
 - **coding-exp** - 经验：编程技巧与经验
+- **frontend** - 前端：前端开发与工程实践
 
 Each post must use one of these categories in frontmatter:
 
