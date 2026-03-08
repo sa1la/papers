@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@property: CSS 自定义属性定义</title>
+    <link rel="stylesheet" href="/demo-base.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-section">
+        <h3>渐变边框动画</h3>
+        <div class="gradient-border-box">
+          <div class="content">
+            <span class="icon">✨</span>
+            <p>悬停查看渐变旋转动画</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-section">
+        <h3>可控渐变进度</h3>
+        <div class="controls">
+          <input type="range" id="gradient-slider" min="0" max="360" value="0" />
+          <span id="gradient-value">0°</span>
+        </div>
+        <div class="progress-box" id="progress-box">
+          <span>渐变角度控制</span>
+        </div>
+      </div>
+
+      <div class="demo-section">
+        <h3>多个动画属性</h3>
+        <div class="multi-anim-box">
+          <span>复合动画效果</span>
+        </div>
+      </div>
+
+      <div class="code-hint">
+        <code>@property --angle { syntax: "&lt;angle&gt;"; ... }</code>
+      </div>
+    </div>
+    <script src="./script.js"></script>
+    <script src="/demo-theme.js"></script>
+  </body>
+</html>

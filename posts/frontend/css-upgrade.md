@@ -9,9 +9,11 @@ draft: false
 
 工作以来，我对 css 的掌握一直停留在对常见布局设计的实现上。我在空白页面上描绘样式比较熟悉，但对已有和非常见样式的开发上就有些费劲。因此想对一些复杂场景的样式上做些整理，并学习些新的技巧。
 
----
+## Chrome 2024 新特性
 
-#### 输入框根据内容自适应
+### field-sizing：让表单元素自适应内容
+
+使用 `field-sizing: content` 让 `<input>` 和 `<textarea>` 根据内容自动调整尺寸，无需 JavaScript。
 
 ```css
 textarea, select, input {
@@ -21,7 +23,11 @@ textarea, select, input {
 
 > This will work for any font, any font size, any language and any writing mode. What used to be high effort will now be low effort.
 
-#### 可以通过今年新增的元素内部滚动条滚动事件控制元素内容展示，详细见[页面](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)
+<HtmlDemo name="field-sizing" height="360px" />
+
+### scrollsnapchanging：监听滚动吸附状态
+
+新增的 `scrollsnapchanging` 和 `scrollsnapchange` 事件让你可以实时感知滚动吸附的进度和最终落点，非常适合实现轮播图指示器或阅读进度提示。
 
 ```js
 scroller.addEventListener('scrollsnapchanging', (event) => {
@@ -32,7 +38,15 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 })
 ```
 
-#### 可以用新增的light-dark()来对某个属性进行亮色和暗色的适配
+更多细节参考 [Chrome Dev 的文档](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)。
+
+<HtmlDemo name="scroll-snap-events" height="420px" />
+
+### light-dark()：一行代码适配亮暗双主题
+
+使用 `light-dark(light-color, dark-color)` 函数定义颜色变量，浏览器会自动根据系统主题或 `color-scheme` 设置选择对应的颜色值。
+
+不再需要维护两套 CSS 变量，也不用写复杂的媒体查询。
 
 ```css
 :root {
@@ -43,9 +57,11 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 }
 ```
 
-#### [@property](https://developer.mozilla.org/en-US/docs/Web/CSS/@property)
+<HtmlDemo name="light-dark" height="520px" />
 
-可以用来做样式属性的公共值
+### @property：让 CSS 变量支持动画过渡
+
+`@property` 允许你定义带有类型约束的 CSS 变量（如角度、百分比、颜色），这让原本无法过渡的属性（如渐变角度）也能实现平滑动画。
 
 ```css
 @property --rotation {
@@ -55,9 +71,13 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 }
 ```
 
-#### @starting-style
+更多用法参考 [MDN 文档](https://developer.mozilla.org/en-US/docs/Web/CSS/@property)。
 
-用来对新增的元素初始样式
+<HtmlDemo name="at-property" height="460px" />
+
+### @starting-style：新元素的入场动画起点
+
+为新创建或新显示的元素定义动画初始状态，解决过去"元素一出现就已经是最终样式，看不到过渡效果"的问题。常用于弹窗、下拉菜单、消息提示等场景。
 
 ```css
 div {
@@ -70,7 +90,13 @@ div {
 }
 ```
 
-#### 设置宽高比例（Aspect Ratio）
+<HtmlDemo name="starting-style" height="450px" />
+
+---
+
+## 实用 CSS 技巧
+
+### 设置宽高比例（Aspect Ratio）
 
 通过 aspect-ratio 属性，可以根据指定的宽度自动调整高度（反之亦然）。
 

@@ -1,0 +1,151 @@
+/* @property demo specific styles */
+
+/* 关键：@property 定义 */
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --progress {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+@property --scale {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+/* 渐变边框动画 */
+.gradient-border-box {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.gradient-border-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from var(--angle),
+    var(--accent),
+    var(--accent-2),
+    var(--accent-3),
+    var(--accent)
+  );
+  border-radius: inherit;
+  z-index: 0;
+  opacity: 0.8;
+  transition: --angle 0.1s;
+}
+
+.gradient-border-box:hover::before {
+  animation: rotate-gradient 2s linear infinite;
+}
+
+@keyframes rotate-gradient {
+  to {
+    --angle: 360deg;
+  }
+}
+
+.gradient-border-box .content {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-color);
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.content p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* 可控渐变进度 */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--card-border);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+#gradient-value {
+  color: var(--text-color);
+  font-family: monospace;
+  font-size: 0.9rem;
+  min-width: 40px;
+}
+
+.progress-box {
+  height: 60px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  background: linear-gradient(
+    90deg,
+    var(--accent) var(--progress),
+    var(--card-border) var(--progress)
+  );
+  transition: --progress 0.1s;
+}
+
+/* 多个动画属性 */
+.multi-anim-box {
+  height: 80px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  background: var(--accent);
+  transform: scale(var(--scale));
+  opacity: calc(var(--scale) * 0.7 + 0.3);
+  transition: --scale 0.3s;
+  cursor: pointer;
+}
+
+.multi-anim-box:hover {
+  --scale: 1.05;
+}

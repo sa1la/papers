@@ -251,42 +251,44 @@ posts/frontend/
 
 **Option A: Use blog theme (recommended)**
 
-Include the theme script and define CSS variables for dark/light modes:
+Include the shared base styles, theme script, and optionally demo-specific styles:
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="/demo-base.css" />
+  <link rel="stylesheet" href="./style.css" />
   <script src="/demo-theme.js"></script>
-  <style>
-    :root {
-      --bg-color: #0d0d0d;
-      --card-border: rgba(255,255,255,0.12);
-      --text-color: rgba(255,255,255,0.7);
-    }
-    :root[data-theme="light"] {
-      --bg-color: #f5f5f5;
-      --card-border: rgba(0,0,0,0.12);
-      --text-color: rgba(0,0,0,0.8);
-    }
-    body {
-      background: var(--bg-color);
-      transition: background 0.3s;
-    }
-  </style>
 </head>
 <body><!-- demo content --></body>
 </html>
 ```
+
+**`demo-base.css`** provides:
+- CSS reset
+- Theme variables (dark/light via `data-theme` attribute)
+- Base layout styles (body, .container, .demo-section)
+- Common utility classes
 
 **Theme Variables Reference:**
 
 | Variable | Dark | Light |
 |----------|------|-------|
 | `--bg-color` | `#0d0d0d` | `#f5f5f5` |
+| `--card-bg` | `rgba(255,255,255,0.03)` | `rgba(0,0,0,0.03)` |
 | `--card-border` | `rgba(255,255,255,0.12)` | `rgba(0,0,0,0.12)` |
-| `--dot-bg` | `#333` | `#ccc` |
-| `--text-color` | `rgba(255,255,255,0.3)` | `rgba(0,0,0,0.4)` |
+| `--text-color` | `rgba(255,255,255,0.8)` | `rgba(0,0,0,0.8)` |
+| `--text-muted` | `rgba(255,255,255,0.5)` | `rgba(0,0,0,0.5)` |
+| `--accent` | `#8ab4e8` | `#1a73e8` |
+| `--accent-2` | `#a8e89a` | `#4caf50` |
+| `--accent-3` | `#e8c88a` | `#ff9800` |
+| `--accent-4` | `#e89ab4` | `#e91e63` |
+
+**Theme Architecture:**
+- Initial theme is passed via URL parameter (`?theme=dark` or `?theme=light`)
+- Dynamic theme changes use `postMessage` with origin validation
+- `demo-theme.js` handles both initialization and live updates
 
 **Option B: Custom styles (special cases)**
 
@@ -311,7 +313,11 @@ For demos requiring specific visual styles, skip the theme script:
 
 1. **Build time**: VitePress plugin scans demo directories, highlights code, generates `output.json`
 2. **Runtime**: `HtmlDemo` component loads iframe and code tabs
-3. **Theme sync**: `demo-theme.js` passes blog theme state to iframe via `postMessage`
+3. **Theme sync**:
+   - Initial theme is passed via URL parameter (`?theme=dark/light`) to avoid message round-trip
+   - Dynamic theme changes use `postMessage` with origin validation (`window.location.origin`)
+   - Both sender (`HtmlDemo.vue`) and receiver (`demo-theme.js`) verify message source
+4. **Shared styles**: `demo-base.css` provides common variables and layout styles for consistency
 
 ### 2. Static Code Blocks
 

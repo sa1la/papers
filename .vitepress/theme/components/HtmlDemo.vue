@@ -27,15 +27,17 @@ function sendThemeToIframe() {
   const iframe = iframeRef.value
   if (!iframe?.contentWindow)
     return
+  // Use window.location.origin for security instead of '*'
   iframe.contentWindow.postMessage(
     { type: 'theme', isDark: isDark.value },
-    '*',
+    window.location.origin,
   )
 }
 
-// send initial theme when iframe loads
+// iframe is ready - no need to send initial theme anymore
+// (initial theme is passed via URL parameter)
 function onIframeLoad() {
-  sendThemeToIframe()
+  // Reserved for future use (e.g., tracking iframe load state)
 }
 
 // send theme when it changes
@@ -43,17 +45,32 @@ watch(isDark, () => {
   sendThemeToIframe()
 })
 
+// listen for theme requests from iframe (e.g., after localStorage theme change)
+function handleDemoMessage(e: MessageEvent) {
+  // Security: verify message is from the iframe
+  const iframe = iframeRef.value
+  if (e.source !== iframe?.contentWindow)
+    return
+
+  if (e.data?.type === 'request-theme') {
+    sendThemeToIframe()
+  }
+}
+
 const basePath = computed(() => {
   // Remove .html suffix and /posts/ prefix, then remove trailing slash
   const p = route.path.replace(REGEX_HTML_EXT, '').replace(REGEX_POSTS_PREFIX, '').replace(REGEX_TRAILING_SLASH, '')
   return `/demos/${p}/${props.name}`
 })
 
+// Capture initial theme once to prevent iframe reload on theme changes
+// Dynamic theme updates are handled via postMessage, not URL changes
+const initialTheme = isDark.value ? 'dark' : 'light'
+
 const iframeSrc = computed(() => {
   // Explicitly request index.html to avoid VitePress SPA interception
-  // When using a directory path with trailing slash, VitePress serves
-  // its own app HTML instead of the static demo index.html
-  return `${basePath.value}/index.html`
+  // Pass initial theme via URL parameter to avoid message round-trip on load
+  return `${basePath.value}/index.html?theme=${initialTheme}`
 })
 
 const files = ref<HtmlDemoFile[]>([])
@@ -72,6 +89,8 @@ let copyTimeoutId: ReturnType<typeof setTimeout> | null = null
 onUnmounted(() => {
   // Clear copy timeout (safe to call with null/undefined)
   clearTimeout(copyTimeoutId!)
+  // Remove message listener
+  window.removeEventListener('message', handleDemoMessage)
 })
 
 async function copyCode(index: number) {
@@ -107,6 +126,7 @@ async function copyCode(index: number) {
 }
 
 onMounted(async () => {
+  window.addEventListener('message', handleDemoMessage)
   try {
     const res = await fetch(`${basePath.value}/output.json`)
     if (!res.ok)
@@ -197,7 +217,8 @@ onMounted(async () => {
   border: none;
   display: block;
   border-radius: 0 0 8px 8px;
-  background: #fff;
+  background: var(--vp-c-bg);
+  color-scheme: light dark;
 }
 
 /* ── file tabs ───────────────────────────────────────────────────────────── */

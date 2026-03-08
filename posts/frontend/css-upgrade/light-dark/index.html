@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>light-dark(): 自动适配亮暗色模式</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="icon">🎨</div>
+        <h2>light-dark() 演示</h2>
+        <p>这个卡片使用 light-dark() 函数定义颜色变量。默认自动跟随系统主题，也可以点击按钮手动指定主题或恢复自动。</p>
+        <button class="action-btn">切换主题</button>
+      </div>
+
+      <div class="color-palette">
+        <h3>自动适配的颜色变量</h3>
+        <div class="colors">
+          <div class="color-item">
+            <div class="swatch bg-primary"></div>
+            <span>背景色</span>
+          </div>
+          <div class="color-item">
+            <div class="swatch text-primary"></div>
+            <span>文字色</span>
+          </div>
+          <div class="color-item">
+            <div class="swatch accent"></div>
+            <span>强调色</span>
+          </div>
+          <div class="color-item">
+            <div class="swatch border"></div>
+            <span>边框色</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <code>
+          :root {<br />
+          &nbsp;&nbsp;color-scheme: light dark;<br />
+          &nbsp;&nbsp;--bg: light-dark(#fff, #0d0d0d);<br />
+          &nbsp;&nbsp;--text: light-dark(#333, #fafafa);<br />
+          }
+        </code>
+      </div>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>
