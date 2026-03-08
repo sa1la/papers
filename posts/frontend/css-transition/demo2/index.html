@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS 变量与过渡动效 - Vue 版本</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background: #0d0d0d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: monospace;
+      }
+
+      .container {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .card {
+        width: 120px;
+        height: 140px;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        cursor: pointer;
+        transition: border-color 0.3s, background 0.3s;
+      }
+
+      .card:hover {
+        border-color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.04);
+      }
+
+      .dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: v-bind('dotColor');
+        transition: background 0.4s, transform 0.4s;
+      }
+
+      .card:hover .dot {
+        transform: scale(1.2);
+      }
+
+      p {
+        color: rgba(255,255,255,0.3);
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        transition: color 0.3s;
+      }
+
+      .card:hover p {
+        color: rgba(255,255,255,0.7);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="container">
+        <div
+          v-for="(color, i) in colors"
+          :key="i"
+          class="card"
+          @mouseenter="activeIndex = i"
+          @mouseleave="activeIndex = null"
+        >
+          <div class="dot" :style="{ background: dotColors[i] }"></div>
+          <p>hover me</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      const { createApp, ref, computed } = Vue
+
+      createApp({
+        setup() {
+          const colors = ['#e8c88a', '#8ab4e8', '#a8e89a', '#e89ab4', '#c8a8e8']
+          const activeIndex = ref(null)
+
+          const dotColors = computed(() => {
+            return colors.map((color, i) =>
+              activeIndex.value === i ? color : '#333'
+            )
+          })
+
+          return { colors, activeIndex, dotColors }
+        }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
