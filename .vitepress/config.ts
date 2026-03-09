@@ -5,6 +5,7 @@ import mdFootnote from 'markdown-it-footnote'
 import { defineConfig } from 'vitepress'
 import { getExcludedFiles } from './config/buildFilter'
 import { htmlDemoPlugin } from './plugins/htmlDemoPlugin'
+import { vueDemoPlugin } from './plugins/vueDemoPlugin'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -15,7 +16,13 @@ export default defineConfig({
     plugins: [
       tailwindcss(),
       htmlDemoPlugin(),
+      vueDemoPlugin(),
     ],
+    server: {
+      fs: {
+        allow: ['..'],
+      },
+    },
   },
   head: [['link', { rel: 'icon', href: `/favicon.jpg` }]],
   base: '/',

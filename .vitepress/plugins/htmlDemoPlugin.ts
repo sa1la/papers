@@ -5,6 +5,7 @@ import process from 'node:process'
 import { transformerColorizedBrackets } from '@shikijs/colorized-brackets'
 import { createHighlighter } from 'shiki'
 import { getErrorMessage, readFileSafe, writeFileSafe } from './utils/fs.js'
+import { isVueDemoDir } from './vueDemoPlugin.js'
 
 const POSTS_SRC = path.resolve(process.cwd(), 'posts')
 const DEMO_PUBLIC = path.resolve(process.cwd(), 'public/demos')
@@ -133,10 +134,16 @@ function hasValidContent(src: string): boolean {
  * Copy directory while:
  * 1. Skipping .md files (they don't need to be in public/)
  * 2. Skipping empty directories (those with only .md files or no content)
- * 3. Removing stale files in destination that don't exist in source
- * 4. Removing empty destination directories after cleanup
+ * 3. Skipping Vue demo directories (handled by vueDemoPlugin)
+ * 4. Removing stale files in destination that don't exist in source
+ * 5. Removing empty destination directories after cleanup
  */
 function copyDir(src: string, dest: string) {
+  // Skip Vue demo directories - they are handled by vueDemoPlugin
+  if (isVueDemoDir(src)) {
+    return
+  }
+
   // Check if source has anything worth copying
   if (!hasValidContent(src)) {
     // If dest exists but source has no valid content, remove dest

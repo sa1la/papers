@@ -22,4 +22,7 @@ export default antfu(
       'no-console': 'off',
     },
   },
+  {
+    ignores: ['public/vue-runtime.esm-browser.js'],
+  },
 )

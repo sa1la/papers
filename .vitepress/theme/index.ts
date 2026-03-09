@@ -13,6 +13,7 @@ import HtmlDemo from './components/HtmlDemo.vue'
 import Tags from './components/Tags.vue'
 import ThemeLayout from './components/ThemeLayout.vue'
 import Title from './components/Title.vue'
+import VueDemo from './components/VueDemo.vue'
 import './style/tailwind.css'
 import './style/index.css'
 
@@ -28,6 +29,7 @@ export default {
     app.component('Favorites', Favorites)
     app.component('Tags', Tags)
     app.component('HtmlDemo', HtmlDemo)
+    app.component('VueDemo', VueDemo)
   },
 } satisfies Theme
 
