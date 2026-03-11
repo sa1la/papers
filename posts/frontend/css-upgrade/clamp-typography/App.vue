@@ -4,7 +4,10 @@ import { computed, ref } from 'vue'
 const viewportWidth = ref(600)
 
 const previewStyle = computed(() => ({
-  width: `${viewportWidth.value}px`,
+  // 用 CSS 变量传递“模拟视口宽度”，避免容器实际宽度超过可视区域导致被裁剪
+  '--sim-width': `${viewportWidth.value}px`,
+  // 把“模拟视口宽度”的 1% 作为模拟 vw 使用
+  '--sim-vw': `${viewportWidth.value / 100}px`,
 }))
 </script>
 
@@ -84,8 +87,8 @@ const previewStyle = computed(() => ({
   border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 2rem;
-  width: 600px;
-  max-width: 100%;
+  /* 实际容器宽度不会超过可视区域，防止在滑块最大值时左右被裁剪 */
+  width: min(100%, var(--sim-width, 600px));
   margin: 0 auto;
   transition: width 0.2s ease;
   overflow: hidden;
@@ -95,20 +98,22 @@ const previewStyle = computed(() => ({
   text-align: center;
 }
 
-/* 响应式标题 */
+/* 响应式标题
+ * 使用“模拟 vw”：--sim-vw 由滑块控制，相当于视口宽度的 1%
+ */
 .responsive-h1 {
   /* 最小 1.5rem，推荐 4vw + 1rem，最大 3rem */
-  font-size: clamp(1.5rem, 4vw + 1rem, 3rem);
+  font-size: clamp(1.5rem, calc(var(--sim-vw, 1vw) * 4 + 1rem), 3rem);
   color: var(--text-color);
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1rem;
 }
 
-/* 响应式正文 */
+/* 响应式正文：同样用“模拟 vw” 驱动字号变化 */
 .responsive-text {
   /* 最小 1rem，推荐 2.5vw，最大 1.5rem */
-  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-size: clamp(1rem, calc(var(--sim-vw, 1vw) * 2.5), 1.5rem);
   color: var(--text-color);
   line-height: 1.7;
 }

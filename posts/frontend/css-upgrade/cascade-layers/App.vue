@@ -7,22 +7,41 @@
     <div class="demo-section">
       <h3>@layer 优先级演示</h3>
       <p class="desc">
-        不同层中的相同样式，层顺序决定优先级
+        同一类名写在不同层里时，靠后的层会覆盖前面的层；未分层样式优先级最高
       </p>
-      <div class="buttons">
-        <button class="btn-base">
-          base 层
-        </button>
-        <button class="btn-components">
-          components 层
-        </button>
-        <button class="btn-utilities">
-          utilities 层
-        </button>
-        <button class="btn-unlayered">
-          无层 (最高)
-        </button>
-      </div>
+      <section class="buttons-group">
+        <h4 class="group-title">
+          分层按钮（不同层，不同外观）
+        </h4>
+        <div class="buttons">
+          <button class="btn-base">
+            base 层
+          </button>
+          <button class="btn-components">
+            components 层
+          </button>
+          <button class="btn-utilities">
+            utilities 层
+          </button>
+          <button class="btn-unlayered">
+            无层（未使用 @layer，优先级最高）
+          </button>
+        </div>
+      </section>
+
+      <section class="buttons-group">
+        <h4 class="group-title">
+          同一类名，不同层覆盖
+        </h4>
+        <div class="buttons">
+          <button class="layered-btn">
+            .layered-btn（最终来自 components 层）
+          </button>
+        </div>
+        <p class="hint">
+          同一个选择器在多个层中出现时：reset → base → components → utilities，靠后的层会覆盖前面的层
+        </p>
+      </section>
     </div>
 
     <div class="demo-section">
@@ -74,6 +93,27 @@
   margin-bottom: 1rem;
 }
 
+.buttons-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.group-title {
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.hint {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 /* 定义层优先级顺序 */
 @layer reset, base, components, utilities;
 
@@ -105,6 +145,13 @@
     color: white;
     border-color: var(--accent);
   }
+
+  /* 同一类名在更高层覆盖前一层 */
+  .layered-btn {
+    background: var(--accent-3);
+    color: #0d0d0d;
+    border-color: var(--accent-3);
+  }
 }
 
 /* utilities 层 */
@@ -122,9 +169,7 @@
   background: var(--accent-4);
   color: white;
   border-color: var(--accent-4);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 /* 按钮布局 */

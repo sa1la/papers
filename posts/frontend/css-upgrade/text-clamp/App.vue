@@ -24,11 +24,11 @@ const modeLabel = computed(() => {
       <p>
         同一段长文本在不同截断方式下的表现：
         <code>.truncate</code>
-       、
+        、
         <code>-webkit-line-clamp</code>
         和
         <code>line-clamp</code>
-       。
+        。
       </p>
 
       <div class="modes">
@@ -253,4 +253,3 @@ const modeLabel = computed(() => {
   overflow: hidden;
 }
 </style>
-

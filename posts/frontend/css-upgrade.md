@@ -31,7 +31,7 @@ textarea, select, input {
 
 **实战场景**：搜索框自动扩展、评论输入框随内容增高。
 
-<VueDemo name="field-sizing" height="360px" />
+<VueDemo name="field-sizing"  />
 
 ### light-dark()：一行代码适配亮暗双主题
 
@@ -52,7 +52,7 @@ textarea, select, input {
 
 **降级方案**：使用 `@supports` 检测或先定义一套默认颜色再覆盖。
 
-<VueDemo name="light-dark" height="520px" />
+<VueDemo name="light-dark"  />
 
 ### @property：让 CSS 变量支持动画过渡
 
@@ -81,7 +81,7 @@ textarea, select, input {
 
 更多用法参考 [MDN 文档](https://developer.mozilla.org/en-US/docs/Web/CSS/@property)。
 
-<VueDemo name="at-property" height="460px" />
+<VueDemo name="at-property" />
 
 ### @starting-style：新元素的入场动画起点
 
@@ -123,7 +123,7 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 
 更多细节参考 [Chrome Dev 的文档](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)。
 
-<VueDemo name="scroll-snap-events" height="420px" />
+<VueDemo name="scroll-snap-events" height="400px" />
 
 ### accent-color：表单控件主题色
 
@@ -145,7 +145,7 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 
 **实战场景**：快速统一表单品牌色、深色模式适配。
 
-<VueDemo name="accent-color" height="420px" />
+<VueDemo name="accent-color"  />
 
 ### color-mix()：颜色混合
 
@@ -170,7 +170,7 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 
 **实战场景**：动态生成色阶、主题色透明度变体、无需 CSS 变量预定义所有色调。
 
-<VueDemo name="color-mix" height="460px" />
+<VueDemo name="color-mix" />
 
 ## Part 2: 布局进阶
 
@@ -271,7 +271,7 @@ CSS 现在支持原生的嵌套语法，无需预处理器：
 
 **实战场景**：可复用组件（卡片在不同侧边栏/主内容区自动适配）、仪表板小部件。
 
-<VueDemo name="container-queries" height="420px" />
+<VueDemo name="container-queries" />
 
 ### Flexbox：垂直居中的最佳实践
 
@@ -429,7 +429,7 @@ body {
 
 **优先级规则**：层优先级 > 特异性 > 源代码顺序
 
-<VueDemo name="cascade-layers" height="480px" />
+<VueDemo name="cascade-layers"  />
 
 ### 文本环绕：shape-outside
 
@@ -449,7 +449,7 @@ body {
 
 **实战场景**：杂志风格排版、不规则图片环绕。
 
-<VueDemo name="shape-outside" height="460px" />
+<VueDemo name="shape-outside"  />
 
 ### 滚动行为控制
 
@@ -526,7 +526,7 @@ body {
 
 **实战场景**：标题自适应、大段落阅读优化。
 
-<VueDemo name="clamp-typography" height="400px" />
+<VueDemo name="clamp-typography" height="600px"  />
 
 ### 可变字体：font-variation-settings
 
@@ -773,7 +773,7 @@ li::marker {
 - 打开状态样式用 `[popover]:popover-open` 选择器，便于与关闭/初始状态区分做动画
 - 自动处理焦点管理、ESC 键关闭、可访问性
 
-<VueDemo name="popover-api" height="520px" />
+<VueDemo name="popover-api"  />
 
 ### 焦点状态管理
 
@@ -797,7 +797,7 @@ button:focus-visible {
 }
 ```
 
-<VueDemo name="focus-states" height="360px" />
+<VueDemo name="focus-states"  />
 
 ### 图像处理
 
@@ -906,7 +906,7 @@ a[href$=".pdf"] { }
 }
 ```
 
-<VueDemo name="text-clamp" height="420px" />
+<VueDemo name="text-clamp"  />
 
 ### CSS 计数器
 
@@ -941,7 +941,7 @@ li::before {
 }
 ```
 
-<VueDemo name="css-counters" height="480px" />
+<VueDemo name="css-counters"  />
 
 ### CSS 变量计算
 
@@ -991,13 +991,13 @@ tr:nth-child(2n+1) {
 
 ### 2024 新特性
 
-| 特性                 | Chrome | Edge | Firefox | Safari |
-| -------------------- | ------ | ---- | ------- | ------ |
+| 特性                 | Chrome | Edge | Firefox | Safari   |
+| -------------------- | ------ | ---- | ------- | -------- |
 | `field-sizing`       | 123+   | 123+ | ❌      | 部分版本 |
-| `light-dark()`       | 123+   | 123+ | 120+    | 17.5+  |
-| `@property`          | 85+    | 85+  | 128+    | 16.5+  |
-| `@starting-style`    | 117+   | 117+ | 129+    | 17.5+  |
-| `scrollsnapchanging` | 129+   | 129+ | 136+    | ❌     |
+| `light-dark()`       | 123+   | 123+ | 120+    | 17.5+    |
+| `@property`          | 85+    | 85+  | 128+    | 16.5+    |
+| `@starting-style`    | 117+   | 117+ | 129+    | 17.5+    |
+| `scrollsnapchanging` | 129+   | 129+ | 136+    | ❌       |
 
 ### 常用特性
 

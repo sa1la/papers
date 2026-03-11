@@ -39,6 +39,8 @@
 <style scoped>
 .shape-demo {
   overflow: hidden;
+  /* 收窄行宽，让文本更明显地绕过形状 */
+  max-width: 520px;
 }
 
 .shape-demo p {
@@ -57,8 +59,8 @@
   float: left;
   margin-right: 1.5rem;
   margin-bottom: 1rem;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
 }
 
 /* 圆形 */

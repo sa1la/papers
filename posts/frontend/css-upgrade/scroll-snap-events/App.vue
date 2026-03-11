@@ -16,10 +16,41 @@ const activeIndex = ref(2)
 const scrollerRef = ref(null)
 
 let scrollTimeout = null
+let supportsSnapEvents = false
+
+function updateActiveItemByPosition() {
+  const scroller = scrollerRef.value
+  if (!scroller)
+    return
+
+  const children = [...scroller.children]
+  if (!children.length)
+    return
+
+  const scrollerRect = scroller.getBoundingClientRect()
+  const centerX = scrollerRect.left + scrollerRect.width / 2
+
+  let bestIndex = 0
+  let bestDistance = Infinity
+
+  children.forEach((el, index) => {
+    const rect = el.getBoundingClientRect()
+    const itemCenterX = rect.left + rect.width / 2
+    const distance = Math.abs(itemCenterX - centerX)
+    if (distance < bestDistance) {
+      bestDistance = distance
+      bestIndex = index
+    }
+  })
+
+  activeIndex.value = bestIndex
+  currentItem.value = items[bestIndex].title
+}
 
 function handleSnapChanging(event) {
   const scroller = scrollerRef.value
-  if (!scroller) return
+  if (!scroller)
+    return
   const targetIndex = [...scroller.children].indexOf(event.snapTargetInline)
   if (targetIndex !== -1) {
     currentItem.value = items[targetIndex].title
@@ -30,7 +61,8 @@ function handleSnapChanging(event) {
 
 function handleSnapChange(event) {
   const scroller = scrollerRef.value
-  if (!scroller) return
+  if (!scroller)
+    return
   const targetIndex = [...scroller.children].indexOf(event.snapTargetInline)
   if (targetIndex !== -1) {
     activeIndex.value = targetIndex
@@ -46,10 +78,12 @@ function handleScroll() {
   if (scrollTimeout)
     clearTimeout(scrollTimeout)
   scrollTimeout = setTimeout(() => {
-    if (scrollState.value === '滚动中...') {
-      scrollState.value = '空闲'
-      isScrolling.value = false
-    }
+    // 在不支持 Scroll Snap 事件的浏览器中，退化为基于位置的检测
+    if (!supportsSnapEvents)
+      updateActiveItemByPosition()
+
+    scrollState.value = '已锁定'
+    isScrolling.value = false
   }, 150)
 }
 
@@ -58,8 +92,13 @@ onMounted(() => {
   if (!scroller)
     return
 
-  scroller.addEventListener('scrollsnapchanging', handleSnapChanging)
-  scroller.addEventListener('scrollsnapchange', handleSnapChange)
+  // 特性检测：仅在支持 scroll snap 事件的浏览器中注册
+  supportsSnapEvents = 'onscrollsnapchange' in scroller || 'onscrollsnapchange' in window
+
+  if (supportsSnapEvents) {
+    scroller.addEventListener('scrollsnapchanging', handleSnapChanging)
+    scroller.addEventListener('scrollsnapchange', handleSnapChange)
+  }
   scroller.addEventListener('scroll', handleScroll)
 
   // 初始化中间项
@@ -167,6 +206,8 @@ function scrollToItem(index) {
 /* 滚动容器 */
 .scroller-wrapper {
   position: relative;
+  max-width: 340px;
+  margin-inline: auto;
 }
 
 .scroller {
