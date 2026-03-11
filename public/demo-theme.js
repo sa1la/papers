@@ -1,6 +1,7 @@
 /**
  * Demo Theme System
- * Reads initial theme from URL parameter, syncs with parent page via postMessage
+ * Reads initial theme from URL parameter, syncs with parent page via postMessage,
+ * and reports its own height to allow the parent VueDemo component to auto-resize.
  */
 (function () {
   function setTheme(isDark) {
@@ -38,6 +39,38 @@
   }
 
   window.addEventListener('message', handleMessage)
+
+  // Report height to parent so that iframe can auto-resize
+  function postHeight() {
+    try {
+      const height = document.documentElement.scrollHeight
+      if (!height || typeof height !== 'number')
+        return
+
+      window.parent.postMessage(
+        { type: 'demo-height', height },
+        window.location.origin,
+      )
+    }
+    catch {
+      // Silently ignore cross-origin or other errors
+    }
+  }
+
+  // Initial height once content has loaded
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    postHeight()
+  }
+  else {
+    window.addEventListener('DOMContentLoaded', () => {
+      postHeight()
+    }, { once: true })
+  }
+
+  // Update height on resize
+  window.addEventListener('resize', () => {
+    postHeight()
+  })
 
   // Cleanup on page unload
   window.addEventListener('beforeunload', () => {

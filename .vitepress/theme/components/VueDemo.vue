@@ -6,9 +6,13 @@ import { getErrorMessage } from '../utils/error'
 
 const props = withDefaults(defineProps<{
   name: string
+  /**
+   * Optional fixed height for demo & code panels.
+   * If omitted, height will follow demo content via postMessage.
+   */
   height?: string
 }>(), {
-  height: '400px',
+  height: undefined,
 })
 
 // Static regex patterns to avoid re-compilation
@@ -19,8 +23,17 @@ const REGEX_TRAILING_SLASH = /\/$/
 const route = useRoute()
 const { isDark } = useData()
 
-// iframe ref for theme sync
+// iframe ref for theme sync & height sync
 const iframeRef = ref<HTMLIFrameElement | null>(null)
+const demoHeight = ref<string | null>(null)
+
+const effectivePanelHeight = computed(() => {
+  // Explicit height prop has highest priority
+  if (props.height)
+    return props.height
+  // Fallback to measured demo height; if not available yet, let browser use default
+  return demoHeight.value ?? 'auto'
+})
 
 // ── theme sync ────────────────────────────────────────────────────────────
 function sendThemeToIframe() {
@@ -48,6 +61,10 @@ function handleDemoMessage(e: MessageEvent) {
 
   if (e.data?.type === 'request-theme') {
     sendThemeToIframe()
+  }
+  else if (e.data?.type === 'demo-height' && typeof e.data.height === 'number') {
+    if (e.data.height > 0)
+      demoHeight.value = `${e.data.height}px`
   }
 }
 
@@ -150,7 +167,7 @@ onMounted(async () => {
       v-show="activeTab === 0"
       ref="iframeRef"
       :src="iframeSrc"
-      :style="{ height }"
+      :style="{ height: effectivePanelHeight }"
       class="vd-iframe"
       sandbox="allow-scripts allow-same-origin"
       loading="lazy"
@@ -158,7 +175,11 @@ onMounted(async () => {
     />
 
     <!-- source code panels -->
-    <div v-if="activeTab > 0 && files[activeTab - 1]" class="vd-code-wrapper">
+    <div
+      v-if="activeTab > 0 && files[activeTab - 1]"
+      class="vd-code-wrapper"
+      :style="{ height: effectivePanelHeight }"
+    >
       <div
         class="vd-code-block"
         v-html="files[activeTab - 1].highlightedHtml"
@@ -244,6 +265,7 @@ onMounted(async () => {
 
 .vd-code-wrapper {
   position: relative;
+  overflow: auto;
 }
 
 .vd-copy-btn {

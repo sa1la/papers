@@ -17,7 +17,6 @@ const accentColorStyle = computed(() => ({
   '--accent-color': activeColor.value,
   'accentColor': activeColor.value,
 }))
-
 </script>
 
 <template>
