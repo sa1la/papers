@@ -27,11 +27,11 @@ textarea, select, input {
 
 > 适用于任何字体、字号、语言和书写模式。过去需要复杂计算的工作，现在一行代码搞定。
 
-**浏览器支持**：Chrome 123+, Edge 123+, Firefox 136+, Safari 17.4+
+**浏览器支持**：Chrome 123+, Edge 123+, Safari（部分新版本），Firefox 暂不支持
 
 **实战场景**：搜索框自动扩展、评论输入框随内容增高。
 
-<HtmlDemo name="field-sizing" height="360px" />
+<VueDemo name="field-sizing" height="360px" />
 
 ### light-dark()：一行代码适配亮暗双主题
 
@@ -52,7 +52,7 @@ textarea, select, input {
 
 **降级方案**：使用 `@supports` 检测或先定义一套默认颜色再覆盖。
 
-<HtmlDemo name="light-dark" height="520px" />
+<VueDemo name="light-dark" height="520px" />
 
 ### @property：让 CSS 变量支持动画过渡
 
@@ -81,7 +81,7 @@ textarea, select, input {
 
 更多用法参考 [MDN 文档](https://developer.mozilla.org/en-US/docs/Web/CSS/@property)。
 
-<HtmlDemo name="at-property" height="460px" />
+<VueDemo name="at-property" height="460px" />
 
 ### @starting-style：新元素的入场动画起点
 
@@ -104,7 +104,7 @@ textarea, select, input {
 
 **实战场景**：Dialog 弹窗入场、Toast 消息滑入、下拉菜单展开。
 
-<HtmlDemo name="starting-style" height="450px" />
+<VueDemo name="starting-style" height="450px" />
 
 ### Scroll Snap 事件：监听滚动吸附状态
 
@@ -123,7 +123,7 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 
 更多细节参考 [Chrome Dev 的文档](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)。
 
-<HtmlDemo name="scroll-snap-events" height="420px" />
+<VueDemo name="scroll-snap-events" height="420px" />
 
 ### accent-color：表单控件主题色
 
@@ -144,6 +144,8 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 **浏览器支持**：Chrome 93+, Edge 93+, Firefox 92+, Safari 15+
 
 **实战场景**：快速统一表单品牌色、深色模式适配。
+
+<VueDemo name="accent-color" height="420px" />
 
 ### color-mix()：颜色混合
 
@@ -167,6 +169,8 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 **浏览器支持**：Chrome 111+, Edge 111+, Firefox 128+, Safari 16.2+
 
 **实战场景**：动态生成色阶、主题色透明度变体、无需 CSS 变量预定义所有色调。
+
+<VueDemo name="color-mix" height="460px" />
 
 ## Part 2: 布局进阶
 
@@ -266,6 +270,8 @@ CSS 现在支持原生的嵌套语法，无需预处理器：
 **浏览器支持**：Chrome 105+, Edge 105+, Firefox 110+, Safari 16+
 
 **实战场景**：可复用组件（卡片在不同侧边栏/主内容区自动适配）、仪表板小部件。
+
+<VueDemo name="container-queries" height="420px" />
 
 ### Flexbox：垂直居中的最佳实践
 
@@ -423,6 +429,8 @@ body {
 
 **优先级规则**：层优先级 > 特异性 > 源代码顺序
 
+<VueDemo name="cascade-layers" height="480px" />
+
 ### 文本环绕：shape-outside
 
 ```css
@@ -440,6 +448,8 @@ body {
 **浏览器支持**：所有现代浏览器。
 
 **实战场景**：杂志风格排版、不规则图片环绕。
+
+<VueDemo name="shape-outside" height="460px" />
 
 ### 滚动行为控制
 
@@ -515,6 +525,8 @@ body {
 ```
 
 **实战场景**：标题自适应、大段落阅读优化。
+
+<VueDemo name="clamp-typography" height="400px" />
 
 ### 可变字体：font-variation-settings
 
@@ -708,46 +720,6 @@ li::marker {
 }
 ```
 
-### 锚点定位：Anchor Positioning
-
-锚点定位让元素可以相对于另一个元素（锚点）进行定位，是弹出层、工具提示的终极解决方案：
-
-```css
-/* 定义锚点 */
-.anchor-button {
-  anchor-name: --tooltip-trigger;
-}
-
-/* 定位弹出层 */
-.tooltip {
-  /* 相对于锚点定位 */
-  position-anchor: --tooltip-trigger;
-  position: absolute;
-
-  /* 定位在锚点上方，水平居中 */
-  position-area: top center;
-
-  /* 防止溢出视口，空间不足时翻转 */
-  position-try: flip-block;
-}
-
-/* 使用 popover API 配合锚点定位 */
-[popover] {
-  position-anchor: --trigger;
-  position: absolute;
-  position-area: bottom left;
-}
-```
-
-**浏览器支持**：Chrome 125+, Edge 125+, Firefox 开发中, Safari 未支持
-
-**实战场景**：
-
-- 工具提示（Tooltip）自动定位
-- 下拉菜单（Dropdown）防止溢出
-- 弹出层（Popover）跟随触发元素
-- 替代 JavaScript 定位计算
-
 ### Popover API
 
 原生弹层 API，配合 `@starting-style` 实现完美动画：
@@ -773,11 +745,13 @@ li::marker {
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
+  transition: opacity 0.2s, transform 0.2s;
+}
 
-  /* 最终状态 */
+/* 打开状态用 :popover-open 区分，便于与初始/关闭状态做动画 */
+[popover]:popover-open {
   opacity: 1;
   transform: scale(1);
-  transition: opacity 0.2s, transform 0.2s;
 }
 
 /* ::backdrop 控制遮罩层 */
@@ -787,13 +761,19 @@ li::marker {
 }
 ```
 
+> 实际项目中边框与遮罩建议用主题变量（如 `var(--card-border)`）以适配亮/暗色。
+
 **浏览器支持**：Chrome 114+, Edge 114+, Firefox 125+, Safari 17+
 
 **特性**：
 
 - `popover="auto"`：自动关闭其他 popover，点击外部关闭
 - `popover="manual"`：完全手动控制，适合复杂交互
+- 触发按钮可加 `popovertargetaction="hide"` 或 `"toggle"` 控制关闭/切换（如「知道了」「取消」按钮）
+- 打开状态样式用 `[popover]:popover-open` 选择器，便于与关闭/初始状态区分做动画
 - 自动处理焦点管理、ESC 键关闭、可访问性
+
+<VueDemo name="popover-api" height="520px" />
 
 ### 焦点状态管理
 
@@ -816,6 +796,8 @@ button:focus-visible {
   color: white;
 }
 ```
+
+<VueDemo name="focus-states" height="360px" />
 
 ### 图像处理
 
@@ -924,6 +906,8 @@ a[href$=".pdf"] { }
 }
 ```
 
+<VueDemo name="text-clamp" height="420px" />
+
 ### CSS 计数器
 
 ```css
@@ -956,6 +940,8 @@ li::before {
   content: attr(data-tooltip);
 }
 ```
+
+<VueDemo name="css-counters" height="480px" />
 
 ### CSS 变量计算
 
@@ -1007,7 +993,7 @@ tr:nth-child(2n+1) {
 
 | 特性                 | Chrome | Edge | Firefox | Safari |
 | -------------------- | ------ | ---- | ------- | ------ |
-| `field-sizing`       | 123+   | 123+ | 136+    | 17.4+  |
+| `field-sizing`       | 123+   | 123+ | ❌      | 部分版本 |
 | `light-dark()`       | 123+   | 123+ | 120+    | 17.5+  |
 | `@property`          | 85+    | 85+  | 128+    | 16.5+  |
 | `@starting-style`    | 117+   | 117+ | 129+    | 17.5+  |
@@ -1019,7 +1005,6 @@ tr:nth-child(2n+1) {
 | ------------------------- | --------------------------------------- | --------------------- |
 | **CSS Nesting**           | Chrome 112+, Firefox 117+, Safari 16.5+ | -                     |
 | **Cascade Layers**        | Chrome 99+, Firefox 97+, Safari 15.4+   | `@layer`              |
-| **Anchor Positioning**    | Chrome 125+                             | Firefox/Safari 开发中 |
 | **Popover API**           | Chrome 114+, Firefox 125+, Safari 17+   | -                     |
 | `:has()`                  | Chrome 105+, Firefox 121+, Safari 15.4+ | -                     |
 | `@container`              | Chrome 105+, Firefox 110+, Safari 16+   | -                     |

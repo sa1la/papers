@@ -291,6 +291,30 @@ export function htmlDemoPlugin() {
       await processAll()
     },
     configureServer(server: any) {
+      // Add middleware to serve HTML demos as static files
+      // This must run before VitePress's SPA middleware
+      server.middlewares.use((req: any, res: any, next: any) => {
+        // Check if request is for a demo HTML file
+        if (req.url?.startsWith('/demos/') && req.url?.endsWith('/index.html')) {
+          const relativePath = req.url.replace('/demos/', '')
+          // Security: resolve to absolute path and ensure it stays within DEMO_PUBLIC
+          const demoPath = path.resolve(DEMO_PUBLIC, relativePath)
+          if (!demoPath.startsWith(DEMO_PUBLIC)) {
+            res.statusCode = 403
+            res.end('Forbidden')
+            return
+          }
+          const content = readFileSafe(demoPath)
+          if (content) {
+            res.setHeader('Content-Type', 'text/html')
+            res.end(content)
+            return
+          }
+          // File doesn't exist - let Vite handle the 404
+        }
+        next()
+      })
+
       const { watcher } = server
 
       if (fs.existsSync(POSTS_SRC)) {

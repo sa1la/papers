@@ -1,5 +1,51 @@
-/* @property demo specific styles */
+<script setup>
+import { ref } from 'vue'
 
+const angle = ref(0)
+</script>
+
+<template>
+  <div class="container">
+    <div class="demo-section">
+      <h3>渐变边框动画</h3>
+      <div class="gradient-border-box">
+        <div class="content">
+          <span class="icon">✨</span>
+          <p>悬停查看渐变旋转动画</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h3>可控渐变进度</h3>
+      <div class="controls">
+        <input
+          v-model.number="angle"
+          type="range"
+          min="0"
+          max="360"
+        >
+        <span class="gradient-value">{{ angle }}°</span>
+      </div>
+      <div class="progress-box" :style="{ '--progress': `${(angle / 360) * 100}%` }">
+        <span>渐变角度控制</span>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h3>多个动画属性</h3>
+      <div class="multi-anim-box">
+        <span>复合动画效果</span>
+      </div>
+    </div>
+
+    <div class="code-hint">
+      <code>@property --angle { syntax: "&lt;angle&gt;"; ... }</code>
+    </div>
+  </div>
+</template>
+
+<style scoped>
 /* 关键：@property 定义 */
 @property --angle {
   syntax: "<angle>";
@@ -107,7 +153,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
-#gradient-value {
+.gradient-value {
   color: var(--text-color);
   font-family: monospace;
   font-size: 0.9rem;
@@ -149,3 +195,4 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .multi-anim-box:hover {
   --scale: 1.05;
 }
+</style>

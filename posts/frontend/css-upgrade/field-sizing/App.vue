@@ -1,5 +1,57 @@
-/* field-sizing demo specific styles */
+<script setup>
+import { ref } from 'vue'
 
+const autoInput = ref('')
+const autoTextarea = ref('')
+
+function handleInput(e) {
+  const target = e.target
+  target.style.borderColor = 'var(--accent)'
+  setTimeout(() => {
+    target.style.borderColor = ''
+  }, 300)
+}
+</script>
+
+<template>
+  <div class="container">
+    <div class="demo-section">
+      <h3>传统固定尺寸</h3>
+      <input
+        type="text"
+        class="fixed-input"
+        placeholder="输入内容看看..."
+        value="这是一段比较长的文本内容，会被截断"
+      >
+      <textarea class="fixed-textarea" rows="3" placeholder="输入多行内容...">
+这是一个传统的 textarea，高度固定为3行。当你输入更多内容时，会出现滚动条而不是自动扩展高度。</textarea>
+    </div>
+
+    <div class="demo-section">
+      <h3>field-sizing: content 自适应</h3>
+      <input
+        v-model="autoInput"
+        type="text"
+        class="auto-input"
+        placeholder="输入内容，宽度会自适应..."
+        @input="handleInput"
+      >
+      <textarea
+        v-model="autoTextarea"
+        class="auto-textarea"
+        placeholder="输入多行内容，高度会自动扩展..."
+        @input="handleInput"
+      />
+    </div>
+
+    <div class="hint">
+      <span class="dot" />
+      在自适应输入框中输入内容，观察尺寸变化
+    </div>
+  </div>
+</template>
+
+<style scoped>
 /* Use --accent instead of --accent-color for consistency */
 :root {
   --input-bg: rgba(255, 255, 255, 0.05);
@@ -94,3 +146,4 @@ textarea::placeholder {
     opacity: 0.5;
   }
 }
+</style>
