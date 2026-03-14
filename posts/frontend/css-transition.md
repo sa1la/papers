@@ -24,7 +24,7 @@ outline: deep
 
 同样的效果用 Vue 3 实现，利用响应式系统和 `computed` 来管理颜色状态：
 
-<VueDemo name="demo2" height="300px" />
+<VueDemo name="demo2" />
 
 对比原生 JS 版本，Vue 的实现有以下特点：
 
