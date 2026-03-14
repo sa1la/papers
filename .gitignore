@@ -10,7 +10,7 @@ node_modules
 .worktrees
 
 # lock files
-*lock.* 
+
 
 # macOS
 .DS_Store
