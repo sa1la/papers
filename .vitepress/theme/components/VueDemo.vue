@@ -73,11 +73,9 @@ const basePath = computed(() => {
   return `/demos/${p}/${props.name}`
 })
 
-const initialTheme = isDark.value ? 'dark' : 'light'
-
-const iframeSrc = computed(() => {
-  return `${basePath.value}/index.html?theme=${initialTheme}`
-})
+// SSR 阶段不设置真实 src，避免与客户端首帧不一致。
+// 客户端挂载后根据当前 isDark 决定初始主题，这样 demo 初始就和页面主题一致。
+const iframeSrc = ref('')
 
 const files = ref<VueDemoFile[]>([])
 const activeTab = ref(0)
@@ -125,6 +123,9 @@ async function copyCode(index: number) {
 
 onMounted(async () => {
   window.addEventListener('message', handleDemoMessage)
+
+  const initialTheme = isDark.value ? 'dark' : 'light'
+  iframeSrc.value = `${basePath.value}/index.html?theme=${initialTheme}`
   try {
     const res = await fetch(`${basePath.value}/output.json`)
     if (!res.ok)
@@ -164,6 +165,7 @@ onMounted(async () => {
 
     <!-- demo iframe -->
     <iframe
+      v-if="iframeSrc"
       v-show="activeTab === 0"
       ref="iframeRef"
       :src="iframeSrc"

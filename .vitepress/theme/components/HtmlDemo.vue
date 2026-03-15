@@ -63,15 +63,9 @@ const basePath = computed(() => {
   return `/demos/${p}/${props.name}`
 })
 
-// Capture initial theme once to prevent iframe reload on theme changes
-// Dynamic theme updates are handled via postMessage, not URL changes
-const initialTheme = isDark.value ? 'dark' : 'light'
-
-const iframeSrc = computed(() => {
-  // Explicitly request index.html to avoid VitePress SPA interception
-  // Pass initial theme via URL parameter to avoid message round-trip on load
-  return `${basePath.value}/index.html?theme=${initialTheme}`
-})
+// SSR 阶段保持空字符串，防止与客户端首帧计算不同导致 hydration mismatch。
+// 实际 iframe 地址在 onMounted 时根据当前 isDark 设置，这样初始化就能跟随页面主题。
+const iframeSrc = ref('')
 
 const files = ref<HtmlDemoFile[]>([])
 // Tab 0 is the demo iframe, tabs 1+ are source files.
@@ -127,6 +121,10 @@ async function copyCode(index: number) {
 
 onMounted(async () => {
   window.addEventListener('message', handleDemoMessage)
+
+  // 根据当前主题设置初始 iframe 地址（只在客户端执行）
+  const initialTheme = isDark.value ? 'dark' : 'light'
+  iframeSrc.value = `${basePath.value}/index.html?theme=${initialTheme}`
   try {
     const res = await fetch(`${basePath.value}/output.json`)
     if (!res.ok)
@@ -166,6 +164,7 @@ onMounted(async () => {
 
     <!-- demo iframe -->
     <iframe
+      v-if="iframeSrc"
       v-show="activeTab === 0"
       ref="iframeRef"
       :src="iframeSrc"
