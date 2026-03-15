@@ -18,11 +18,6 @@ export default defineConfig({
       htmlDemoPlugin(),
       vueDemoPlugin(),
     ],
-    server: {
-      fs: {
-        allow: ['..'],
-      },
-    },
   },
   head: [['link', { rel: 'icon', href: `/favicon.jpg` }]],
   base: '/',
