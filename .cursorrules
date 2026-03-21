@@ -74,51 +74,42 @@ pnpm new <category>/<filename>
 # Example: pnpm new algorithm/kmp-algorithm
 
 # Create a new draft
-pnpm new draft/<category>/<filename>
-# Example: pnpm new draft/tech/my-draft-post
+pnpm new drafts/<category>/<filename>
+# Example: pnpm new drafts/frontend/my-draft-post
 
 # Publish a draft
-pnpm pub <draft-path>
-# Example: pnpm pub posts/drafts/tech/my-draft-post.md
+pnpm pub <category>/<filename>
+# Example: pnpm pub frontend/my-draft-post
 
 # Publish with a specific date (scheduled publishing)
-pnpm pub <draft-path> --date 2024-12-25
-# Example: pnpm pub posts/drafts/tech/my-draft-post.md --date 2024-12-25
+pnpm pub <category>/<filename> --date 2024-12-25
+# Example: pnpm pub frontend/my-draft-post --date 2024-12-25
 ```
 
 ## Architecture
 
 ### Content Structure
 
-Posts are organized in `posts/` by category:
-
-- `algorithm/` - Data structures and algorithms
-- `coding-exp/` - Programming tips and best practices
-- `competitive-coding/` - Competition problem solutions
-- `front-end/` - Frontend development
-- `golang/` - Go language
-- `math/` - Mathematics
-- `reading/` - Reading notes
-- `thoughts/` - Personal reflections
+Posts are organized in `posts/` by the categories defined in `config/categories.ts`, plus `posts/drafts/` for draft content.
 
 ### Category System
 
 Categories are predefined in `config/categories.ts`:
 
-- **tech** - 技术：编程、工具与工程实践
-- **life** - 生活：日常记录与思考
-- **reading** - 阅读：读书笔记与读后感
 - **algorithm** - 算法：数据结构与算法
-- **competitive-coding** - 竞赛：算法竞赛题解
+- **contest** - 竞赛：算法竞赛题解
+- **craft** - 技巧：编程技巧与经验
+- **frontend** - 前端：前端开发与工程实践
+- **backend** - 后端：后端与服务器开发
 - **math** - 数学：数学探索与笔记
-- **thoughts** - 随想：个人思考与随笔
-- **coding-exp** - 经验：编程技巧与经验
+- **notes** - 笔记：阅读笔记与摘抄
+- **essay** - 随笔：个人思考与随笔
 
 Each post must use one of these categories in frontmatter:
 
 ```yaml
 ---
-category: tech # Must be a predefined category
+category: frontend # Must be a predefined category
 series: vitepress-blog # Optional: groups posts into series
 ---
 ```
@@ -133,7 +124,7 @@ series: vitepress-blog # Optional: groups posts into series
 
 **Publishing:**
 
-- Use `pnpm pub <path>` to move draft to production
+- Use `pnpm pub <category>/<filename>` to move draft to production
 - Optionally set a future date with `--date`
 - Posts with future dates are visible in dev but excluded from production until the date passes
 
@@ -355,34 +346,11 @@ Features:
 - Colored brackets via `@shikijs/colorized-brackets`
 - Copy button
 
-## Claude Code Skills
+## Local Skills
 
-This project includes a local skill for blog post management located at `.claude/skills/blog-manager/`.
+This repository includes local skills under `.claude/skills/`.
 
-### Blog Manager Skill
+- Use `.claude/skills/blog-manager/SKILL.md` for post creation, draft publishing, unpublishing, and article proofreading in this repo.
+- Use your global `plain-language-checker` skill for clarity and plain-language review of prose across projects.
 
-A natural language interface for managing blog posts. Instead of memorizing pnpm commands, you can simply say:
-
-| Natural Language          | Action                                        |
-| ------------------------- | --------------------------------------------- |
-| "新建一篇关于 xxx 的文章" | Creates new article (asks draft vs published) |
-| "发布我的 xxx 草稿"       | Publishes a draft to production               |
-| "下线那篇 xxx 文章"       | Moves article back to drafts                  |
-| "帮我挑虫" / "校对文章"   | Proofreads for typos and issues               |
-
-The skill understands project-specific context (categories, frontmatter format, draft workflow) and handles the underlying `pnpm new` / `pnpm pub` commands automatically.
-
-### Plain Language Checker Skill
-
-Located at `.claude/skills/plain-language-checker/`.
-
-Use for reviewing documents for clarity, readability, and plain language compliance:
-
-| Natural Language               | Action                                   |
-| ------------------------------ | ---------------------------------------- |
-| "Check this for plain English" | Reviews document against SEC guidelines  |
-| "Check this for plain Chinese" | Reviews Chinese text for clarity         |
-| "Make this clearer"            | Suggests readability improvements        |
-| "Review for jargon"            | Identifies complex language and legalese |
-
-Follows 13 plain language principles including active voice, short sentences, and omitting superfluous words. Works for any language (English, Chinese, etc.). Uses a three-pass review process with structured checklists.
+Treat the local `SKILL.md` and any global skill's `SKILL.md` as the source of truth for invocation guidance and workflow details. Do not duplicate those rules here.

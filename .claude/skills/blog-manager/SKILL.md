@@ -1,247 +1,133 @@
 ---
 name: blog-manager
-description: Manage VitePress blog posts including creating drafts, publishing, unpublishing, and proofreading. Use this skill when the user mentions "新建文章", "发布文章", "下线文章", "校对文章", "挑虫", "draft", "publish", "unpublish", or "proofread" related to blog content management. Also trigger when user wants to create, manage, or review blog posts in this VitePress project.
+description: Manage blog posts in this VitePress repository. Use when the user wants to create a post or draft, publish a draft, unpublish a post back to drafts, proofread an article, or otherwise operate on content under `posts/`. Triggers include requests such as "新建文章", "写草稿", "发布文章", "下线文章", "挑虫", "校对", "draft", "publish", "unpublish", and "proofread".
 ---
 
 # Blog Manager
 
-## Overview
+Manage the post lifecycle for this repository's VitePress blog.
 
-This skill helps manage blog posts in a VitePress 2.0 blog. It supports the complete article lifecycle: creating drafts, publishing to production, unpublishing/archiving, and proofreading for typos and improvements.
+## Use Repository Reality, Not Stale Docs
 
-## Quick Commands Reference
+Treat `scripts/newPost.cjs`, `scripts/publishPost.cjs`, and `config/categories.ts` as the source of truth.
 
-| Command                            | Purpose                     | Example                                                    |
-| ---------------------------------- | --------------------------- | ---------------------------------------------------------- |
-| `pnpm new <category>/<slug>`       | Create new published post   | `pnpm new tech/my-post`                                    |
-| `pnpm new draft/<category>/<slug>` | Create new draft            | `pnpm new draft/tech/my-draft`                             |
-| `pnpm pub <path>`                  | Publish draft to production | `pnpm pub posts/drafts/tech/my-draft.md`                   |
-| `pnpm pub <path> --date <date>`    | Schedule publish            | `pnpm pub posts/drafts/tech/my-draft.md --date 2024-12-25` |
+Some repo docs are stale and mix `draft` with `drafts`, or mention categories such as `tech`. Do not trust those examples over the scripts.
 
-## Available Categories
+## Validate Before Acting
 
-The following categories are defined in `config/categories.ts`:
+Before creating, publishing, or unpublishing a post:
 
-| Key         | Name | Description        |
-| ----------- | ---- | ------------------ |
-| `algorithm` | 算法 | 数据结构与算法理论 |
-| `contest`   | 竞赛 | 算法竞赛题解       |
-| `craft`     | 技巧 | 编程技巧与经验     |
-| `frontend`  | 前端 | 前端技术与实践     |
-| `backend`   | 后端 | 后端开发与服务器   |
-| `math`      | 数学 | 数学探索与笔记     |
-| `notes`     | 笔记 | 阅读笔记与摘抄     |
-| `essay`     | 随笔 | 个人思考与随笔     |
+1. Validate the category against `config/categories.ts`.
+2. Confirm the target path under `posts/`.
+3. If multiple files match the user's description, ask which one to use.
 
-## Core Capabilities
+Valid categories in this repo:
 
-### 1. Creating New Articles
+- `algorithm`
+- `contest`
+- `craft`
+- `frontend`
+- `backend`
+- `math`
+- `notes`
+- `essay`
 
-When user wants to create a new article:
+## Create a Post or Draft
 
-1. **Determine if it's a draft or published post**
-   - Ask user: "创建为草稿还是直接发布？"
-   - Drafts go to `posts/drafts/<category>/`
-   - Published posts go to `posts/<category>/`
+Use the repository script instead of writing files from scratch.
 
-2. **Get required information**
-   - Category (must be one of the valid categories above)
-   - Article slug (filename, e.g., "my-article")
-   - Title
-   - Tags (optional)
+Commands:
 
-3. **Execute creation command**
-
-   ```bash
-   # For draft
-   pnpm new draft/<category>/<slug>
-
-   # For published post
-   pnpm new <category>/<slug>
-   ```
-
-4. **Update frontmatter if needed**
-   The script creates the file with basic frontmatter. You may need to:
-   - Add tags: `tags: [tag1, tag2]`
-   - Add series: `series: series-name`
-   - Set outline level: `outline: deep`
-
-5. **Post Frontmatter Format**
-
-   ```yaml
-   ---
-   date: YYYY-MM-DD HH:mm:ss Z
-   title: Article Title
-   category: category-key
-   tags: [tag1, tag2]
-   outline: deep
-   ---
-
-   Write excerpt here (shown in listing)
-
-   ---
-
-   Main content starts here...
-   ```
-
-### 2. Publishing Articles
-
-When user wants to publish a draft:
-
-1. **Identify the draft file**
-   - Drafts are in `posts/drafts/<category>/<filename>.md`
-   - Use Glob to find drafts if path not specified
-
-2. **Execute publish command**
-
-   ```bash
-   # Immediate publish
-   pnpm pub posts/drafts/<category>/<filename>.md
-
-   # Scheduled publish
-   pnpm pub posts/drafts/<category>/<filename>.md --date YYYY-MM-DD
-   ```
-
-3. **Verify the move**
-   - Draft is moved to `posts/<category>/`
-   - Date is updated in frontmatter
-
-### 3. Unpublishing (Archiving) Articles
-
-When user wants to unpublish/take down an article:
-
-1. **Identify the published file**
-   - Published posts are in `posts/<category>/<filename>.md`
-   - Find the file using Glob if path not specified
-
-2. **Move to drafts folder**
-
-   ```bash
-   mv posts/<category>/<filename>.md posts/drafts/<category>/<filename>.md
-   ```
-
-3. **Add draft flag to frontmatter**
-
-   ```yaml
-   ---
-   draft: true
-   ---
-   ```
-
-4. **Verify the article is no longer in production**
-   - Check that it's excluded from production builds
-   - Visible only in development mode
-
-### 4. Proofreading Articles (挑虫)
-
-When user asks to "挑虫" or proofread an article:
-
-1. **Identify the target file**
-   - Use Glob to find the article if path not specified
-   - Can proofread drafts or published posts
-
-2. **Read the article content**
-   - Parse frontmatter
-   - Read main content
-
-3. **Check for common issues**
-
-   **Typo Patterns (Chinese)**
-   - 常见错别字：的/地/得，在/再，做/作，那/哪
-   - 标点符号：中英文混用，缺少空格
-   - 格式一致性：标题层级、列表符号
-
-   **Technical Accuracy**
-   - Code blocks have correct syntax highlighting
-   - Links are valid
-   - Math expressions render correctly ($...$ and $$...$$)
-
-   **Content Quality**
-   - Title matches content
-   - Excerpt accurately summarizes the article
-   - Tags are relevant
-
-4. **Provide feedback**
-   - List specific issues with line references
-   - Suggest fixes
-   - Ask if user wants auto-fix or manual review
-
-5. **Optional: Auto-fix minor issues**
-   - Fix obvious typos
-   - Normalize punctuation spacing
-   - Ensure frontmatter consistency
-
-## Workflow Examples
-
-**Example 1: Creating a new draft**
-
-```
-User: 新建一篇关于 React 的文章
-→ Ask: 创建为草稿还是直接发布？
-→ Ask: 选择分类 (frontend/backend/craft/etc.)
-→ Ask: 文章标题和文件名
-→ Run: pnpm new draft/frontend/react-hooks-guide
-→ Update frontmatter with tags if provided
+```bash
+pnpm new <category>/<slug>
+pnpm new drafts/<category>/<slug>
 ```
 
-**Example 2: Publishing a draft**
+Rules:
 
-```
-User: 发布我的 React 草稿
-→ Glob: Find posts/drafts/**/*react*.md
-→ If multiple: Ask user to specify
-→ Run: pnpm pub posts/drafts/frontend/react-hooks-guide.md
-→ Confirm: Article is now in posts/frontend/
-```
+- Use `drafts/<category>/<slug>` for drafts. The script expects `drafts/`, not `draft/`.
+- Use kebab-case for the slug.
+- Let the script generate the initial frontmatter.
+- Edit the generated file only for fields the script does not infer well, such as `tags` or `series`.
 
-**Example 3: Unpublishing**
+The script creates files under:
 
-```
-User: 下线那篇 React 文章
-→ Glob: Find posts/frontend/*react*.md
-→ If multiple: Ask user to specify
-→ Move: posts/frontend/react-hooks-guide.md → posts/drafts/frontend/
-→ Add draft: true to frontmatter
-→ Confirm: Article is unpublished
-```
+- `posts/<category>/<slug>.md`
+- `posts/drafts/<category>/<slug>.md`
 
-**Example 4: Proofreading**
+Minimum follow-up checks:
 
-```
-User: 帮我挑虫
-→ Ask: 检查哪篇文章？
-→ Read: specified article
-→ Analyze: typos, formatting, technical issues
-→ Report: List findings with suggestions
-→ Ask: 是否需要自动修复？
+1. Confirm the file exists at the expected path.
+2. Confirm `title` and `category` are correct.
+3. For drafts, confirm `draft: true` exists.
+
+## Publish a Draft
+
+Use the publish script instead of moving files manually.
+
+Command shape:
+
+```bash
+pnpm pub <category>/<slug>
+pnpm pub <category>/<slug> --date YYYY-MM-DD
 ```
 
-## Important Notes
+Rules:
 
-1. **Draft Visibility**: Drafts are excluded from production builds but visible during `pnpm dev`
+- Pass the path relative to `posts/drafts/`.
+- Do not pass `posts/drafts/...md` to the script unless you have verified the script interface changed.
+- The script removes `draft: true`, updates `date`, writes to `posts/<category>/`, and deletes the draft file.
 
-2. **Date Handling**: When publishing, the date is automatically set to current time (or specified future date)
+Minimum follow-up checks:
 
-3. **Category Validation**: Always validate category against `config/categories.ts` - invalid categories will cause build errors
+1. Confirm the draft file no longer exists.
+2. Confirm the published file exists under `posts/<category>/`.
+3. Confirm `date` was updated.
+4. Confirm `draft: true` was removed.
 
-4. **File Naming**: Use kebab-case for slugs (e.g., "my-article-name" not "myArticleName")
+## Unpublish a Post
 
-5. **Frontmatter Fields**:
-   - `date`: Required, auto-generated by scripts
-   - `title`: Required
-   - `category`: Required, must be valid category key
-   - `tags`: Optional, array of strings
-   - `series`: Optional, groups related posts
-   - `outline`: Optional, set to `deep` for nested headers in sidebar
-   - `draft`: Optional, set to `true` to exclude from production
+There is no dedicated unpublish script in this repo. Perform the operation carefully.
 
-## Resources
+Steps:
 
-### scripts/
+1. Locate the published file under `posts/<category>/<slug>.md`.
+2. Ensure `posts/drafts/<category>/` exists.
+3. Move the file to `posts/drafts/<category>/<slug>.md`.
+4. Preserve existing frontmatter and add or update `draft: true`.
+5. Recheck that the published path is gone and the draft path exists.
 
-The project has built-in scripts for post management:
+Do not replace the entire frontmatter block with a minimal one. Keep existing metadata such as `date`, `title`, `category`, `tags`, `series`, and `outline`.
 
-- `scripts/newPost.cjs` - Creates new posts (called via `pnpm new`)
-- `scripts/publishPost.cjs` - Publishes drafts (called via `pnpm pub`)
+## Proofread an Article
 
-These scripts handle frontmatter generation and file operations automatically.
+Use this skill for article-focused proofreading inside this blog project, not generic prose review.
+
+Check these areas first:
+
+1. Obvious typos and punctuation consistency.
+2. Markdown structure: headings, lists, callouts, code fences.
+3. Frontmatter consistency: `title`, `category`, `tags`, `series`, `outline`, `draft`.
+4. Blog-specific correctness: excerpt quality, code block language tags, broken relative links, obvious math or formatting issues.
+
+When reporting issues:
+
+1. Prioritize factual errors, broken formatting, and broken links over style tweaks.
+2. Give file-relative line references when practical.
+3. Separate must-fix issues from optional polish.
+4. Ask before applying broad wording changes.
+
+## Output Expectations
+
+For content operations:
+
+- State the target file.
+- State the command or file operation you will use.
+- State the verification result.
+
+For proofreading:
+
+- Summarize the article quality briefly.
+- List concrete issues first.
+- Offer direct edits only where the fix is clear.
+

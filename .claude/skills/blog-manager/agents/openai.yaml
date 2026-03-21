@@ -1,0 +1,4 @@
+interface:
+  display_name: Blog Manager
+  short_description: Manage VitePress blog post workflows
+  default_prompt: 'Use $blog-manager to create, publish, unpublish, or proofread a VitePress post in this project.'

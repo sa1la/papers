@@ -32,14 +32,14 @@ The design is quiet, restrained, and content‑first.
 
 Posts live under `posts/` and are organized by category. Allowed `category` values in frontmatter:
 
-- **tech** – programming, tools, and engineering practice
-- **life** – life notes and reflections
-- **reading** – reading notes and book reviews
 - **algorithm** – data structures and algorithms
-- **competitive-coding** – algorithm contest solutions
+- **contest** – algorithm contest solutions
+- **craft** – coding tips and experience
+- **frontend** – frontend development and engineering practice
+- **backend** – backend and server development
 - **math** – math notes
-- **thoughts** – personal thoughts and essays
-- **coding-exp** – coding tips and experience
+- **notes** – reading notes and excerpts
+- **essay** – personal thoughts and essays
 
 example frontmatter:
 
@@ -47,7 +47,7 @@ example frontmatter:
 ---
 date: 2024-01-01 12:00:00 +08:00
 title: Article Title
-category: tech        # must be one of the predefined categories
+category: frontend   # must be one of the predefined categories
 tags: [tag1, tag2]
 series: vitepress-blog # optional
 outline: deep          # optional: show nested headers in sidebar
@@ -67,17 +67,17 @@ pnpm new <category>/<filename>
 # e.g. pnpm new algorithm/kmp-algorithm
 
 # create draft
-pnpm new draft/<category>/<filename>
+pnpm new drafts/<category>/<filename>
 ```
 
 - **Publish a draft**
 
 ```bash
 # publish with current date
-pnpm pub posts/drafts/<category>/<filename>.md
+pnpm pub <category>/<filename>
 
 # publish with specific (or future) date
-pnpm pub posts/drafts/<category>/<filename>.md --date 2024-12-25
+pnpm pub <category>/<filename> --date 2024-12-25
 ```
 
 Posts with future dates are visible during development but excluded from production until the date passes.
@@ -239,12 +239,13 @@ pnpm lint:fix
 │   └── config.ts          # VitePress site config
 ├── posts/                 # Blog content
 │   ├── algorithm/
-│   ├── front-end/
-│   ├── coding-exp/
-│   ├── competitive-coding/
+│   ├── contest/
+│   ├── craft/
+│   ├── frontend/
+│   ├── backend/
 │   ├── math/
-│   ├── reading/
-│   ├── thoughts/
+│   ├── notes/
+│   ├── essay/
 │   └── drafts/            # drafts, dev only
 ├── public/                # static assets (avatar, demo-base.css, etc.)
 ├── config/                # category and other configs
