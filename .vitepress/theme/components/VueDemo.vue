@@ -3,6 +3,7 @@ import type { VueDemoFile } from '../../types/vueDemo.js'
 import { useData, useRoute } from 'vitepress'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { getErrorMessage } from '../utils/error'
+import { createLatestRequestGuard, parseDemoMessage } from './vueDemoState.js'
 
 const props = withDefaults(defineProps<{
   name: string
@@ -26,6 +27,8 @@ const { isDark } = useData()
 // iframe ref for theme sync & height sync
 const iframeRef = ref<HTMLIFrameElement | null>(null)
 const demoHeight = ref<string | null>(null)
+const requestGuard = createLatestRequestGuard()
+let currentLoadController: AbortController | null = null
 
 const effectivePanelHeight = computed(() => {
   // Explicit height prop has highest priority
@@ -46,25 +49,21 @@ function sendThemeToIframe() {
   )
 }
 
-function onIframeLoad() {
-  // Reserved for future use
-}
-
 watch(isDark, () => {
   sendThemeToIframe()
 })
 
 function handleDemoMessage(e: MessageEvent) {
   const iframe = iframeRef.value
-  if (e.source !== iframe?.contentWindow)
+  const message = parseDemoMessage(e, iframe?.contentWindow ?? null, window.location.origin)
+  if (!message)
     return
 
-  if (e.data?.type === 'request-theme') {
+  if (message.type === 'request-theme') {
     sendThemeToIframe()
   }
-  else if (e.data?.type === 'demo-height' && typeof e.data.height === 'number') {
-    if (e.data.height > 0)
-      demoHeight.value = `${e.data.height}px`
+  else if (message.type === 'demo-height') {
+    demoHeight.value = `${message.height}px`
   }
 }
 
@@ -86,8 +85,54 @@ const copiedIndex = ref<number | null>(null)
 const copyErrorIndex = ref<number | null>(null)
 let copyTimeoutId: ReturnType<typeof setTimeout> | null = null
 
+function resetTransientState() {
+  activeTab.value = 0
+  files.value = []
+  loadError.value = ''
+  demoHeight.value = null
+  copiedIndex.value = null
+  copyErrorIndex.value = null
+
+  if (copyTimeoutId) {
+    clearTimeout(copyTimeoutId)
+    copyTimeoutId = null
+  }
+}
+
+async function loadDemo(path: string) {
+  const requestId = requestGuard.next()
+  currentLoadController?.abort()
+  const controller = new AbortController()
+  currentLoadController = controller
+
+  resetTransientState()
+  iframeSrc.value = `${path}/index.html?theme=${isDark.value ? 'dark' : 'light'}`
+
+  try {
+    const res = await fetch(`${path}/output.json`, { signal: controller.signal })
+    if (!res.ok)
+      throw new Error(`output.json not found (HTTP ${res.status}) — path: ${path}`)
+
+    const data = await res.json()
+    if (!requestGuard.isCurrent(requestId))
+      return
+
+    files.value = Array.isArray(data.files) ? data.files : []
+  }
+  catch (e) {
+    if (controller.signal.aborted || !requestGuard.isCurrent(requestId))
+      return
+
+    loadError.value = getErrorMessage(e)
+    console.warn('[VueDemo] failed to load output.json:', e)
+  }
+}
+
 onUnmounted(() => {
-  clearTimeout(copyTimeoutId!)
+  if (copyTimeoutId)
+    clearTimeout(copyTimeoutId)
+  currentLoadController?.abort()
+  requestGuard.invalidate()
   window.removeEventListener('message', handleDemoMessage)
 })
 
@@ -121,23 +166,9 @@ async function copyCode(index: number) {
   }
 }
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener('message', handleDemoMessage)
-
-  const initialTheme = isDark.value ? 'dark' : 'light'
-  iframeSrc.value = `${basePath.value}/index.html?theme=${initialTheme}`
-  try {
-    const res = await fetch(`${basePath.value}/output.json`)
-    if (!res.ok)
-      throw new Error(`output.json not found (HTTP ${res.status}) — path: ${basePath.value}`)
-
-    const data = await res.json()
-    files.value = data.files
-  }
-  catch (e) {
-    loadError.value = getErrorMessage(e)
-    console.warn('[VueDemo] failed to load output.json:', e)
-  }
+  watch(basePath, path => loadDemo(path), { immediate: true })
 })
 </script>
 
@@ -173,7 +204,6 @@ onMounted(async () => {
       class="vd-iframe"
       sandbox="allow-scripts allow-same-origin"
       loading="lazy"
-      @load="onIframeLoad"
     />
 
     <!-- source code panels -->
