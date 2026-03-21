@@ -5,7 +5,7 @@ export default antfu(
     typescript: true,
     javascript: true,
     vue: true,
-    markdown: false,
+    markdown: true,
     formatters: {
       css: false,
       markdown: true,

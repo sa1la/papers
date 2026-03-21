@@ -618,6 +618,7 @@ const value = arr[0] // 类型: string | undefined
 
 // 需要显式检查
 if (value !== undefined) {
+  // eslint-disable-next-line no-console
   console.log(value.toUpperCase())
 }
 ```
@@ -946,6 +947,7 @@ TypeScript 3.8+ 引入了类型导入语法，允许显式标记仅用于类型�
 **TypeScript 3.8+ 语法：**
 
 ```typescript
+/* eslint-disable import/no-duplicates */
 // 类型专用导入 - 完全从输出中移除
 import type { SomeInterface } from './module'
 import type { SomeType } from './module'

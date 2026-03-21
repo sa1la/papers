@@ -246,14 +246,16 @@ posts/frontend/
 Include the shared base styles, theme script, and optionally demo-specific styles:
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <link rel="stylesheet" href="/demo-base.css" />
-  <link rel="stylesheet" href="./style.css" />
-  <script src="/demo-theme.js"></script>
-</head>
-<body><!-- demo content --></body>
+  <head>
+    <link rel="stylesheet" href="/demo-base.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="/demo-theme.js"></script>
+  </head>
+  <body>
+    <!-- demo content -->
+  </body>
 </html>
 ```
 
@@ -289,17 +291,19 @@ Include the shared base styles, theme script, and optionally demo-specific style
 For demos requiring specific visual styles, skip the theme script:
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <!-- No demo-theme.js - fully custom styles -->
-  <style>
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-  </style>
-</head>
-<body><!-- demo content --></body>
+  <head>
+    <!-- No demo-theme.js - fully custom styles -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- demo content -->
+  </body>
 </html>
 ```
 
@@ -324,6 +328,7 @@ For simple code display without execution or preview.
 func main() {
     fmt.Println("Hello, World!")
 }
+```
 ````
 
 ````

@@ -1,6 +1,6 @@
 ## sa1l`s blog
 
-Minimal black & white personal blog built with VitePress 2.0, migrated from Hugo.  
+Minimal black & white personal blog built with VitePress 2.0, migrated from Hugo.
 The design is quiet, restrained, and content‑first.
 
 ### design philosophy
@@ -47,11 +47,11 @@ example frontmatter:
 ---
 date: 2024-01-01 12:00:00 +08:00
 title: Article Title
-category: frontend   # must be one of the predefined categories
+category: frontend # must be one of the predefined categories
 tags: [tag1, tag2]
 series: vitepress-blog # optional
-outline: deep          # optional: show nested headers in sidebar
-draft: true            # optional: exclude from listing / production
+outline: deep # optional: show nested headers in sidebar
+draft: true # optional: exclude from listing / production
 ---
 ```
 
@@ -123,7 +123,7 @@ Styling has two modes:
 1. **use shared blog theme (recommended)**
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <link rel="stylesheet" href="/demo-base.css" />
@@ -144,7 +144,7 @@ Styling has two modes:
 2. **fully custom styles (special cases)**
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <!-- no demo-theme.js: you own the entire look -->

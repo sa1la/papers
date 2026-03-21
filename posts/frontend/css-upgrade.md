@@ -112,7 +112,9 @@ textarea, select, input {
 
 ```js
 scroller.addEventListener('scrollsnapchanging', (event) => {
+  // eslint-disable-next-line no-console
   console.log(event.snapTargetBlock)
+  // eslint-disable-next-line no-console
   console.log(event.snapTargetInline)
 })
 ```
@@ -123,7 +125,7 @@ scroller.addEventListener('scrollsnapchanging', (event) => {
 
 更多细节参考 [Chrome Dev 的文档](https://chrome.dev/css-wrapped-2024/#scroll-snap-events)。
 
-<VueDemo name="scroll-snap-events" height="400px" />
+<VueDemo name="scroll-snap-events"  />
 
 ### accent-color：表单控件主题色
 

@@ -130,4 +130,3 @@ For proofreading:
 - Summarize the article quality briefly.
 - List concrete issues first.
 - Offer direct edits only where the fix is clear.
-

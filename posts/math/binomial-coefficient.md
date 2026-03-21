@@ -11,13 +11,13 @@ draft: false
 
 题是[leetcode.62 不同路径](https://leetcode.cn/problems/unique-paths/description/)，要求算出一个 m\*n 的网格中从左上角格子到右下角格子的路径总数。正常解法是动态规划，从第一个格子开始计算有多少个路径，再依次向下计算。这题也可以使用数学的计算方法二项式系数解决.
 
-##### 概念和在线计算工具：
+### 概念和在线计算工具：
 
 [二项式系数概念](https://zhuanlan.zhihu.com/p/37314812)
 
 [二项式系数计算器](https://zhuanlan.zhihu.com/p/37314812)
 
-##### 二项式系数计算解法：
+### 二项式系数计算解法：
 
 ```go
 // binom 计算二项式系数，即从n个元素中不重复地选择k个元素的方式数。
@@ -40,7 +40,7 @@ func uniquePaths(m int, n int) int {
 }
 ```
 
-##### 正常动态规划解法：
+### 正常动态规划解法：
 
 ```go
 func uniquePaths(m int, n int) int {
