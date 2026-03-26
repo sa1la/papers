@@ -12,7 +12,8 @@ import {
   Trophy,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { categories, getCategoryConfig } from '../../../config/categories'
+import { categories, getCategoryConfig, getCategoryLocaleConfig } from '../../../config/categories'
+import { filterPostsByLocale, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { useBlogStore } from '../store'
 import { initCategory } from '../utils'
@@ -38,14 +39,17 @@ function getIconComponent(iconName: string) {
 }
 
 const blogStore = useBlogStore()
-const category = initCategory(posts)
+const locale = useBlogLocale()
+const themeText = useThemeText()
+const localizedPosts = computed(() => filterPostsByLocale(posts, locale.value))
+const category = computed(() => initCategory(localizedPosts.value))
 
 // 只显示有文章的预定义分类，按文章数量排序
 const catList = computed(() => {
   const postCounts: Record<string, number> = {}
 
   // 统计每个预定义分类的文章数
-  for (const post of posts) {
+  for (const post of localizedPosts.value) {
     const cat = post.category
     if (cat in categories) {
       postCounts[cat] = (postCounts[cat] || 0) + 1
@@ -57,9 +61,9 @@ const catList = computed(() => {
     .filter(([key]) => postCounts[key] > 0)
     .map(([key, config]) => ({
       key: key as CategoryKey,
-      name: config.name,
+      name: config.i18n[locale.value].name,
       icon: config.icon,
-      description: config.description,
+      description: config.i18n[locale.value].description,
       count: postCounts[key] || 0,
     }))
     .sort((a, b) => b.count - a.count)
@@ -71,13 +75,13 @@ function catSwitcher(key: CategoryKey) {
 
 // 使用预定义分类名称或回退到原始值
 function getCategoryDisplayName(key: string): string {
-  return getCategoryConfig(key)?.name || key
+  return getCategoryLocaleConfig(key, locale.value)?.name || key
 }
 </script>
 
 <template>
   <div class="paper-container">
-    <Title text="categories" :icon="CategoryIcon" />
+    <Title :text="themeText.categories" :icon="CategoryIcon" />
 
     <!-- Category Grid -->
     <div class="category-grid">
@@ -104,7 +108,7 @@ function getCategoryDisplayName(key: string): string {
         <span>{{ getCategoryDisplayName(blogStore.selectedCat) }}</span>
       </div>
       <p class="selected-description">
-        {{ getCategoryConfig(blogStore.selectedCat)?.description }}
+        {{ getCategoryLocaleConfig(blogStore.selectedCat, locale)?.description }}
       </p>
     </div>
 
@@ -118,13 +122,13 @@ function getCategoryDisplayName(key: string): string {
         >
           <a :href="post.url" class="post-link">
             <span class="post-title">{{ post.title }}</span>
-            <span v-if="post.draft" class="post-draft">draft</span>
+            <span v-if="post.draft" class="post-draft">{{ themeText.draft }}</span>
             <span class="post-date">{{ post.date.string }}</span>
           </a>
         </li>
       </ul>
       <p v-else class="empty-state">
-        该分类下暂无文章
+        {{ themeText.noPostsInCategory }}
       </p>
     </div>
   </div>

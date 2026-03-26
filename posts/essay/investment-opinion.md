@@ -2,6 +2,7 @@
 date: 2025-08-07 23:43:02 +08:00
 title: 投资观念
 category: essay
+translationKey: investment-opinion
 tags: ["essay"]
 
 outline: "deep"

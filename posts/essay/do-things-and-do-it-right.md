@@ -2,6 +2,7 @@
 date: 2025-06-06 08:01:36 +08:00
 title: 把事做对
 category: essay
+translationKey: do-things-and-do-it-right
 tags: ["essay"]
 outline: deep
 ---

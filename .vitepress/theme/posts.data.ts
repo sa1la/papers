@@ -1,5 +1,5 @@
 import type { ContentData } from 'vitepress'
-import type { CategoryKey } from '../../config/categories'
+import type { BlogLocale, CategoryKey } from '../../config/categories'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -13,9 +13,12 @@ export interface Post {
   title: string
   url: string
   excerpt: string | undefined
+  locale: BlogLocale
   category: CategoryKey
   series?: string
   tags: string[]
+  translationKey?: string
+  alternateUrls: Partial<Record<BlogLocale, string>>
   date: {
     time: number
     string: string
@@ -37,10 +40,27 @@ const isDev = process.env.NODE_ENV !== 'production'
 const REGEX_FRONMATTER = /^---[\s\S]*?---/
 const REGEX_LEADING_SLASH = /^\//
 const REGEX_HTML_EXT = /\.html$/
+const REGEX_EN_POST_PATH = /^\/en\/posts\//
+const REGEX_LOCALE_POST_PREFIX = /^\/(?:en\/)?posts\//
 
 interface ExtractOptions {
   item: ContentData
   filePath?: string
+}
+
+interface RawPost {
+  title: string
+  url: string
+  excerpt: string | undefined
+  locale: BlogLocale
+  category: CategoryKey
+  series?: string
+  tags: string[]
+  translationKey?: string
+  date: Post['date']
+  draft?: boolean
+  readingTime: number
+  alternateGroupKey: string
 }
 
 function extractMarkdownSource(options: ExtractOptions): { source: string, demoSource: string } {
@@ -79,13 +99,13 @@ function extractMarkdownSource(options: ExtractOptions): { source: string, demoS
   return { source, demoSource }
 }
 
-export default createContentLoader('posts/**/*.md', {
+export default createContentLoader('{posts,en/posts}/**/*.md', {
   excerpt: true,
   includeSrc: true, // 必须开启才能拿到原始 Markdown，用于预计算阅读时长
   transform(raw: ContentData[]): Post[] {
     const now = Date.now()
 
-    return raw
+    const rawPosts = raw
       .filter(({ frontmatter }) => {
         if (!frontmatter.title)
           return false
@@ -103,6 +123,7 @@ export default createContentLoader('posts/**/*.md', {
         const category = frontmatter.category
         if (!isValidCategory(category)) {
           console.warn(`[posts.data.ts] Invalid category "${category}" in ${url}`)
+          return null
         }
 
         // 获取文件路径 - VitePress ContentData has 'url' which maps to the file path
@@ -121,20 +142,35 @@ export default createContentLoader('posts/**/*.md', {
         // 合并正文和 demo 代码计算阅读时间
         const combinedSource = `${source}\n\n${demoSource}`
         const readingTime = getReadingTime(combinedSource)
+        const locale = getPostLocale(url)
 
         return {
           title: frontmatter.title,
           url,
           excerpt,
-          category: isValidCategory(category) ? category : 'thoughts',
+          locale,
+          category,
           series: frontmatter.series,
           tags: frontmatter.tags || [],
+          translationKey: typeof frontmatter.translationKey === 'string' ? frontmatter.translationKey : undefined,
           date: formatDate(frontmatter.date),
           draft: frontmatter.draft,
           readingTime,
-        }
+          alternateGroupKey: getAlternateGroupKey({
+            url,
+            translationKey: typeof frontmatter.translationKey === 'string' ? frontmatter.translationKey : undefined,
+          }),
+        } satisfies RawPost
       })
+      .filter((post): post is RawPost => post !== null)
       .sort((a, b) => b.date.time - a.date.time)
+
+    const alternateUrlsMap = buildAlternateUrls(rawPosts)
+
+    return rawPosts.map(post => ({
+      ...post,
+      alternateUrls: alternateUrlsMap.get(post.alternateGroupKey) || {},
+    }))
   },
 })
 
@@ -145,4 +181,28 @@ function formatDate(raw: string | undefined): Post['date'] {
     string: beautifyDate(cur, 'YYYY-MM-DD'),
     dayMonth: beautifyDate(cur, 'DD/MM'),
   }
+}
+
+function getPostLocale(url: string): BlogLocale {
+  return REGEX_EN_POST_PATH.test(url) ? 'en-US' : 'zh-CN'
+}
+
+function buildAlternateUrls(posts: RawPost[]): Map<string, Partial<Record<BlogLocale, string>>> {
+  const alternateUrlsMap = new Map<string, Partial<Record<BlogLocale, string>>>()
+
+  for (const post of posts) {
+    const current = alternateUrlsMap.get(post.alternateGroupKey) || {}
+    current[post.locale] = post.url
+    alternateUrlsMap.set(post.alternateGroupKey, current)
+  }
+
+  return alternateUrlsMap
+}
+
+function getAlternateGroupKey(options: { url: string, translationKey?: string }): string {
+  if (options.translationKey)
+    return `translationKey:${options.translationKey}`
+
+  // Fallback: use the locale-agnostic content path, e.g. "math/binomial-coefficient".
+  return `path:${options.url.replace(REGEX_LOCALE_POST_PREFIX, '').replace(REGEX_HTML_EXT, '')}`
 }

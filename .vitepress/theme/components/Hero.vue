@@ -1,22 +1,47 @@
 <script setup lang='ts'>
 import { useData } from 'vitepress'
 import { computed, onMounted, ref } from 'vue'
+import { filterPostsByLocale, getLocalePath, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { initCategory, initTags } from '../utils'
 
-const categories = initCategory(posts)
-const tags = initTags(posts)
 const { isDark } = useData()
+const locale = useBlogLocale()
+const themeText = useThemeText()
+const localizedPosts = computed(() => filterPostsByLocale(posts, locale.value))
+const categories = computed(() => initCategory(localizedPosts.value))
+const tags = computed(() => initTags(localizedPosts.value))
 
 const stats = computed(() => ({
-  posts: posts.length,
-  categories: Object.keys(categories).length,
-  tags: Object.keys(tags).length,
+  posts: localizedPosts.value.length,
+  categories: Object.keys(categories.value).length,
+  tags: Object.keys(tags.value).length,
 }))
+
+const navigationItems = computed(() => [
+  {
+    href: getLocalePath('/', locale.value),
+    label: themeText.value.posts,
+    value: stats.value.posts,
+  },
+  {
+    href: getLocalePath('/category', locale.value),
+    label: themeText.value.categories,
+    value: stats.value.categories,
+  },
+  {
+    href: getLocalePath('/tags', locale.value),
+    label: themeText.value.tags,
+    value: stats.value.tags,
+  },
+  {
+    href: getLocalePath('/favorites', locale.value),
+    label: themeText.value.favorites,
+  },
+])
 
 const mounted = ref(false)
 
-// 主题切换函数 - 使用 VitePress 的 API
 function toggleTheme() {
   isDark.value = !isDark.value
 }
@@ -33,52 +58,43 @@ onMounted(() => {
         <h1 class="hero-title" :class="{ 'hero-title--visible': mounted }">
           Sa1L
         </h1>
-        <button
-          class="theme-toggle"
-          :class="{ 'theme-toggle--mounted': mounted }"
-          aria-label="切换主题"
-          @click="toggleTheme"
-        >
-          <transition name="theme-icon" mode="out-in">
-            <svg v-if="isDark" key="dark" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
-            <svg v-else key="light" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="5" />
-              <line x1="12" y1="1" x2="12" y2="3" />
-              <line x1="12" y1="21" x2="12" y2="23" />
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-              <line x1="1" y1="12" x2="3" y2="12" />
-              <line x1="21" y1="12" x2="23" y2="12" />
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-            </svg>
-          </transition>
-        </button>
+        <div class="hero-actions" :class="{ 'hero-actions--mounted': mounted }">
+          <LanguageSwitcher compact />
+          <button
+            class="theme-toggle"
+            aria-label="切换主题"
+            @click="toggleTheme"
+          >
+            <transition name="theme-icon" mode="out-in">
+              <svg v-if="isDark" key="dark" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+              <svg v-else key="light" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            </transition>
+          </button>
+        </div>
       </div>
       <p class="hero-subtitle" :class="{ 'hero-subtitle--visible': mounted }">
-        冲吧，向那太阳，向那片海
+        {{ themeText.heroSubtitle }}
       </p>
       <nav class="hero-nav" :class="{ 'hero-nav--visible': mounted }">
-        <a href="/" class="stat-link">
-          <span class="stat-num">{{ stats.posts }}</span>
-          <span class="stat-label">posts</span>
-        </a>
-        <span class="stat-separator">·</span>
-        <a href="/category" class="stat-link">
-          <span class="stat-num">{{ stats.categories }}</span>
-          <span class="stat-label">categories</span>
-        </a>
-        <span class="stat-separator">·</span>
-        <a href="/tags" class="stat-link">
-          <span class="stat-num">{{ stats.tags }}</span>
-          <span class="stat-label">tags</span>
-        </a>
-        <span class="stat-separator">·</span>
-        <a href="/favorites" class="stat-link">
-          <span class="stat-label">favorites</span>
-        </a>
+        <template v-for="(item, index) in navigationItems" :key="item.href">
+          <a :href="item.href" class="stat-link">
+            <span v-if="item.value !== undefined" class="stat-num">{{ item.value }}</span>
+            <span class="stat-label">{{ item.label }}</span>
+          </a>
+          <span v-if="index < navigationItems.length - 1" class="stat-separator">·</span>
+        </template>
         <span class="stat-separator">·</span>
         <a href="https://github.com/sa1la" target="_blank" class="stat-link stat-link--external" rel="noopener noreferrer">
           <span class="stat-label">github</span>
@@ -111,6 +127,20 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.375rem;
+}
+
+.hero-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-actions--mounted {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Stats navigation */
@@ -200,15 +230,8 @@ onMounted(() => {
   background: var(--vp-c-bg-soft);
   color: var(--vp-c-text-2);
   cursor: pointer;
-  opacity: 0;
-  transform: scale(0.9) translateY(-8px);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-property: opacity, transform, background-color, border-color, color;
-}
-
-.theme-toggle--mounted {
-  opacity: 1;
-  transform: scale(1) translateY(0);
+  transition-property: transform, background-color, border-color, color;
 }
 
 .theme-toggle:hover {
@@ -303,6 +326,10 @@ onMounted(() => {
     font-size: 0.75rem;
   }
 
+  .hero-actions {
+    gap: 0.375rem;
+  }
+
   .theme-toggle {
     width: 1.75rem;
     height: 1.75rem;
@@ -316,6 +343,7 @@ onMounted(() => {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+  .hero-actions,
   .hero-title,
   .hero-subtitle,
   .hero-nav,

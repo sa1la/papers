@@ -1,6 +1,6 @@
 ---
 date: 2024-12-19 00:00:24 +08:00
-title: 服务器上的一些操作
+title: Some Server Commands
 category: backend
 translationKey: linux-stuff
 outline: "deep"
@@ -9,7 +9,7 @@ draft: false
 
 ---
 
-记些服务器上执行的命令。
+Some commands I used on a server.
 
 ## User
 
@@ -21,14 +21,14 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub newuser@your_server_ip
 sudo nano /etc/ssh/sshd_config
 ```
 
-如果提示用户无权限，就手动加到sudo上
+If the user does not have permission, add it to `sudo` manually.
 
 ```bash
 visudo
 your_username ALL=(ALL:ALL) ALL
 ```
 
-如果提示没有该目录或者文件可以手动创建
+If the directory or file does not exist, create it manually.
 
 ```bash
 whoami
@@ -43,7 +43,7 @@ chmod 600 .ssh/authorized_keys
 chown -R your_username:your_username .ssh
 ```
 
-最后配置SSH规则
+Finally, configure the SSH rules.
 
 ```ini
 PermitRootLogin no                 # Disable root login
@@ -53,13 +53,13 @@ AuthorizedKeysFile .ssh/authorized_keys # Specify authorized_keys file location
 AllowUsers newuser                 # Only allow specific users to login
 ```
 
-配置完重启SSH
+Restart SSH after the configuration is done.
 
 ```bash
 sudo service ssh restart
 ```
 
-## 安装 oh-my-zsh
+## Install oh-my-zsh
 
 ```shell
 sudo apt install zsh -y ##安装zsh
@@ -77,7 +77,7 @@ echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> 
 source .zshrc ##启用配置
 ```
 
-设置主题
+Set the theme:
 
 ```txt
 ZSH_THEME="gallois"
@@ -85,7 +85,7 @@ ZSH_THEME="gallois"
 
 ## Nginx
 
-### 安装
+### Install
 
 ```bash
 sudo apt update
@@ -97,9 +97,9 @@ sudo systemctl status nginx
 
 ```
 
-### 配置
+### Configuration
 
-#### 静态网站
+#### Static Site
 
 ```nginx
 server {
@@ -135,7 +135,7 @@ server {
 }
 ```
 
-#### 代理
+#### Reverse Proxy
 
 ```nginx
 server {
@@ -175,23 +175,23 @@ server {
 
 #### SSL
 
-使用**certbot**来负责SSL证书的申请和自动续签，运行以下指令来安装**certbot**
+Use **certbot** to apply for SSL certificates and renew them automatically. Install **certbot** with the following command:
 
 ```sh
 sudo apt install certbot python3-certbot-nginx
 ```
 
-安装完后运行**certbot**，就会询问你要给哪几个server_name申请证书，选择就可以自动申请了
+After installation, run **certbot**. It will ask which `server_name` entries you want to apply certificates for, and then it can issue them automatically.
 
-如果要检查**certbot**是否运行良好，可以运行以下指令检查
+To check whether **certbot** is running properly, use:
 
 ```sh
 sudo systemctl status certbot.timer
 ```
 
-#### 其他相关
+#### Other Related Notes
 
-部署vitepress打包的资源，可以结合静态资源配置
+To deploy VitePress build output, you can use a static-site configuration like this:
 
 ```nginx
 server {

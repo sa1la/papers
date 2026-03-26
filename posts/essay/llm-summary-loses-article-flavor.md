@@ -2,6 +2,7 @@
 date: 2026-03-24 23:17:25 +08:00
 title: 有时总结得越快，离理解越远
 category: "essay"
+translationKey: llm-summary-loses-article-flavor
 tags: [llm, 阅读, 写作, 思考]
 outline: "deep"
 ---

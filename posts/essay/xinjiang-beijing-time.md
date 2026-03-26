@@ -2,6 +2,7 @@
 date: 2026-03-14 19:34:27 +08:00
 title: 新疆时间还是北京时间
 category: essay
+translationKey: xinjiang-beijing-time
 tags: ["随笔", "生活"]
 outline: "deep"
 ---

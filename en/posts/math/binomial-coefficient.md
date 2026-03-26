@@ -8,17 +8,17 @@ translationKey: binomial-coefficient
 draft: false
 ---
 
-练习动态规划解题时，碰到一个题可以以很巧妙的数学计算解决，写个文档记录下。
+While practicing dynamic programming problems, I ran into one that can also be solved with a neat math trick, so I wrote this note down.
 
-题是[leetcode.62 不同路径](https://leetcode.cn/problems/unique-paths/description/)，要求算出一个 m\*n 的网格中从左上角格子到右下角格子的路径总数。正常解法是动态规划，从第一个格子开始计算有多少个路径，再依次向下计算。这题也可以使用数学的计算方法二项式系数解决.
+The problem is [LeetCode 62: Unique Paths](https://leetcode.cn/problems/unique-paths/description/). You need to compute how many paths there are from the top-left corner to the bottom-right corner of an `m * n` grid. The usual solution is dynamic programming: start from the first cell, compute how many paths reach it, and keep pushing that count forward. This problem can also be solved mathematically with binomial coefficients.
 
-### 概念和在线计算工具：
+### Concept and Online Tools
 
-[二项式系数概念](https://zhuanlan.zhihu.com/p/37314812)
+[What binomial coefficients are](https://zhuanlan.zhihu.com/p/37314812)
 
-[二项式系数计算器](https://zhuanlan.zhihu.com/p/37314812)
+[Binomial coefficient calculator](https://zhuanlan.zhihu.com/p/37314812)
 
-### 二项式系数计算解法：
+### Solution with Binomial Coefficients
 
 ```go
 // binom 计算二项式系数，即从n个元素中不重复地选择k个元素的方式数。
@@ -41,7 +41,7 @@ func uniquePaths(m int, n int) int {
 }
 ```
 
-### 正常动态规划解法：
+### Standard Dynamic Programming Solution
 
 ```go
 func uniquePaths(m int, n int) int {

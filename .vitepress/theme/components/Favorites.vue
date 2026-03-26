@@ -2,6 +2,7 @@
 import { Bookmark as BookmarkIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { bookmarks } from '../favorites'
+import { useThemeText } from '../i18n'
 import Title from './Title.vue'
 
 // 为每个 bookmark 添加唯一 id
@@ -19,6 +20,7 @@ const bookmarksWithId = computed<BookmarkWithId[]>(() =>
     id: `${b.date}-${index}`,
   })),
 )
+const themeText = useThemeText()
 
 // 按年月分组
 const groupedBookmarks = computed(() => {
@@ -62,7 +64,7 @@ function getLinkProps(url: string) {
 
 <template>
   <div class="paper-container">
-    <Title text="favorites" :icon="BookmarkIcon" />
+    <Title :text="themeText.favorites" :icon="BookmarkIcon" />
 
     <div class="timeline">
       <div v-for="group in groupedBookmarks" :key="group.month" class="month-group">
@@ -109,7 +111,7 @@ function getLinkProps(url: string) {
 
     <!-- Empty State -->
     <p v-if="groupedBookmarks.length === 0" class="empty-state">
-      暂无收藏～
+      {{ themeText.noFavorites }}
     </p>
   </div>
 </template>

@@ -2,6 +2,7 @@
 date: 2025-08-28 22:46:00 +08:00
 title: 创作者还是消费者
 category: essay
+translationKey: producer_comsumer
 tags: ["essay"]
 
 outline: "deep"

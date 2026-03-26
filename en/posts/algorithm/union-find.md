@@ -8,20 +8,20 @@ translationKey: union-find
 draft: false
 ---
 
-### 并查集
+### Overview
 
-#### 定义
+#### Definition
 
-并查集是一种用于管理元素所属集合的数据结构，实现为一个森林，其中每棵树表示一个集合，树中的节点表示对应集合中的元素。
+Union Find is a data structure for managing which set each element belongs to. It is usually implemented as a forest, where each tree represents a set and each node in the tree represents an element in that set.
 
-顾名思义，并查集支持两种操作：
+As the name suggests, Union Find supports two main operations:
 
-- 合并（Union）：合并两个元素所属集合（合并对应的树）
-- 查询（Find）：查询某个元素所属集合（查询对应的树的根节点），这可以用于判断两个元素是否属于同一集合
+- Union: merge the sets that two elements belong to, which means merging the corresponding trees
+- Find: query which set an element belongs to by finding the root of its tree; this can also be used to check whether two elements are in the same set
 
-定义来源：https://oi-wiki.org/ds/dsu/ 链接里包含并查集在C++和python的实现，以下为golang实现方式
+The definition comes from: https://oi-wiki.org/ds/dsu/ . That page also includes C++ and Python implementations. Below is a Go version.
 
-#### 实现
+#### Implementation
 
 ```go
 
@@ -64,12 +64,12 @@ func (uf *UnionFind) Size(i int) int {
 }
 ```
 
-#### 代码演示
+#### Code Demo
 
-**Go 实现**
+**Go implementation**
 
-<<< ../../shared/snippets/algorithm/union-find/basic.go
+<<< ../../../shared/snippets/algorithm/union-find/basic.go
 
-**JS 性能对比**
+**JS performance comparison**
 
-<<< ../../shared/snippets/algorithm/union-find/compare.ts
+<<< ../../../shared/snippets/algorithm/union-find/compare.ts

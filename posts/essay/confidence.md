@@ -2,6 +2,7 @@
 date: 2025-07-29 23:12:23 +08:00
 title: 自信心
 category: essay
+translationKey: confidence
 tags: ["essay"]
 
 outline: "deep"

@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { Tag } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { filterPostsByLocale, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { useBlogStore } from '../store'
 import { initTags } from '../utils'
@@ -10,18 +11,21 @@ import Title from './Title.vue'
 const TagIcon = Tag
 
 const blogStore = useBlogStore()
-const tags = initTags(posts)
+const locale = useBlogLocale()
+const themeText = useThemeText()
+const localizedPosts = computed(() => filterPostsByLocale(posts, locale.value))
+const tags = computed(() => initTags(localizedPosts.value))
 
 const maxCount = computed(() => {
-  const counts = Object.values(tags).map(posts => posts.length)
+  const counts = Object.values(tags.value).map(posts => posts.length)
   return Math.max(...counts, 1)
 })
 
 const tagList = computed(() => {
-  return Object.keys(tags)
+  return Object.keys(tags.value)
     .map(key => ({
       tagName: key,
-      count: tags[key].length,
+      count: tags.value[key].length,
     }))
     .sort((a, b) => b.count - a.count)
 })
@@ -41,7 +45,7 @@ function tagSwitcher(tag: string) {
 
 <template>
   <div class="paper-container">
-    <Title text="tags" :icon="TagIcon" />
+    <Title :text="themeText.tags" :icon="TagIcon" />
 
     <!-- Tag List -->
     <div class="tag-list">
@@ -85,7 +89,7 @@ function tagSwitcher(tag: string) {
         </li>
       </ul>
       <p v-else class="empty-state">
-        该标签下暂无文章
+        {{ themeText.noPostsWithTag }}
       </p>
     </div>
   </div>

@@ -1,6 +1,8 @@
 <script setup lang='ts'>
 import { useData, useRoute } from 'vitepress'
 import { computed, onMounted, ref } from 'vue'
+import { getCategoryLocaleConfig } from '../../../config/categories'
+import { useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { beautifyDate } from '../utils'
 
@@ -15,6 +17,8 @@ const route = useRoute()
 const { frontmatter } = useData()
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 const mounted = ref(false)
+const locale = useBlogLocale()
+const themeText = useThemeText()
 
 const currentPost = computed(() => {
   const normalize = (p: string) => {
@@ -33,6 +37,10 @@ const currentPost = computed(() => {
 })
 
 const readingTime = computed(() => currentPost.value?.readingTime ?? null)
+const categoryLabel = computed(() => {
+  const categoryKey = typeof frontmatter.value.category === 'string' ? frontmatter.value.category : ''
+  return getCategoryLocaleConfig(categoryKey, locale.value)?.name || categoryKey
+})
 
 onMounted(() => {
   mounted.value = true
@@ -43,7 +51,7 @@ onMounted(() => {
   <div class="post-header">
     <!-- Category -->
     <div class="header-category" :class="{ 'header-category--visible': mounted }">
-      <span class="cat-label">— {{ frontmatter.category?.toLowerCase() }}</span>
+      <span class="cat-label">— {{ categoryLabel.toLowerCase() }}</span>
     </div>
 
     <!-- Title -->
@@ -53,27 +61,29 @@ onMounted(() => {
 
     <!-- Meta Info -->
     <div class="post-meta" :class="{ 'post-meta--visible': mounted }">
-      <span v-if="frontmatter.draft" class="meta-draft">draft</span>
+      <span v-if="frontmatter.draft" class="meta-draft">{{ themeText.draft }}</span>
       <span v-if="frontmatter.draft" class="meta-separator">·</span>
       <span class="meta-date">{{ beautifyDate(frontmatter.date, DATE_FORMAT) }}</span>
       <template v-if="readingTime">
         <span class="meta-separator">·</span>
-        <span class="meta-reading">{{ readingTime }} min read</span>
+        <span class="meta-reading">{{ readingTime }} {{ themeText.minRead }}</span>
       </template>
     </div>
+
+    <LanguageSwitcher compact />
   </div>
 </template>
 
 <style scoped>
 .post-header {
 	text-align: left;
-	padding: 2.5rem 0 3rem;
-	margin-bottom: 2rem;
+	padding: 2.25rem 0 2.5rem;
+	margin-bottom: 1.5rem;
 	border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .header-category {
-	margin-bottom: 0.75rem;
+	margin-bottom: 0.5rem;
 	opacity: 0;
 	transform: translateY(12px);
 	transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -98,7 +108,7 @@ onMounted(() => {
 	font-weight: 400;
 	color: var(--vp-c-text-1);
 	line-height: 1.4;
-	margin: 0 0 1rem;
+	margin: 0 0 0.625rem;
 	letter-spacing: -0.01em;
 	opacity: 0;
 	transform: translateY(12px);
@@ -125,6 +135,10 @@ onMounted(() => {
 .post-meta--visible {
 	opacity: 1;
 	transform: translateY(0);
+}
+
+.post-header :deep(.language-switcher--compact) {
+	margin-top: 0.625rem;
 }
 
 .meta-separator {
@@ -156,7 +170,7 @@ onMounted(() => {
 
 @media (max-width: 640px) {
 	.post-header {
-		padding: 1.5rem 0 2rem;
+		padding: 1.5rem 0 1.75rem;
 	}
 
 	.post-title {
@@ -165,6 +179,10 @@ onMounted(() => {
 
 	.post-meta {
 		font-size: 0.75rem;
+	}
+
+	.post-header :deep(.language-switcher--compact) {
+		margin-top: 0.5rem;
 	}
 
 	.meta-draft {

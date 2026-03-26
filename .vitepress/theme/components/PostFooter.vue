@@ -1,13 +1,18 @@
 <script setup lang='ts'>
 import dayjs from 'dayjs'
 import { ArrowLeft, ArrowRight, Tag } from 'lucide-vue-next'
-import { useData, withBase } from 'vitepress'
+import { useData, useRoute, withBase } from 'vitepress'
 import { computed, onMounted, ref } from 'vue'
+import { getCategoryLocaleConfig } from '../../../config/categories'
+import { filterPostsByLocale, getLocalePath, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { useBlogStore } from '../store'
 
 const blogStore = useBlogStore()
-const tagsURL = withBase('/tags')
+const locale = useBlogLocale()
+const themeText = useThemeText()
+const route = useRoute()
+const tagsURL = computed(() => withBase(getLocalePath('/tags', locale.value)))
 const { frontmatter, page } = useData()
 const mounted = ref(false)
 
@@ -26,29 +31,32 @@ interface NavPost {
   category: string
 }
 
+const localizedPosts = computed(() => filterPostsByLocale(posts, locale.value))
+const currentPostIndex = computed(() => localizedPosts.value.findIndex(post => post.url === route.path))
+
 const prevPost = computed<NavPost | null>(() => {
-  const index = posts.findIndex(post => post.title === frontmatter.value.title)
+  const index = currentPostIndex.value
   if (index > 0) {
-    const post = posts[index - 1]
+    const post = localizedPosts.value[index - 1]
     return {
       url: withBase(post.url),
       title: post.title,
       date: post.date.string,
-      category: post.category,
+      category: getCategoryLocaleConfig(post.category, locale.value)?.name || post.category,
     }
   }
   return null
 })
 
 const nextPost = computed<NavPost | null>(() => {
-  const index = posts.findIndex(post => post.title === frontmatter.value.title)
-  if (index >= 0 && index < posts.length - 1) {
-    const post = posts[index + 1]
+  const index = currentPostIndex.value
+  if (index >= 0 && index < localizedPosts.value.length - 1) {
+    const post = localizedPosts.value[index + 1]
     return {
       url: withBase(post.url),
       title: post.title,
       date: post.date.string,
-      category: post.category,
+      category: getCategoryLocaleConfig(post.category, locale.value)?.name || post.category,
     }
   }
   return null
@@ -67,7 +75,7 @@ onMounted(() => {
   <div class="post-footer">
     <!-- Last Updated -->
     <div v-if="lastUpdated" class="last-updated-section">
-      <span class="update-label">updated:</span>
+      <span class="update-label">{{ themeText.updated }}:</span>
       <time class="update-time">{{ lastUpdated }}</time>
     </div>
 
@@ -76,7 +84,7 @@ onMounted(() => {
       <div class="section-header">
         <div class="section-line" />
         <Tag class="section-icon" />
-        <span class="section-label">tags</span>
+        <span class="section-label">{{ themeText.tags }}</span>
         <div class="section-line" />
       </div>
       <div class="tags-list">
@@ -103,7 +111,7 @@ onMounted(() => {
       >
         <div class="nav-direction">
           <ArrowLeft class="nav-arrow" />
-          <span>previous</span>
+          <span>{{ themeText.previous }}</span>
         </div>
         <div class="nav-content">
           <span class="nav-category">{{ prevPost.category.toLowerCase() }}</span>
@@ -122,7 +130,7 @@ onMounted(() => {
         class="nav-link nav-next"
       >
         <div class="nav-direction">
-          <span>next</span>
+          <span>{{ themeText.next }}</span>
           <ArrowRight class="nav-arrow" />
         </div>
         <div class="nav-content">

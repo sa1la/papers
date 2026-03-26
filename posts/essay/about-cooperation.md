@@ -2,6 +2,7 @@
 date: 2025-07-28 21:45:48 +08:00
 title: 关于团结合作
 category: essay
+translationKey: about-cooperation
 tags: ["essay"]
 
 outline: "deep"

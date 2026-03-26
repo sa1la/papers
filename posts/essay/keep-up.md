@@ -2,6 +2,7 @@
 date: 2025-06-04 22:30:59 +08:00
 title: 持续的做好一件事和更多事🚧
 category: essay
+translationKey: keep-up
 tags: ["essay"]
 outline: deep
 ---

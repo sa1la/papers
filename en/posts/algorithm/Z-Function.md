@@ -1,5 +1,5 @@
 ---
-title: "Z Function解决leetcode 3029、3031"
+title: "Using the Z Function for LeetCode 3029 and 3031"
 date: 2024-02-05T21:40:50+08:00
 outline: "deep"
 tags: ["algorithm", "golang"]
@@ -8,9 +8,9 @@ translationKey: z-function
 draft: false
 ---
 
-## [Z 函数（扩展 KMP）](https://oi-wiki.org/string/z-func/)
+## [Z Function (Extended KMP)](https://oi-wiki.org/string/z-func/)
 
-定义和设计思路直接去[OI](https://oi-wiki.org/string/z-func/)看,以下是 Z 函数的 golang 实现
+For the definition and core idea, it is easiest to read the explanation on [OI Wiki](https://oi-wiki.org/string/z-func/). Below is a Go implementation of the Z function.
 
 ```go
 // Z-function
@@ -40,7 +40,7 @@ func calculateZFunction(s string) []int {
 
 ```
 
-以下是解决[3029. 将单词恢复初始状态所需的最短时间 I](https://leetcode.cn/problems/minimum-time-to-revert-word-to-initial-state-i/)、[3031. 将单词恢复初始状态所需的最短时间 II 困难](https://leetcode.cn/problems/minimum-time-to-revert-word-to-initial-state-ii/)的代码，一份代码解决两个问题
+Below is code that solves both [3029. Minimum Time to Revert Word to Initial State I](https://leetcode.cn/problems/minimum-time-to-revert-word-to-initial-state-i/) and [3031. Minimum Time to Revert Word to Initial State II](https://leetcode.cn/problems/minimum-time-to-revert-word-to-initial-state-ii/) with one implementation.
 
 ```go
 func minimumTimeToInitialState(s string, k int) int {

@@ -8,6 +8,20 @@ import { htmlDemoPlugin } from './plugins/htmlDemoPlugin'
 import { vueDemoPlugin } from './plugins/vueDemoPlugin'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const navItems = {
+  zh: [
+    { text: '首页', link: '/' },
+    { text: '分类', link: '/category' },
+    { text: '标签', link: '/tags' },
+    { text: '收藏', link: '/favorites' },
+  ],
+  en: [
+    { text: 'home', link: '/en/' },
+    { text: 'categories', link: '/en/category' },
+    { text: 'tags', link: '/en/tags' },
+    { text: 'favorites', link: '/en/favorites' },
+  ],
+}
 
 // https://vitepress.dev/reference/default-theme-config
 // https://vitepress.dev/reference/site-config
@@ -24,20 +38,41 @@ export default defineConfig({
   lang: 'zh-cn',
   title: 'Sa1L',
   description: '冲吧，向那太阳，向那片海',
+  locales: {
+    root: {
+      label: '中文',
+      lang: 'zh-CN',
+      themeConfig: {
+        nav: navItems.zh,
+        outline: { label: '页内导航' },
+        footer: {
+          message: '冲吧，向那太阳，向那片海',
+        },
+      },
+    },
+    en: {
+      label: 'English',
+      lang: 'en-US',
+      link: '/en/',
+      description: 'Toward the sun, toward the sea.',
+      themeConfig: {
+        nav: navItems.en,
+        outline: { label: 'On This Page' },
+        footer: {
+          message: 'Toward the sun, toward the sea.',
+        },
+      },
+    },
+  },
   lastUpdated: true,
   cacheDir: './node_modules/vitepress_cache',
   appearance: 'dark',
   cleanUrls: true,
   ignoreDeadLinks: true,
   themeConfig: {
-    nav: [
-      { text: 'home', link: '/' },
-      { text: 'categories', link: '/category' },
-      { text: 'tags', link: '/tags' },
-      { text: 'favorites', link: '/favorites' },
-    ],
+    nav: navItems.zh,
     logo: '/avatar.jpg',
-    outline: { label: 'Navigate' },
+    outline: { label: '页内导航' },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/sa1la' },
     ],

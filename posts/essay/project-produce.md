@@ -2,6 +2,7 @@
 date: 2025-09-09 23:01:33 +08:00
 title: 项目创作
 category: essay
+translationKey: project-produce
 tags: ["essay"]
 
 outline: "deep"

@@ -1,10 +1,15 @@
 <script setup lang='ts'>
+import { computed } from 'vue'
+import { filterPostsByLocale, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { initArchives } from '../utils'
 import Hero from './Hero.vue'
 
-const archives = initArchives(posts)
-const years = Object.keys(archives).sort().reverse()
+const locale = useBlogLocale()
+const themeText = useThemeText()
+const localizedPosts = computed(() => filterPostsByLocale(posts, locale.value))
+const archives = computed(() => initArchives(localizedPosts.value))
+const years = computed(() => Object.keys(archives.value).sort().reverse())
 </script>
 
 <template>
@@ -14,7 +19,7 @@ const years = Object.keys(archives).sort().reverse()
     <div class="paper-container">
       <!-- Posts List by Year -->
       <div class="posts-archive">
-        <ul class="posts-list">
+        <ul v-if="years.length" class="posts-list">
           <template v-for="year in years" :key="year">
             <li
               v-for="(post, postIndex) in archives[year]"
@@ -27,12 +32,15 @@ const years = Object.keys(archives).sort().reverse()
                 <span v-if="postIndex === 0" class="post-year">{{ year }}</span>
                 <span v-else class="post-year-spacer" />
                 <span class="post-title">{{ post.title }}</span>
-                <span v-if="post.draft" class="post-draft">draft</span>
+                <span v-if="post.draft" class="post-draft">{{ themeText.draft }}</span>
                 <span class="post-date">{{ post.date.dayMonth }}</span>
               </a>
             </li>
           </template>
         </ul>
+        <p v-else class="empty-state">
+          {{ themeText.emptyPosts }}
+        </p>
       </div>
     </div>
   </div>
