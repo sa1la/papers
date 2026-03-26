@@ -45,6 +45,11 @@ export const categories: Record<string, CategoryConfig> = {
     icon: 'pen-tool',
     description: 'personal reflections',
   },
+  history: {
+    name: 'history',
+    icon: 'landmark',
+    description: 'historical explorations & narratives',
+  },
 } as const
 
 export type CategoryKey = keyof typeof categories
