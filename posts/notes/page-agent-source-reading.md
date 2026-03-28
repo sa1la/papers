@@ -28,61 +28,227 @@ page-agent有多个包，每个包负责独立的任务，但又相互关联。
 核心流程在 PageAgentCore.execute()里，遵循了ReAct模式：每一步都是"观察、思考、行动"的循环。
 
 ```ts
-async execute(task: string): Promise<ExecutionResult> {
+// 类型来自 @page-agent/core 和 @page-agent/llms
 
+// ===== 来自 packages/core/src/types.ts =====
+
+interface AgentReflection {
+  evaluation_previous_goal: string
+  memory: string
+  next_goal: string
+}
+
+interface MacroToolInput extends Partial<AgentReflection> {
+  action: Record<string, any>
+}
+
+interface MacroToolResult {
+  input: MacroToolInput
+  output: string
+}
+
+interface AgentStepEvent {
+  type: 'step'
+  stepIndex: number
+  reflection: Partial<AgentReflection>
+  action: {
+    name: string
+    input: any
+    output: string
+  }
+  usage: {
+    promptTokens: number
+    completionTokens: number
+    totalTokens: number
+  }
+}
+
+interface ObservationEvent {
+  type: 'observation'
+  content: string
+}
+
+interface RetryEvent {
+  type: 'retry'
+  message: string
+  attempt: number
+  maxAttempts: number
+}
+
+interface AgentErrorEvent {
+  type: 'error'
+  message: string
+}
+
+type HistoricalEvent
+  = | AgentStepEvent
+    | ObservationEvent
+    | RetryEvent
+    | AgentErrorEvent
+
+interface ExecutionResult {
+  success: boolean
+  data: string
+  history: HistoricalEvent[]
+}
+
+type AgentStatus = 'idle' | 'running' | 'completed' | 'error'
+
+type AgentActivity
+  = | { type: 'thinking' }
+    | { type: 'executing', tool: string, input: unknown }
+    | { type: 'retrying', attempt: number, maxAttempts: number }
+    | { type: 'error', message: string }
+
+// ===== 来自 packages/llms/src/types.ts =====
+
+interface Message {
+  role: 'system' | 'user' | 'assistant' | 'tool'
+  content?: string | null
+}
+
+interface InvokeResult<TResult = unknown> {
+  toolCall: {
+    name: string
+    args: any
+  }
+  toolResult: TResult
+  usage: {
+    promptTokens: number
+    completionTokens: number
+    totalTokens: number
+  }
+}
+
+interface LLMClient {
+  invoke: (
+    messages: Message[],
+    tools: Record<string, any>,
+    abortSignal?: AbortSignal,
+    options?: { toolChoiceName?: string, normalizeResponse?: (res: any) => any }
+  ) => Promise<InvokeResult>
+}
+
+// ===== 简化示例：PageAgentCore.execute 核心逻辑 =====
+
+class PageAgentCore {
+  private history: HistoricalEvent[] = []
+  private step = 0
+  private config = { maxSteps: 40, stepDelay: 0.4 }
+  private #llm!: LLMClient
+  private #states = {
+    browserState: null as { url: string, content: string } | null,
+    totalWaitTime: 0,
+    lastURL: '',
+  }
+
+  // 生命周期钩子（由 config 传入）
+  onBeforeTask?: (agent: PageAgentCore) => Promise<void> | void
+  onBeforeStep?: (agent: PageAgentCore, step: number) => Promise<void> | void
+  onAfterStep?: (agent: PageAgentCore, history: HistoricalEvent[]) => Promise<void> | void
+  onAfterTask?: (agent: PageAgentCore, result: ExecutionResult) => Promise<void> | void
+
+  async execute(task: string): Promise<ExecutionResult> {
     // 启动：触发钩子、显示遮罩、清空 history
-    await onBeforeTask?.(this)
-    await this.pageController.showMask()
+    await this.onBeforeTask?.(this)
     this.history = []
     this.#setStatus('running')
+    this.step = 0
 
     while (true) {
-        try {
-            await onBeforeStep?.(this, step)
+      try {
+        await this.onBeforeStep?.(this, this.step)
 
-            // 1. Observe：采集页面快照（DOM、URL、可见元素）
-            this.#states.browserState = await this.pageController.getBrowserState()
-            await this.#handleObservations(step)
+        // 1. Observe：采集页面快照（DOM、URL、可见元素）
+        this.#states.browserState = await this.#getBrowserState()
+        await this.#handleObservations(this.step)
 
-            // 2. Think：系统提示词 + history + 观测 → 调用 LLM
-            // 返回固定结构：reflection（评估/记忆/目标）+ action（动作名及参数）
-            const messages = [
-                { role: 'system', content: this.#getSystemPrompt() },
-                { role: 'user',   content: await this.#assembleUserPrompt() },
-            ]
-            this.#emitActivity({ type: 'thinking' }) // 瞬态，只给 UI 用
-            const result = await this.#llm.invoke(messages, { AgentOutput: this.#packMacroTool() }, ...)
+        // 2. Think：系统提示词 + history + 观测 → 调用 LLM
+        const messages: Message[] = [
+          { role: 'system', content: this.#getSystemPrompt() },
+          { role: 'user', content: await this.#assembleUserPrompt() },
+        ]
+        this.#emitActivity({ type: 'thinking' }) // 瞬态，只给 UI 用
+        const result = await this.#llm.invoke(
+          messages,
+          { AgentOutput: this.#packMacroTool() },
+          undefined,
+          { toolChoiceName: 'AgentOutput' }
+        )
 
-            // 3. Act：解析动作，写入 history（持久，下一步会进 LLM 上下文）
-            const { reflection, action, actionName } = parseResult(result)
-            this.history.push({ type: 'step', stepIndex: step, reflection, action })
-            this.#emitHistoryChange()
+        // 3. Act：解析动作，写入 history（持久，下一步会进 LLM 上下文）
+        const macroResult = result.toolResult as MacroToolResult
+        const actionName = Object.keys(macroResult.input.action)[0]
 
-            await onAfterStep?.(this, this.history)
+        this.history.push({
+          type: 'step',
+          stepIndex: this.step,
+          reflection: {
+            evaluation_previous_goal: macroResult.input.evaluation_previous_goal,
+            memory: macroResult.input.memory,
+            next_goal: macroResult.input.next_goal,
+          },
+          action: {
+            name: actionName,
+            input: macroResult.input.action[actionName],
+            output: macroResult.output,
+          },
+          usage: result.usage,
+        } as AgentStepEvent)
+        this.#emitHistoryChange()
 
-            // 终止 1：LLM 返回 done
-            if (actionName === 'done') {
-                const executionResult = { success: action.input.success, data: action.input.text, history: this.history }
-                await onAfterTask?.(this, executionResult)
-                return executionResult
-            }
+        await this.onAfterStep?.(this, this.history)
 
-        } catch (error) {
-            // 终止 2：异常（含 stop 触发的 AbortError）
-            const executionResult = { success: false, data: String(error), history: this.history }
-            await onAfterTask?.(this, executionResult)
-            return executionResult
+        // 终止 1：LLM 返回 done
+        if (actionName === 'done') {
+          const success = macroResult.input.action.done?.success ?? false
+          const text = macroResult.input.action.done?.text || 'no text provided'
+          const executionResult: ExecutionResult = { success, data: text, history: this.history }
+          await this.onAfterTask?.(this, executionResult)
+          return executionResult
         }
-
-        // 终止 3：超过 maxSteps（默认 40）
-        if (++step > this.config.maxSteps) {
-            const executionResult = { success: false, data: 'Step count exceeded', history: this.history }
-            await onAfterTask?.(this, executionResult)
-            return executionResult
+      }
+      catch (error) {
+        // 终止 2：异常（含 stop 触发的 AbortError）
+        const executionResult: ExecutionResult = {
+          success: false,
+          data: error instanceof Error ? error.message : String(error),
+          history: this.history,
         }
+        await this.onAfterTask?.(this, executionResult)
+        return executionResult
+      }
 
-        await waitFor(this.config.stepDelay ?? 0.4)
+      // 终止 3：超过 maxSteps（默认 40）
+      if (++this.step > this.config.maxSteps) {
+        const executionResult: ExecutionResult = {
+          success: false,
+          data: 'Step count exceeded maximum limit',
+          history: this.history,
+        }
+        await this.onAfterTask?.(this, executionResult)
+        return executionResult
+      }
+
+      await this.#waitFor(this.config.stepDelay)
     }
+  }
+
+  // 辅助方法占位
+  #setStatus(_status: AgentStatus): void { /* ... */ }
+  #getBrowserState(): Promise<{ url: string, content: string }> {
+    return Promise.resolve({ url: '', content: '' })
+  }
+
+  #handleObservations(_step: number): Promise<void> { return Promise.resolve() }
+  #getSystemPrompt(): string { return '' }
+  #assembleUserPrompt(): Promise<string> { return Promise.resolve('') }
+  #emitActivity(_activity: AgentActivity): void { /* ... */ }
+  #packMacroTool(): any { return {} }
+  #emitHistoryChange(): void { /* ... */ }
+  #waitFor(seconds: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+  }
 }
 ```
 
