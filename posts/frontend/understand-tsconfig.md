@@ -625,8 +625,6 @@ if (value !== undefined) {
 
 `noImplicitAny` 设置当一个表达式没有明确的类型描述、且编译器无法推断出具体类型时，是否允许将它推断为 `any` 类型。
 
-`noImplicitAny` 设置当一个表达式没有明确的类型描述、且编译器无法推断出具体类型时，是否允许将它推断为 `any` 类型。
-
 它是一个布尔值，默认为 `true`，即只要推断出 `any` 类型就报错。
 
 ### noImplicitReturns
