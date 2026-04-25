@@ -33,7 +33,10 @@ export default defineConfig({
       vueDemoPlugin(),
     ],
   },
-  head: [['link', { rel: 'icon', href: `/favicon.jpg` }]],
+  head: [
+    ['link', { rel: 'icon', href: `/favicon.jpg` }],
+    ['script', { defer: '', src: 'https://umami.sa1l.world/script.js', 'data-website-id': '226fc954-5a85-45bc-9f41-975997af76f4' }],
+  ],
   base: '/',
   lang: 'zh-cn',
   title: 'Sa1L',

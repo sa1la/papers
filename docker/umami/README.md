@@ -2,26 +2,27 @@
 
 [Umami](https://umami.is/) 是一个简单、快速、隐私友好的网站分析工具。
 
-本项目使用 SQLite 作为数据库，零配置、单文件、资源占用极低，适合个人博客场景。
+本项目使用 PostgreSQL 作为数据库，配合 Umami 官方镜像部署。
 
 ## 前置要求
 
-- Docker + Docker Compose
-- 至少 256MB 可用内存
+- Docker + Docker Compose v2.1+
+- 至少 512MB 可用内存
 
 ## 首次部署
+
+**重要**：`.env` 文件包含密码等敏感信息，不纳入 Git 版本控制。首次部署前必须在服务器上手动创建。
 
 ```bash
 # 进入本目录
 cd docker/umami
 
-# 复制环境变量模板
+# 复制环境变量模板并编辑
 cp .env.example .env
-
-# 编辑 .env，填入真实值
-# APP_SECRET: 运行 openssl rand -hex 32 生成
-# UMAMI_PORT: 如需暴露到其他端口可修改
-# DATA_PATH: 服务器部署建议改为绝对路径，如 /opt/umami-data
+# 手动编辑 .env 填入真实值：
+#   APP_SECRET: 运行 openssl rand -hex 32 生成
+#   DB_PASSWORD: 设置一个强密码
+#   UMAMI_PORT: 如需暴露到其他端口可修改
 
 # 启动服务
 docker compose up -d
@@ -41,22 +42,13 @@ docker compose up -d
 
 ## 数据备份
 
-SQLite 备份极其简单，只需复制数据文件：
-
 ```bash
-# 备份数据目录
-tar czf umami-data-backup-$(date +%Y%m%d).tar.gz ${DATA_PATH}
+# 先加载环境变量
+source .env
+
+# 备份数据库
+docker exec umami-db pg_dump -U umami -d umami > "umami-backup-$(date +%Y%m%d).sql"
 ```
-
-数据文件位于 `${DATA_PATH}/umami.db`。
-
-## 切换数据库
-
-如需切换到 PostgreSQL（高并发、多站点场景）：
-1. 备份现有数据
-2. 将 `docker-compose.yml` 中的镜像改为 `ghcr.io/umami-software/umami:postgresql-latest`
-3. 添加 PostgreSQL 服务并配置 `DATABASE_URL`
-4. 参考 [Umami 官方文档](https://umami.is/docs/environment-variables)
 
 ## Nginx 反代配置示例
 
