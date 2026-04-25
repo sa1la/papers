@@ -2,6 +2,7 @@
 import { useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import { computed } from 'vue'
+import Comments from './Comments.vue'
 import Home from './Home.vue'
 import PostFooter from './PostFooter.vue'
 import PostHeader from './PostHeader.vue'
@@ -22,6 +23,7 @@ const isHome = computed(() => frontmatter.value.layout === 'home')
     </template>
     <template #doc-after>
       <PostFooter />
+      <Comments v-if="frontmatter.date" />
     </template>
   </Layout>
 </template>
