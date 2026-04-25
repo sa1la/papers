@@ -27,6 +27,7 @@ node_modules
 .env
 .env.local
 .env.*.local
+docker/umami/.env
 
 # logs
 *.log
