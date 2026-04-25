@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { BlogLocale } from '../../../config/categories'
-import { useData } from 'vitepress'
 import Giscus from '@giscus/vue'
+import { useData } from 'vitepress'
 import { computed } from 'vue'
 import { useBlogLocale } from '../i18n'
 
 const giscusLangMap: Record<BlogLocale, string> = {
-	'zh-CN': 'zh-CN',
-	'en-US': 'en',
+  'zh-CN': 'zh-CN',
+  'en-US': 'en',
 }
 
 const { isDark } = useData()

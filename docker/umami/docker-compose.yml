@@ -3,7 +3,7 @@ services:
     image: ghcr.io/umami-software/umami:postgresql-latest
     container_name: umami
     ports:
-      - "${UMAMI_PORT:-3000}:3000"
+      - '${UMAMI_PORT:-3000}:3000'
     environment:
       DATABASE_URL: postgresql://umami:${DB_PASSWORD}@db:5432/umami
       APP_SECRET: ${APP_SECRET}
@@ -12,7 +12,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      test: [CMD, node, -e, "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -35,7 +35,7 @@ services:
           memory: 128M
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      test: [CMD-SHELL, pg_isready -U umami -d umami]
       interval: 10s
       timeout: 5s
       retries: 5
