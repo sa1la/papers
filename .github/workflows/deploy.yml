@@ -64,6 +64,7 @@ jobs:
             echo "Error: ssh-keyscan failed to retrieve host key for $SERVER_HOST:$PORT"
             exit 1
           fi
+          echo "SSH_OPTS=-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts" >> "$GITHUB_ENV"
 
       - name: Deploy blog to server
         env:
@@ -91,8 +92,6 @@ jobs:
           set -euo pipefail
           PORT="${SERVER_PORT:-22}"
           UMAMI_DIR="${UMAMI_PATH:-/opt/umami}"
-
-          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts"
 
           scp $SSH_OPTS -P "$PORT" \
             docker/umami/docker-compose.yml \
