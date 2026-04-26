@@ -18,18 +18,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check Umami files changed
-        id: changed-files
-        run: |
-          set -euo pipefail
-          if git rev-parse HEAD^ >/dev/null 2>&1 && git diff --name-only HEAD^ HEAD | grep -q '^docker/umami/'; then
-            echo "any_changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "any_changed=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -80,28 +68,6 @@ jobs:
             .vitepress/dist/ \
             "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/"
           echo "Deployed to $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH"
-
-      - name: Deploy Umami
-        if: steps.changed-files.outputs.any_changed == 'true'
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          UMAMI_PATH: ${{ secrets.UMAMI_PATH }}
-        run: |
-          set -euo pipefail
-          PORT="${SERVER_PORT:-22}"
-          UMAMI_DIR="${UMAMI_PATH:-/opt/umami}"
-
-          scp $SSH_OPTS -P "$PORT" \
-            docker/umami/docker-compose.yml \
-            "$SERVER_USER@$SERVER_HOST:$UMAMI_DIR/docker-compose.yml"
-
-          ssh $SSH_OPTS -p "$PORT" \
-            "$SERVER_USER@$SERVER_HOST" \
-            "cd \"$UMAMI_DIR\" && docker compose pull && docker compose up -d --remove-orphans"
-
-          echo "Umami deployed to $SERVER_USER@$SERVER_HOST:$UMAMI_DIR"
 
       - name: Cleanup SSH
         if: always()
