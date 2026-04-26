@@ -35,7 +35,9 @@ export default defineConfig({
   },
   head: [
     ['link', { rel: 'icon', href: `/favicon.jpg` }],
-    ['script', { 'defer': '', 'src': 'https://umami.sa1l.world/script.js', 'data-website-id': '226fc954-5a85-45bc-9f41-975997af76f4' }],
+    ...(isDev
+      ? []
+      : [['script', { 'defer': '', 'src': 'https://umami.sa1l.world/script.js', 'data-website-id': '226fc954-5a85-45bc-9f41-975997af76f4' }] as [string, Record<string, string>]]),
   ],
   base: '/',
   lang: 'zh-cn',
