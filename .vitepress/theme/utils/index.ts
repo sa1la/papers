@@ -58,46 +58,6 @@ export function beautifyDate(date: string | undefined, pattern: string) {
   return dayjs(date).format(pattern)
 }
 
-// Category color mapping for minimal design
-const categoryColorMap: Record<string, string> = {
-  Thoughts: 'blue',
-  thoughts: 'blue',
-  Algorithm: 'violet',
-  algorithm: 'violet',
-  Note: 'amber',
-  note: 'amber',
-  Article: 'emerald',
-  article: 'emerald',
-  Frontend: 'pink',
-  frontend: 'pink',
-  Golang: 'cyan',
-  golang: 'cyan',
-  Math: 'orange',
-  math: 'orange',
-  Reading: 'indigo',
-  reading: 'indigo',
-}
-
-export function getCategoryColor(category: string): string {
-  return categoryColorMap[category] || 'gray'
-}
-
-export function getCategoryColorClass(category: string): string {
-  const color = getCategoryColor(category)
-  const colorClasses: Record<string, string> = {
-    blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-    violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
-    amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-    emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-    pink: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
-    cyan: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
-    orange: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
-    indigo: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
-    gray: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20',
-  }
-  return colorClasses[color] || colorClasses.gray
-}
-
 export function truncateText(text: string | undefined, length: number): string {
   if (!text)
     return ''

@@ -34,7 +34,7 @@ Posts live under `posts/` and are organized by category. Allowed `category` valu
 
 - **algorithm** – data structures and algorithms
 - **contest** – algorithm contest solutions
-- **craft** – coding tips and experience
+- **tips** – coding tips and experience
 - **frontend** – frontend development and engineering practice
 - **backend** – backend and server development
 - **math** – math notes
@@ -240,7 +240,7 @@ pnpm lint:fix
 ├── posts/                 # Blog content
 │   ├── algorithm/
 │   ├── contest/
-│   ├── craft/
+│   ├── tips/
 │   ├── frontend/
 │   ├── backend/
 │   ├── math/

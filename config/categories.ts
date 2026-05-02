@@ -37,15 +37,15 @@ export const categories: Record<string, CategoryConfig> = {
       },
     },
   },
-  craft: {
+  tips: {
     icon: 'lightbulb',
     i18n: {
       'zh-CN': {
-        name: '技法',
+        name: '技巧',
         description: '编程经验、技巧与方法',
       },
       'en-US': {
-        name: 'craft',
+        name: 'tips',
         description: 'programming tips & techniques',
       },
     },
@@ -115,19 +115,21 @@ export const categories: Record<string, CategoryConfig> = {
       },
     },
   },
-  history: {
-    icon: 'landmark',
-    i18n: {
-      'zh-CN': {
-        name: '历史',
-        description: '历史主题的整理、探索与叙述',
-      },
-      'en-US': {
-        name: 'history',
-        description: 'historical explorations & narratives',
-      },
-    },
-  },
+  // 暂时下线，避免出现无内容分类的导航入口。
+  // 首篇 history 文章发布时取消注释。
+  // history: {
+  //   icon: 'landmark',
+  //   i18n: {
+  //     'zh-CN': {
+  //       name: '历史',
+  //       description: '历史主题的整理、探索与叙述',
+  //     },
+  //     'en-US': {
+  //       name: 'history',
+  //       description: 'historical explorations & narratives',
+  //     },
+  //   },
+  // },
 } as const
 
 export type CategoryKey = keyof typeof categories

@@ -8,18 +8,33 @@ const capitalizeFirstLetter = str => str.charAt(0).toUpperCase() + str.slice(1)
 const formatTitle = name => capitalizeFirstLetter(name.replaceAll('-', ' '))
 const getFilename = path => path.split('/').at(-1)
 
+function isEnPath(filePath) {
+  return filePath.startsWith('en/')
+}
+
 function getCategoryFromPath(filePath) {
   const parts = filePath.split('/')
-  // If it's drafts/category/name format, return category
+  // en/<category>/<slug>
+  if (parts[0] === 'en' && parts.length >= 3) {
+    return parts[1]
+  }
+  // drafts/<category>/<slug>
   if (parts[0] === 'drafts' && parts.length >= 2) {
     return parts[1]
   }
-  // Otherwise return the first level directory
+  // <category>/<slug>
   return parts[0] || 'thoughts'
 }
 
 function isDraft(filePath) {
   return filePath.startsWith('drafts/')
+}
+
+function resolveTargetPath(filePath) {
+  // 英文落到 VitePress i18n 期望的 en/posts/ 目录；中文沿用 posts/。
+  return isEnPath(filePath)
+    ? `./en/posts/${filePath.slice(3)}.md`
+    : `./posts/${filePath}.md`
 }
 
 async function writeFile(filePath) {
@@ -41,7 +56,7 @@ write excerpt here
 
 ---`
 
-  const fullPath = `./posts/${filePath}.md`
+  const fullPath = resolveTargetPath(filePath)
   const dir = require('node:path').dirname(fullPath)
 
   // Ensure directory exists
@@ -74,9 +89,20 @@ function main() {
     console.error('[ERROR]: No file path provided')
     console.log('Usage: pnpm new <category>/<filename>')
     console.log('       pnpm new drafts/<category>/<filename>')
+    console.log('       pnpm new en/<category>/<filename>')
     process.exit(1)
   }
-  createNewPost(args[0])
+
+  const filePath = args[0]
+
+  // 英文版按约定直接发布，不走草稿流程；显式拒绝避免文件落到非预期位置。
+  if (filePath.startsWith('en/drafts/')) {
+    console.error('[ERROR]: English drafts are not supported. Create the published version directly:')
+    console.error(`         pnpm new ${filePath.replace('en/drafts/', 'en/')}`)
+    process.exit(1)
+  }
+
+  createNewPost(filePath)
 }
 
 main()

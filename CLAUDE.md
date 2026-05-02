@@ -4,9 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a personal technical blog built with VitePress 2.0 (alpha), migrated from Hugo. It uses a custom Vue 3 theme with Pinia state management and TailwindCSS for styling.
+A bilingual (zh-CN + en-US) personal technical blog built on **VitePress 2.0 alpha** with a fully custom Vue 3 theme, TailwindCSS v4, and Pinia state. Migrated from Hugo, hosted at `https://sa1l.world`.
 
-### Design Philosophy
+Key facts that don't show up obviously in `package.json`:
+
+- **Vite is overridden** to `rolldown-vite@latest` (see `pnpm.overrides`) — keep an eye on it when debugging build behavior.
+- **Markdown processing** uses Shiki with `github-light-high-contrast` (light) / `one-dark-pro` (dark), plus `markdown-it-mathjax3`, `markdown-it-footnote`, and `@shikijs/colorized-brackets`.
+- **Search** is local (no Algolia); the custom `_render` prepends the post title to the indexed content so titles match search queries even when not in the body.
+
+## Design Philosophy
 
 The blog follows a **minimalist and elegant aesthetic** with a **black and white color scheme** as the primary palette. Keep the UI clean, uncluttered, and sophisticated—avoid bright colors, heavy shadows, or excessive decorative elements.
 
@@ -54,317 +60,210 @@ A calm, notebook-like atmosphere that prioritizes content over chrome.
 ## Common Commands
 
 ```bash
-# Development server (runs on port 5173)
+# Development server (port 5173) — drafts and future-dated posts visible here
 pnpm dev
 
-# Build for production
+# Production build — drafts and future posts are filtered out
 pnpm build
-
-# Preview production build
 pnpm preview
 
-# Lint code
+# Tests (vitest) and lint
+pnpm test
 pnpm lint
-
-# Auto-fix lint issues
 pnpm lint:fix
 
-# Create a new post
-pnpm new <category>/<filename>
-# Example: pnpm new algorithm/kmp-algorithm
+# Create posts (see "Authoring Workflow" below for path conventions)
+pnpm new <category>/<slug>                  # Chinese, published
+pnpm new drafts/<category>/<slug>           # Chinese, draft
+pnpm new en/<category>/<slug>               # English, published
 
-# Create a new draft
-pnpm new drafts/<category>/<filename>
-# Example: pnpm new drafts/frontend/my-draft-post
-
-# Publish a draft
-pnpm pub <category>/<filename>
-# Example: pnpm pub frontend/my-draft-post
-
-# Publish with a specific date (scheduled publishing)
-pnpm pub <category>/<filename> --date 2024-12-25
-# Example: pnpm pub frontend/my-draft-post --date 2024-12-25
+# Publish a Chinese draft → posts/<category>/<slug>.md
+pnpm pub <category>/<slug>
+pnpm pub <category>/<slug> --date 2026-12-25   # schedule for a future date
 ```
 
 ## Architecture
 
-### Content Structure
+### Content Layout
 
-Posts are organized in `posts/` by the categories defined in `config/categories.ts`, plus `posts/drafts/` for draft content.
+```
+posts/                      # Chinese content (root locale)
+├── <category>/             # Published — visible in dev and prod
+│   └── *.md
+└── drafts/<category>/      # Drafts — visible in dev only
 
-### Category System
-
-Categories are predefined in `config/categories.ts`:
-
-- **algorithm** - 算法：数据结构与算法
-- **contest** - 竞赛：算法竞赛题解
-- **craft** - 技巧：编程技巧与经验
-- **frontend** - 前端：前端开发与工程实践
-- **backend** - 后端：后端与服务器开发
-- **math** - 数学：数学探索与笔记
-- **notes** - 笔记：阅读笔记与摘抄
-- **essay** - 随笔：个人思考与随笔
-
-Each post must use one of these categories in frontmatter:
-
-```yaml
----
-category: frontend # Must be a predefined category
-series: vitepress-blog # Optional: groups posts into series
----
+en/posts/                   # English content (en-US locale)
+└── <category>/             # Published only — see "i18n Workflow"
+    └── *.md
 ```
 
-### Draft Workflow
+`createContentLoader('{posts,en/posts}/**/*.md', …)` in `.vitepress/theme/posts.data.ts` aggregates **both** trees into a single `Post[]` at build time. The locale of each post is inferred from its URL: anything under `/en/posts/` is `en-US`, otherwise `zh-CN`.
 
-**Creating drafts:**
+### Categories (`config/categories.ts`)
 
-- Drafts are created in `posts/drafts/<category>/`
-- Drafts are visible during development (`pnpm dev`)
-- Drafts are excluded from production builds
+Categories are **predefined and validated**. Posts with an unknown `category` are dropped with a `console.warn` (see `isValidCategory`); they will not break the build but will silently disappear from listings.
 
-**Publishing:**
+| key         | zh-CN name | en-US name |
+| ----------- | ---------- | ---------- |
+| `algorithm` | 算法       | algorithms |
+| `contest`   | 竞赛       | contests   |
+| `tips`      | 技巧       | tips       |
+| `frontend`  | 前端       | frontend   |
+| `backend`   | 后端       | backend    |
+| `math`      | 数学       | math       |
+| `notes`     | 笔记       | notes      |
+| `essay`     | 随笔       | essays     |
 
-- Use `pnpm pub <category>/<filename>` to move draft to production
-- Optionally set a future date with `--date`
-- Posts with future dates are visible in dev but excluded from production until the date passes
+> `history` is **temporarily disabled** in `categories.ts` (commented out) to avoid an empty navigation entry. Uncomment it when the first history article ships. The `posts/history/` directory exists but is empty — leave it alone until then.
 
-### Custom Theme System (`.vitepress/theme/`)
-
-The theme extends VitePress DefaultTheme with custom components:
-
-- **ThemeLayout.vue** - Root layout wrapper, wraps all pages
-- **Home.vue** - Custom homepage layout
-- **Category.vue** - Category listing page (`/category`)
-- **Tags.vue** - Tag cloud page (`/tags`)
-- **Title.vue** - Post title component with metadata
-- **PostHeader.vue** / **PostFooter.vue** - Post page header/footer
-- **About.vue** - About page component
-
-**State Management**: Pinia store in `store.ts` tracks selected category/tag for filtering.
-
-**Content Loading**: `posts.data.ts` uses VitePress's `createContentLoader` to aggregate all posts from `posts/**/*.md` at build time. It transforms frontmatter into a structured Post interface with formatted dates.
-
-### Post Frontmatter Format
+### Frontmatter Format
 
 ```yaml
 ---
 date: YYYY-MM-DD HH:mm:ss Z
 title: Article Title
-category: Category Name
+category: frontend # must match a key in config/categories.ts
 tags: [tag1, tag2]
-outline: deep # Shows nested headers in sidebar
-draft: true # Optional: excludes from listing
+series: vitepress-blog # optional, groups posts into a series
+translationKey: my-post # optional, links bilingual pairs (see i18n)
+draft: true # optional, only for posts under posts/drafts/
+outline: deep # show nested headers in the right rail
 ---
 
-Write excerpt here (shown in listing)
+Excerpt here (shown in listings).
 
 ---
 
-Main content starts here...
+Body starts after the second `---`.
 ```
 
-### Markdown Features Enabled
+### Authoring Workflow
 
-- Math equations via `markdown-it-mathjax3` (`$inline$` and `$$block$$`)
-- Footnotes via `markdown-it-footnote`
-- Code block line numbers
-- Colored brackets via `@shikijs/colorized-brackets`
-- Image lazy loading
-- Shiki themes: `github-light-high-contrast` (light) / `one-dark-pro` (dark)
+`scripts/newPost.cjs` accepts four path shapes; everything else is rejected:
 
-### Styling
+| Command                           | Output file                    | Notes                                         |
+| --------------------------------- | ------------------------------ | --------------------------------------------- |
+| `pnpm new frontend/foo`           | `posts/frontend/foo.md`        | Chinese, published                            |
+| `pnpm new drafts/frontend/foo`    | `posts/drafts/frontend/foo.md` | Chinese, draft (`draft: true` in frontmatter) |
+| `pnpm new en/frontend/foo`        | `en/posts/frontend/foo.md`     | English, published                            |
+| `pnpm new en/drafts/frontend/foo` | **Rejected with exit 1**       | English drafts are not supported              |
 
-- TailwindCSS v4 with Vite plugin (configured in `vite.config` within `config.ts`)
-- Custom styles in `.vitepress/theme/style/`:
-  - `tailwind.css` - Tailwind directives
-  - `index.css` - Custom theme overrides
-- **Design**: Black and white minimalist aesthetic—avoid bright colors, keep the UI clean and elegant
+`scripts/publishPost.cjs` (`pnpm pub`) only handles Chinese drafts: it strips `draft: true`, optionally rewrites the date, moves the file from `posts/drafts/<category>/` to `posts/<category>/`, and cleans up empty draft directories. There is no equivalent for English because there is no English draft state.
 
-### ESLint Configuration
+### i18n Workflow
 
-Uses `@antfu/eslint-config` with:
+VitePress i18n is configured in `.vitepress/config.ts`: zh-CN at `/`, en-US at `/en/`. Navigation labels and footer messages are localized per locale.
 
-- TypeScript, Vue, and Markdown support
-- Formatters for markdown and HTML
-- `no-console` as warning (not error)
-- Tabs allowed for indentation
+**Cross-language linking** is built on `posts.data.ts`'s `alternateUrls` map:
 
-## Key Implementation Details
+1. Each post can declare a `translationKey` in its frontmatter — this is the **preferred** way to pair zh and en versions.
+2. If `translationKey` is missing, the loader falls back to a path-based key (e.g. `path:math/binomial-coefficient`) that strips the `/posts/` or `/en/posts/` prefix. So as long as the slug + category match across locales, the pairing still works.
+3. The `LanguageSwitcher` component reads `alternateUrls` to render the cross-language link.
 
-1. **Content Exclusion**: `readme.md` is excluded from the site via `srcExclude` in config
-2. **Search**: Local search with custom render function that prepends title to content
-3. **Date Handling**: Dates are parsed and formatted with `dayjs` in `posts.data.ts`
-4. **Draft Posts**: Drafts are stored in `posts/drafts/` and excluded from production builds. Use `pnpm pub` to publish drafts to production.
-5. **Clean URLs**: Enabled (`cleanUrls: true`), URLs don't have `.html` extension
-6. **Sitemap**: Generated at build time with hostname `https://sa1l.world`
+**English drafts are not supported by design.** The reasoning: English versions are typically **translations of finalized Chinese posts**, so they don't need an iterative draft state. Translate from a published Chinese post and ship the English version directly. `newPost.cjs` enforces this by rejecting `en/drafts/...` paths with an explicit error message — fail fast over silent misplacement.
+
+## Custom Theme (`.vitepress/theme/`)
+
+The theme extends VitePress's `DefaultTheme` and replaces the layout entirely.
+
+**Layouts and pages**
+
+- `ThemeLayout.vue` — root layout wrapping every page
+- `Home.vue` — homepage
+- `Category.vue` — `/category` listing
+- `Tags.vue` — tag cloud
+- `Favorites.vue` — `/favorites` page
+- `About.vue` — about page
+
+**Reusable components**
+
+- `Hero.vue`, `Title.vue`, `PostHeader.vue`, `PostFooter.vue`, `PostInfo.vue` — post chrome
+- `LanguageSwitcher.vue` — uses `alternateUrls` from `posts.data.ts`
+- `Comments.vue` — Giscus integration (`@giscus/vue`)
+- `HtmlDemo.vue`, `VueDemo.vue` — see "Demo System"
+
+**State**
+
+- `store.ts` — small Pinia store with `selectedCat` and `selectedTag` for filter state across components.
+
+### Reading Time (`utils/index.ts`)
+
+`getReadingTime` is **pre-computed** at build time inside `posts.data.ts` and cached on each `Post`. It separates fenced code blocks from prose and uses different rates:
+
+- Chinese prose: 400 chars/min
+- English prose: 230 words/min
+- Code (Chinese chars + word tokens combined): 200 units/min
+
+Call sites should read `post.readingTime` directly — do not recompute.
+
+## Build-Time Filtering
+
+Two layers ensure drafts and scheduled posts stay out of production:
+
+1. **Glob filter** (`.vitepress/config/buildFilter.ts`): scans `posts/` recursively, parses frontmatter, and adds matches to `srcExclude` in production. Drops everything under `posts/drafts/**/*.md` plus any post with a future `date`.
+2. **Loader filter** (`posts.data.ts`): `transform()` re-checks `frontmatter.draft` and future `date` and drops them from the `data` array.
+
+Both layers run only when `NODE_ENV === 'production'`. In dev (`pnpm dev`), drafts and future-dated posts are visible.
+
+`srcExclude` also drops `readme.md`, `CLAUDE.md`, and `docs/**/*` in both dev and prod.
 
 ## Demo System
 
-The blog supports multiple ways to embed code examples and interactive demos in articles.
+Two ways to embed live demos in articles. Static fenced code blocks (with line numbers, colored brackets, copy button) work everywhere by default.
 
-### 1. HtmlDemo Component (Visual Demos)
+### `<HtmlDemo>` — vanilla HTML/CSS/JS in an iframe
 
-For HTML/CSS/JS demos with live preview in an iframe. Best for UI components, animations, and visual effects.
-
-### Directory Structure
+Directory layout:
 
 ```
 posts/<category>/
-├── <post-name>.md              # Article file
-└── <post-name>/                # Demo directory (same name as article)
-    └── <demo-name>/            # Individual demo folder
-        ├── index.html          # Entry file (required)
-        ├── style.css           # Styles (optional)
-        ├── script.js           # Scripts (optional)
-        └── output.json         # Auto-generated by build
+├── <slug>.md
+└── <slug>/                # Demo directory shares the post slug
+    └── <demo-name>/
+        ├── index.html     # Required entry
+        ├── style.css      # Optional
+        ├── script.js      # Optional
+        └── output.json    # Auto-generated by htmlDemoPlugin
 ```
 
-Example:
-
-```
-posts/frontend/
-├── css-transition.md           # Article
-└── css-transition/             # Demos directory
-    ├── demo1/
-    │   ├── index.html
-    │   ├── style.css
-    │   └── script.js
-    └── demo2/
-        └── index.html
-```
-
-### Usage in Articles
+Usage:
 
 ```markdown
 <HtmlDemo name="demo1" height="220px" />
 ```
 
-### Theme System
-
-**Option A: Use blog theme (recommended)**
-
-Include the shared base styles, theme script, and optionally demo-specific styles:
+**Theme integration.** The default option is to inherit the blog's theme variables:
 
 ```html
-<!doctype html>
-<html>
-  <head>
-    <link rel="stylesheet" href="/demo-base.css" />
-    <link rel="stylesheet" href="./style.css" />
-    <script src="/demo-theme.js"></script>
-  </head>
-  <body>
-    <!-- demo content -->
-  </body>
-</html>
+<link rel="stylesheet" href="/demo-base.css" />
+<link rel="stylesheet" href="./style.css" />
+<script src="/demo-theme.js"></script>
 ```
 
-**`demo-base.css`** provides:
+`demo-base.css` provides the reset, theme variables (dark/light via `data-theme`), and base layout. `demo-theme.js` initializes the theme from a `?theme=` query parameter and listens for `postMessage` updates from the parent.
 
-- CSS reset
-- Theme variables (dark/light via `data-theme` attribute)
-- Base layout styles (body, .container, .demo-section)
-- Common utility classes
+For visually unique demos that need custom styling, omit `demo-theme.js` and write your own CSS — the iframe is fully isolated.
 
-**Theme Variables Reference:**
+### `<VueDemo>` — Vue SFC demos
 
-| Variable        | Dark                     | Light              |
-| --------------- | ------------------------ | ------------------ |
-| `--bg-color`    | `#0d0d0d`                | `#f5f5f5`          |
-| `--card-bg`     | `rgba(255,255,255,0.03)` | `rgba(0,0,0,0.03)` |
-| `--card-border` | `rgba(255,255,255,0.12)` | `rgba(0,0,0,0.12)` |
-| `--text-color`  | `rgba(255,255,255,0.8)`  | `rgba(0,0,0,0.8)`  |
-| `--text-muted`  | `rgba(255,255,255,0.5)`  | `rgba(0,0,0,0.5)`  |
-| `--accent`      | `#8ab4e8`                | `#1a73e8`          |
-| `--accent-2`    | `#a8e89a`                | `#4caf50`          |
-| `--accent-3`    | `#e8c88a`                | `#ff9800`          |
-| `--accent-4`    | `#e89ab4`                | `#e91e63`          |
+Same idea, but the demo is a Vue single-file component co-located with the post (handled by `vueDemoPlugin`). Use this when the demo benefits from Vue's reactivity rather than vanilla JS.
 
-**Theme Architecture:**
-
-- Initial theme is passed via URL parameter (`?theme=dark` or `?theme=light`)
-- Dynamic theme changes use `postMessage` with origin validation
-- `demo-theme.js` handles both initialization and live updates
-
-**Option B: Custom styles (special cases)**
-
-For demos requiring specific visual styles, skip the theme script:
-
-```html
-<!doctype html>
-<html>
-  <head>
-    <!-- No demo-theme.js - fully custom styles -->
-    <style>
-      body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-    </style>
-  </head>
-  <body>
-    <!-- demo content -->
-  </body>
-</html>
-```
-
-### How It Works
-
-1. **Build time**: VitePress plugin scans demo directories, highlights code, generates `output.json`
-2. **Runtime**: `HtmlDemo` component loads iframe and code tabs
-3. **Theme sync**:
-   - Initial theme is passed via URL parameter (`?theme=dark/light`) to avoid message round-trip
-   - Dynamic theme changes use `postMessage` with origin validation (`window.location.origin`)
-   - Both sender (`HtmlDemo.vue`) and receiver (`demo-theme.js`) verify message source
-4. **Shared styles**: `demo-base.css` provides common variables and layout styles for consistency
-
-### 2. Static Code Blocks
-
-For simple code display without execution or preview.
-
-**Inline code:**
-
-````markdown
-```go
-func main() {
-    fmt.Println("Hello, World!")
-}
-```
-````
-
-````
-
-**Import from file:**
+### Importing code from a file
 
 ```markdown
 <<< ./path/to/file.go
-````
+```
 
-This is useful for keeping code in separate files for better organization and syntax checking.
+Useful for keeping demo source files type-checked or formatted by their native tooling.
 
-Features:
+## Things to Watch Out For
 
-- Syntax highlighting via Shiki
-- Line numbers (enabled globally)
-- Colored brackets via `@shikijs/colorized-brackets`
-- Copy button
+- **Adding a new category** is a two-step change: (1) add an entry to `categories.ts` with `i18n` for both locales, (2) the `CategoryKey` type narrows automatically. Posts using an undefined category will warn-and-disappear, not error.
+- **`alternateUrls` only works after the loader has built the map.** If you need cross-language data outside `posts.data.ts`, read it from the imported `data`, do not try to derive it ad hoc.
+- **Setting a future `date` is the scheduling mechanism.** No separate "scheduled" state exists — the build filter checks `date > now` at build time.
 
 ## Claude Code Skills
 
-This project includes a local skill for blog post management located at `.claude/skills/blog-manager/`.
+This project includes a local skill at `.claude/skills/blog-manager/` that wraps the authoring workflow in natural language ("新建一篇关于 xxx 的文章", "发布我的 xxx 草稿", "下线那篇 xxx 文章", "校对文章"). The skill calls the same `pnpm new` / `pnpm pub` scripts described above; there is no parallel implementation.
 
-### Blog Manager Skill
-
-A natural language interface for managing blog posts. Instead of memorizing pnpm commands, you can simply say:
-
-| Natural Language          | Action                                        |
-| ------------------------- | --------------------------------------------- |
-| "新建一篇关于 xxx 的文章" | Creates new article (asks draft vs published) |
-| "发布我的 xxx 草稿"       | Publishes a draft to production               |
-| "下线那篇 xxx 文章"       | Moves article back to drafts                  |
-| "帮我挑虫" / "校对文章"   | Proofreads for typos and issues               |
-
-The skill understands project-specific context (categories, frontmatter format, draft workflow) and handles the underlying `pnpm new` / `pnpm pub` commands automatically.
-
-### Plain Language Review
-
-Use your global `plain-language-checker` skill for clarity and readability review across projects instead of keeping a project-local copy here.
+For prose-quality review across projects, use the global `plain-language-checker` skill instead of duplicating it here.
