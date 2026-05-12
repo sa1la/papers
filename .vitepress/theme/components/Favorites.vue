@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { Bookmark } from '../favorites'
 import { Bookmark as BookmarkIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { bookmarks } from '../favorites'
-import { useThemeText } from '../i18n'
+import { useBlogLocale, useThemeText } from '../i18n'
 import Title from './Title.vue'
 
 // 为每个 bookmark 添加唯一 id
@@ -11,6 +12,7 @@ interface BookmarkWithId {
   title: string
   url: string
   description: string
+  descriptionEn?: string
   date: string
 }
 
@@ -21,6 +23,14 @@ const bookmarksWithId = computed<BookmarkWithId[]>(() =>
   })),
 )
 const themeText = useThemeText()
+const locale = useBlogLocale()
+
+function getDescription(bookmark: Bookmark): string {
+  if (locale.value === 'en-US' && bookmark.descriptionEn) {
+    return bookmark.descriptionEn
+  }
+  return bookmark.description
+}
 
 // 按年月分组
 const groupedBookmarks = computed(() => {
@@ -100,7 +110,7 @@ function getLinkProps(url: string) {
                   </svg>
                 </div>
                 <p v-if="bookmark.description" class="bookmark-description">
-                  {{ bookmark.description }}
+                  {{ getDescription(bookmark) }}
                 </p>
               </div>
             </a>
