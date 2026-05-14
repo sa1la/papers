@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { HtmlDemoFile } from '../../types/htmlDemo.js'
-import { useData, useRoute } from 'vitepress'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useEventListener } from '@vueuse/core'
+import { inBrowser, useData, useRoute } from 'vitepress'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useDemoCopy } from '../composables/useDemoCopy'
 import { getErrorMessage } from '../utils/error'
 
 const props = withDefaults(defineProps<{
@@ -32,12 +34,6 @@ function sendThemeToIframe() {
     { type: 'theme', isDark: isDark.value },
     window.location.origin,
   )
-}
-
-// iframe is ready - no need to send initial theme anymore
-// (initial theme is passed via URL parameter)
-function onIframeLoad() {
-  // Reserved for future use (e.g., tracking iframe load state)
 }
 
 // send theme when it changes
@@ -75,53 +71,16 @@ const activeTab = ref(0)
 const loadError = ref('')
 
 // ── copy code ─────────────────────────────────────────────────────────────
-const copiedIndex = ref<number | null>(null)
-const copyErrorIndex = ref<number | null>(null)
-let copyTimeoutId: ReturnType<typeof setTimeout> | null = null
+const { copiedIndex, copyErrorIndex, copyCode } = useDemoCopy()
 
-// ── cleanup on unmount ────────────────────────────────────────────────────
-onUnmounted(() => {
-  // Clear copy timeout (safe to call with null/undefined)
-  clearTimeout(copyTimeoutId!)
-  // Remove message listener
-  window.removeEventListener('message', handleDemoMessage)
-})
+const copyFileAt = (index: number) => copyCode(files.value[index]?.source, index)
 
-async function copyCode(index: number) {
-  const file = files.value[index]
-  if (!file?.source)
-    return
-
-  // Clear any existing timeout to prevent state conflicts
-  if (copyTimeoutId) {
-    clearTimeout(copyTimeoutId)
-    copyTimeoutId = null
-  }
-
-  try {
-    await navigator.clipboard.writeText(file.source)
-    copiedIndex.value = index
-    copyErrorIndex.value = null
-    copyTimeoutId = setTimeout(() => {
-      copiedIndex.value = null
-      copyTimeoutId = null
-    }, 2000)
-  }
-  catch (err) {
-    console.error('[HtmlDemo] failed to copy:', err)
-    copyErrorIndex.value = index
-    copiedIndex.value = null
-    // Clear error state after 3 seconds
-    copyTimeoutId = setTimeout(() => {
-      copyErrorIndex.value = null
-      copyTimeoutId = null
-    }, 3000)
-  }
+// ── auto-cleanup event listener (SSR-safe) ────────────────────────────────
+if (inBrowser) {
+  useEventListener(window, 'message', handleDemoMessage)
 }
 
 onMounted(async () => {
-  window.addEventListener('message', handleDemoMessage)
-
   // 根据当前主题设置初始 iframe 地址（只在客户端执行）
   const initialTheme = isDark.value ? 'dark' : 'light'
   iframeSrc.value = `${basePath.value}/index.html?theme=${initialTheme}`
@@ -172,7 +131,6 @@ onMounted(async () => {
       class="hd-iframe"
       sandbox="allow-scripts allow-same-origin"
       loading="lazy"
-      @load="onIframeLoad"
     />
 
     <!-- source code panels -->
@@ -188,7 +146,7 @@ onMounted(async () => {
           'hd-copy-btn--error': copyErrorIndex === activeTab - 1,
         }"
         :title="copiedIndex === activeTab - 1 ? 'copied!' : copyErrorIndex === activeTab - 1 ? 'copy failed' : 'copy code'"
-        @click="copyCode(activeTab - 1)"
+        @click="copyFileAt(activeTab - 1)"
       />
     </div>
     <div v-else-if="activeTab > 0" class="hd-loading">

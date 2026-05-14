@@ -1,0 +1,10 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
+allowBuilds:
+  esbuild: set this to true or false
+peerDependencyRules:
+  ignoreMissing:
+    - '@algolia/client-search'
+    - search-insights

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { VueDemoFile } from '../../types/vueDemo.js'
-import { useData, useRoute } from 'vitepress'
+import { useEventListener } from '@vueuse/core'
+import { inBrowser, useData, useRoute } from 'vitepress'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useDemoCopy } from '../composables/useDemoCopy'
 import { getErrorMessage } from '../utils/error'
 import { createLatestRequestGuard, parseDemoMessage } from './vueDemoState.js'
 
@@ -81,9 +83,9 @@ const activeTab = ref(0)
 const loadError = ref('')
 
 // ── copy code ─────────────────────────────────────────────────────────────
-const copiedIndex = ref<number | null>(null)
-const copyErrorIndex = ref<number | null>(null)
-let copyTimeoutId: ReturnType<typeof setTimeout> | null = null
+const { copiedIndex, copyErrorIndex, copyCode } = useDemoCopy()
+
+const copyFileAt = (index: number) => copyCode(files.value[index]?.source, index)
 
 function resetTransientState() {
   activeTab.value = 0
@@ -92,11 +94,6 @@ function resetTransientState() {
   demoHeight.value = null
   copiedIndex.value = null
   copyErrorIndex.value = null
-
-  if (copyTimeoutId) {
-    clearTimeout(copyTimeoutId)
-    copyTimeoutId = null
-  }
 }
 
 async function loadDemo(path: string) {
@@ -128,46 +125,17 @@ async function loadDemo(path: string) {
   }
 }
 
-onUnmounted(() => {
-  if (copyTimeoutId)
-    clearTimeout(copyTimeoutId)
-  currentLoadController?.abort()
-  requestGuard.invalidate()
-  window.removeEventListener('message', handleDemoMessage)
-})
-
-async function copyCode(index: number) {
-  const file = files.value[index]
-  if (!file?.source)
-    return
-
-  if (copyTimeoutId) {
-    clearTimeout(copyTimeoutId)
-    copyTimeoutId = null
-  }
-
-  try {
-    await navigator.clipboard.writeText(file.source)
-    copiedIndex.value = index
-    copyErrorIndex.value = null
-    copyTimeoutId = setTimeout(() => {
-      copiedIndex.value = null
-      copyTimeoutId = null
-    }, 2000)
-  }
-  catch (err) {
-    console.error('[VueDemo] failed to copy:', err)
-    copyErrorIndex.value = index
-    copiedIndex.value = null
-    copyTimeoutId = setTimeout(() => {
-      copyErrorIndex.value = null
-      copyTimeoutId = null
-    }, 3000)
-  }
+// ── auto-cleanup event listener (SSR-safe) ────────────────────────────────
+if (inBrowser) {
+  useEventListener(window, 'message', handleDemoMessage)
 }
 
+onUnmounted(() => {
+  currentLoadController?.abort()
+  requestGuard.invalidate()
+})
+
 onMounted(() => {
-  window.addEventListener('message', handleDemoMessage)
   watch(basePath, path => loadDemo(path), { immediate: true })
 })
 </script>
@@ -223,7 +191,7 @@ onMounted(() => {
           'vd-copy-btn--error': copyErrorIndex === activeTab - 1,
         }"
         :title="copiedIndex === activeTab - 1 ? 'copied!' : copyErrorIndex === activeTab - 1 ? 'copy failed' : 'copy code'"
-        @click="copyCode(activeTab - 1)"
+        @click="copyFileAt(activeTab - 1)"
       />
     </div>
     <div v-else-if="activeTab > 0" class="vd-loading">

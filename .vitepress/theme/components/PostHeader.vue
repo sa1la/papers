@@ -1,6 +1,7 @@
 <script setup lang='ts'>
+import { useMounted } from '@vueuse/core'
 import { useData, useRoute } from 'vitepress'
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { getCategoryLocaleConfig } from '../../../config/categories'
 import { useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
@@ -16,7 +17,7 @@ const REGEX_TRAILING_SLASH = /\/$/
 const route = useRoute()
 const { frontmatter } = useData()
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
-const mounted = ref(false)
+const mounted = useMounted()
 const locale = useBlogLocale()
 const themeText = useThemeText()
 
@@ -40,10 +41,6 @@ const readingTime = computed(() => currentPost.value?.readingTime ?? null)
 const categoryLabel = computed(() => {
   const categoryKey = typeof frontmatter.value.category === 'string' ? frontmatter.value.category : ''
   return getCategoryLocaleConfig(categoryKey, locale.value)?.name || categoryKey
-})
-
-onMounted(() => {
-  mounted.value = true
 })
 </script>
 

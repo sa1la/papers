@@ -1,8 +1,9 @@
 <script setup lang='ts'>
+import { useMounted } from '@vueuse/core'
 import dayjs from 'dayjs'
 import { ArrowLeft, ArrowRight, Tag } from 'lucide-vue-next'
 import { useData, useRoute, withBase } from 'vitepress'
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { getCategoryLocaleConfig } from '../../../config/categories'
 import { filterPostsByLocale, getLocalePath, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
@@ -14,7 +15,7 @@ const themeText = useThemeText()
 const route = useRoute()
 const tagsURL = computed(() => withBase(getLocalePath('/tags', locale.value)))
 const { frontmatter, page } = useData()
-const mounted = ref(false)
+const mounted = useMounted()
 
 // Format last updated time
 const lastUpdated = computed(() => {
@@ -65,10 +66,6 @@ const nextPost = computed<NavPost | null>(() => {
 function selectTag(tag: string) {
   blogStore.selectedTag = tag
 }
-
-onMounted(() => {
-  mounted.value = true
-})
 </script>
 
 <template>

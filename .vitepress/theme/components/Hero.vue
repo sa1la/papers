@@ -1,6 +1,7 @@
 <script setup lang='ts'>
+import { useMounted } from '@vueuse/core'
 import { useData } from 'vitepress'
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { filterPostsByLocale, getLocalePath, useBlogLocale, useThemeText } from '../i18n'
 import { data as posts } from '../posts.data'
 import { initCategory, initTags } from '../utils'
@@ -40,15 +41,11 @@ const navigationItems = computed(() => [
   },
 ])
 
-const mounted = ref(false)
+const mounted = useMounted()
 
 function toggleTheme() {
   isDark.value = !isDark.value
 }
-
-onMounted(() => {
-  mounted.value = true
-})
 </script>
 
 <template>
