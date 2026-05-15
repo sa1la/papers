@@ -1,3 +1,4 @@
+import type { Bookmark } from '../favorites'
 import type { Post } from '../posts.data'
 import dayjs from 'dayjs'
 
@@ -176,4 +177,43 @@ export function getSeriesByCategory(seriesMap: SeriesMap, category: string): Ser
   return Object.values(seriesMap)
     .filter(series => series.category === category)
     .sort((a, b) => b.posts.length - a.posts.length)
+}
+
+export interface BookmarkWithId extends Bookmark {
+  id: string
+}
+
+export interface GroupedBookmarks {
+  month: string
+  items: BookmarkWithId[]
+}
+
+export function groupBookmarksByMonth(bookmarks: Bookmark[]): GroupedBookmarks[] {
+  if (bookmarks.length === 0) {
+    return []
+  }
+
+  const groups: Record<string, BookmarkWithId[]> = {}
+
+  for (let i = 0; i < bookmarks.length; i++) {
+    const bookmark = bookmarks[i]
+    const date = new Date(bookmark.date)
+    const key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
+
+    if (!groups[key]) {
+      groups[key] = []
+    }
+
+    groups[key].push({
+      ...bookmark,
+      id: `${bookmark.date}-${i}`,
+    })
+  }
+
+  return Object.entries(groups)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([month, items]) => ({
+      month,
+      items: items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    }))
 }

@@ -22,6 +22,10 @@ export interface ThemeText {
   noPostsInCategory: string
   noPostsWithTag: string
   noFavorites: string
+  quotes: string
+  noQuotes: string
+  articles: string
+  noArticles: string
 }
 
 const DEFAULT_BLOG_LOCALE: BlogLocale = 'zh-CN'
@@ -47,7 +51,11 @@ const themeTextMap: Record<BlogLocale, ThemeText> = {
     translationMissing: '暂无译文',
     noPostsInCategory: '该分类下暂无文章',
     noPostsWithTag: '该标签下暂无文章',
-    noFavorites: '暂无收藏',
+    noFavorites: '暂无收藏。',
+    quotes: '语录',
+    noQuotes: '暂无语录。',
+    articles: '文章',
+    noArticles: '暂无文章。',
   },
   [ENGLISH_BLOG_LOCALE]: {
     heroSubtitle: 'Toward the sun, toward the sea.',
@@ -68,6 +76,10 @@ const themeTextMap: Record<BlogLocale, ThemeText> = {
     noPostsInCategory: 'No posts in this category yet.',
     noPostsWithTag: 'No posts with this tag yet.',
     noFavorites: 'No favorites yet.',
+    quotes: 'quotes',
+    noQuotes: 'No quotes yet.',
+    articles: 'articles',
+    noArticles: 'No articles yet.',
   },
 }
 

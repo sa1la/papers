@@ -4,24 +4,9 @@ import { Bookmark as BookmarkIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { bookmarks } from '../favorites'
 import { useBlogLocale, useThemeText } from '../i18n'
+import { groupBookmarksByMonth } from '../utils'
 import Title from './Title.vue'
 
-// 为每个 bookmark 添加唯一 id
-interface BookmarkWithId {
-  id: string
-  title: string
-  url: string
-  description: string
-  descriptionEn?: string
-  date: string
-}
-
-const bookmarksWithId = computed<BookmarkWithId[]>(() =>
-  bookmarks.map((b, index) => ({
-    ...b,
-    id: `${b.date}-${index}`,
-  })),
-)
 const themeText = useThemeText()
 const locale = useBlogLocale()
 
@@ -32,36 +17,30 @@ function getDescription(bookmark: Bookmark): string {
   return bookmark.description
 }
 
-// 按年月分组
-const groupedBookmarks = computed(() => {
-  const groups: Record<string, BookmarkWithId[]> = {}
+const quotes = computed(() =>
+  bookmarks.filter(b => (b.type ?? 'article') === 'quote'),
+)
 
-  for (const bookmark of bookmarksWithId.value) {
-    const date = new Date(bookmark.date)
-    const key = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`
+const articles = computed(() =>
+  bookmarks.filter(b => (b.type ?? 'article') === 'article'),
+)
 
-    if (!groups[key]) {
-      groups[key] = []
-    }
-    groups[key].push(bookmark)
-  }
+const groupedQuotes = computed(() => groupBookmarksByMonth(quotes.value))
+const groupedArticles = computed(() => groupBookmarksByMonth(articles.value))
 
-  // 按时间倒序排序月份
-  return Object.entries(groups)
-    .sort(([a], [b]) => b.localeCompare(a))
-    .map(([month, items]) => ({
-      month,
-      items: items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    }))
-})
+const hasAnyContent = computed(() =>
+  groupedQuotes.value.length > 0 || groupedArticles.value.length > 0,
+)
+
+const quoteMark = computed(() => locale.value === 'en-US' ? '"' : '「')
 
 // 检查是否为外部链接
-function isExternal(url: string): boolean {
-  return url.startsWith('http://') || url.startsWith('https://')
+function isExternal(url: string | undefined): boolean {
+  return !!url && (url.startsWith('http://') || url.startsWith('https://'))
 }
 
 // 获取链接目标属性
-function getLinkProps(url: string) {
+function getLinkProps(url: string | undefined) {
   if (isExternal(url)) {
     return {
       target: '_blank',
@@ -76,51 +55,103 @@ function getLinkProps(url: string) {
   <div class="paper-container">
     <Title :text="themeText.favorites" :icon="BookmarkIcon" />
 
-    <div class="timeline">
-      <div v-for="group in groupedBookmarks" :key="group.month" class="month-group">
-        <!-- Month Header -->
-        <div class="month-header">
-          <span class="month-label">{{ group.month }}</span>
+    <div v-if="hasAnyContent" class="timeline">
+      <!-- Quotes Section -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-label">{{ themeText.quotes }}</span>
         </div>
-
-        <!-- Bookmarks List -->
-        <ul class="bookmarks-list">
-          <li
-            v-for="bookmark in group.items"
-            :key="bookmark.id"
-            class="bookmark-item"
-          >
-            <a
-              :href="bookmark.url"
-              class="bookmark-link"
-              v-bind="getLinkProps(bookmark.url)"
+        <template v-if="groupedQuotes.length > 0">
+          <ul class="bookmarks-list quote-list">
+            <li
+              v-for="group in groupedQuotes"
+              :key="group.month"
+              class="month-group"
             >
-              <div class="bookmark-content">
-                <div class="bookmark-title-row">
-                  <span class="bookmark-title">{{ bookmark.title }}</span>
-                  <svg
-                    v-if="isExternal(bookmark.url)"
-                    class="external-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  >
-                    <path d="M7 17L17 7M17 7H7M17 7V17" />
-                  </svg>
-                </div>
-                <p v-if="bookmark.description" class="bookmark-description">
-                  {{ getDescription(bookmark) }}
-                </p>
+              <div class="month-header">
+                <span class="month-label">{{ group.month }}</span>
               </div>
-            </a>
-          </li>
-        </ul>
+              <ul class="bookmarks-list">
+                <li
+                  v-for="bookmark in group.items"
+                  :key="bookmark.id"
+                  class="bookmark-item quote-item"
+                >
+                  <div class="quote-content">
+                    <div class="quote-body">
+                      <span class="quote-mark">{{ quoteMark }}</span>
+                      <span class="quote-text">{{ getDescription(bookmark) }}</span>
+                    </div>
+                    <span class="quote-attribution">—— {{ bookmark.title }}</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </template>
+        <p v-else class="empty-state section-empty">
+          {{ themeText.noQuotes }}
+        </p>
+      </div>
+
+      <!-- Articles Section -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-label">{{ themeText.articles }}</span>
+        </div>
+        <template v-if="groupedArticles.length > 0">
+          <ul class="bookmarks-list">
+            <li
+              v-for="group in groupedArticles"
+              :key="group.month"
+              class="month-group"
+            >
+              <div class="month-header">
+                <span class="month-label">{{ group.month }}</span>
+              </div>
+              <ul class="bookmarks-list">
+                <li
+                  v-for="bookmark in group.items"
+                  :key="bookmark.id"
+                  class="bookmark-item"
+                >
+                  <a
+                    :href="bookmark.url"
+                    class="bookmark-link"
+                    v-bind="getLinkProps(bookmark.url)"
+                  >
+                    <div class="bookmark-content">
+                      <div class="bookmark-title-row">
+                        <span class="bookmark-title">{{ bookmark.title }}</span>
+                        <svg
+                          v-if="isExternal(bookmark.url)"
+                          class="external-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                        >
+                          <path d="M7 17L17 7M17 7H7M17 7V17" />
+                        </svg>
+                      </div>
+                      <p v-if="bookmark.description" class="bookmark-description">
+                        {{ getDescription(bookmark) }}
+                      </p>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </template>
+        <p v-else class="empty-state section-empty">
+          {{ themeText.noArticles }}
+        </p>
       </div>
     </div>
 
-    <!-- Empty State -->
-    <p v-if="groupedBookmarks.length === 0" class="empty-state">
+    <!-- Page-level Empty State -->
+    <p v-else class="empty-state">
       {{ themeText.noFavorites }}
     </p>
   </div>
@@ -146,29 +177,17 @@ function getLinkProps(url: string) {
 }
 
 .month-group {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .month-group:last-child {
   margin-bottom: 0;
 }
 
-/* Month header with symmetric lines */
+/* Month header */
 .month-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  text-align: center;
   margin-bottom: 1rem;
-}
-
-.month-header::before,
-.month-header::after {
-  content: '';
-  flex: 1;
-  max-width: 60px;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--vp-c-divider), transparent);
 }
 
 .month-label {
@@ -176,8 +195,9 @@ function getLinkProps(url: string) {
   font-weight: 300;
   font-family: var(--vp-font-family-mono);
   color: var(--vp-c-text-3);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   text-transform: lowercase;
+  opacity: 0.7;
 }
 
 /* Bookmarks list */
@@ -220,7 +240,7 @@ function getLinkProps(url: string) {
 
 .bookmark-link {
   display: block;
-  padding: 1rem 0.5rem;
+  padding: 0.75rem 0.5rem;
   text-decoration: none;
   color: inherit;
   transition: background-color 0.2s ease;
@@ -244,7 +264,7 @@ function getLinkProps(url: string) {
 }
 
 .bookmark-title {
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 400;
   color: var(--vp-c-text-2);
   line-height: 1.5;
@@ -269,11 +289,92 @@ function getLinkProps(url: string) {
 
 .bookmark-description {
   margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 300;
+  font-size: 0.875rem;
+  font-weight: 400;
   color: var(--vp-c-text-3);
   line-height: 1.6;
   letter-spacing: 0.02em;
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.section:first-child .section-header {
+  margin-top: 0;
+}
+
+.section-header::before,
+.section-header::after {
+  content: '';
+  flex: 1;
+  max-width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vp-c-divider), transparent);
+}
+
+.section-label {
+  font-size: 1rem;
+  font-weight: 300;
+  font-family: var(--vp-font-family-mono);
+  color: var(--vp-c-text-2);
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+}
+
+/* Quote styles */
+.quote-content {
+  padding: 0.875rem 0.75rem;
+}
+
+.quote-body {
+  display: flex;
+  gap: 0.375rem;
+  align-items: flex-start;
+}
+
+.quote-mark {
+  font-size: 1.375rem;
+  line-height: 1.4;
+  color: var(--vp-c-text-3);
+  font-family: var(--vp-font-family-mono);
+  flex-shrink: 0;
+  transition: color 0.25s ease;
+}
+
+.quote-item:hover .quote-mark {
+  color: var(--vp-c-text-2);
+}
+
+.quote-text {
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--vp-c-text-2);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+.quote-attribution {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 300;
+  color: var(--vp-c-text-3);
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+
+/* Empty state */
+.section-empty {
+  padding: 2rem 1rem;
+  font-size: 0.9375rem;
 }
 
 /* Empty state */
@@ -281,7 +382,7 @@ function getLinkProps(url: string) {
   text-align: center;
   padding: 4rem 2rem;
   color: var(--vp-c-text-3);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 300;
   font-family: var(--vp-font-family-mono);
 }
@@ -306,15 +407,15 @@ function getLinkProps(url: string) {
   }
 
   .bookmark-link {
-    padding: 0.875rem 0.375rem;
+    padding: 0.625rem 0.375rem;
   }
 
   .bookmark-title {
-    font-size: 0.9375rem;
+    font-size: 1rem;
   }
 
   .bookmark-description {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .external-icon {
@@ -325,6 +426,18 @@ function getLinkProps(url: string) {
   /* Disable spotlight effect on mobile */
   .bookmarks-list:has(.bookmark-item:hover) .bookmark-item:not(:hover) {
     opacity: 1;
+  }
+
+  .quote-content {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .quote-text {
+    font-size: 0.9375rem;
+  }
+
+  .quote-mark {
+    font-size: 1.125rem;
   }
 }
 
